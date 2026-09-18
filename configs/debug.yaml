@@ -1,0 +1,38 @@
+# Debug run: SSL4EO-S12 v1.1 validation split, RGB, all four seasons.
+# 2,176 locations x 4 seasons = 8,704 chips, 1.5 GB of shards. Full metadata.
+# data_root defaults to $HIKER_DATA_ROOT or ./data
+
+dataset:
+  name: ssl4eo_s12_v11
+  key: ssl4eo-val-rgb          # fixed key so re-runs find the same processed dir
+  split: val
+  modality: S2RGB
+  seasons: all                 # all | one
+  max_shards: null             # null = every shard of the split
+  download: true
+
+encoder:
+  name: dofa_base              # dofa_base | clip_vit_b32
+  batch_size: 64
+  device: auto
+  center: true                 # subtract archive-mean embedding, renormalise (see decisions.md)
+
+index:
+  type: flat_ip
+
+agents:
+  n_agents: 2
+  seed: 7
+  start_chips: null
+  k_neighbours: 50
+  m_random: 5
+  j_history: 15
+  temperature: 0.05
+  max_steps: 300
+  boredom_window: 20
+  boredom_threshold: 0.4
+
+outputs:
+  runs_dir: runs
+  write_images: true
+  image_format: png

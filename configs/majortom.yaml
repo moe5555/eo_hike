@@ -1,0 +1,45 @@
+# Real-run archive: Major TOM Core-S2L2A RGB thumbnails on ESA's uniform 10 km grid.
+# 2,500 fragments x 16 tiles of 267 px = up to 40,000 chips, ~2.5 GB of thumbnails.
+# Fragments are sampled uniformly over eligible grid cells (cloud <= 10 %, no nodata),
+# so coverage follows land area, not population.
+
+dataset:
+  name: majortom_thumbs
+  key: majortom-2500x16
+  n_fragments: 2500
+  tiles_per_side: 4            # 1068 px / 4 = 267 px chips (2.67 km)
+  max_cloud_cover: 10.0        # percent, fragment level
+  max_nodata: 0.0
+  max_tile_black: 0.2          # drop tiles with > 20 % black (swath edge) pixels
+  land_only: true              # drop open-ocean cells (1 km land mask on the cell centre)
+  lat_min: null                # e.g. -60 to exclude Antarctica
+  lat_max: null
+  sample_seed: 0
+  workers: 8
+  download: true
+
+encoder:
+  name: dofa_base
+  batch_size: 64
+  device: auto
+  center: true                 # subtract archive-mean embedding, renormalise (see decisions.md)
+
+index:
+  type: flat_ip
+
+agents:
+  n_agents: 3
+  seed: 7
+  start_chips: null
+  k_neighbours: 50
+  m_random: 5
+  j_history: 15
+  temperature: 0.05
+  max_steps: 300
+  boredom_window: 20
+  boredom_threshold: 0.4
+
+outputs:
+  runs_dir: runs
+  write_images: true
+  image_format: png

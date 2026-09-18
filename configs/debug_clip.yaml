@@ -1,0 +1,37 @@
+# Same archive and agents as debug.yaml, but under CLIP. Ingest is shared (same key),
+# only the embeddings and index are encoder-specific.
+
+dataset:
+  name: ssl4eo_s12_v11
+  key: ssl4eo-val-rgb
+  split: val
+  modality: S2RGB
+  seasons: all
+  max_shards: null
+  download: true
+
+encoder:
+  name: clip_vit_b32
+  batch_size: 128
+  device: auto
+  center: true                 # subtract archive-mean embedding, renormalise (see decisions.md)
+
+index:
+  type: flat_ip
+
+agents:
+  n_agents: 2
+  seed: 7
+  start_chips: null
+  k_neighbours: 50
+  m_random: 5
+  j_history: 15
+  temperature: 0.05
+  max_steps: 300
+  boredom_window: 20
+  boredom_threshold: 0.4
+
+outputs:
+  runs_dir: runs
+  write_images: true
+  image_format: png

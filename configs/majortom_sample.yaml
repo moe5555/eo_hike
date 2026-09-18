@@ -1,0 +1,43 @@
+# Tiny Major TOM sample (30 fragments, ~30 MB) to exercise the adapter and eyeball
+# what a uniformly sampled Earth looks like before committing to the full fetch.
+
+dataset:
+  name: majortom_thumbs
+  key: majortom-sample30-land
+  n_fragments: 30
+  tiles_per_side: 4
+  max_cloud_cover: 10.0
+  max_nodata: 0.0
+  max_tile_black: 0.2
+  land_only: true
+  lat_min: null
+  lat_max: null
+  sample_seed: 0
+  workers: 8
+  download: true
+
+encoder:
+  name: dofa_base
+  batch_size: 64
+  device: auto
+  center: true                 # subtract archive-mean embedding, renormalise (see decisions.md)
+
+index:
+  type: flat_ip
+
+agents:
+  n_agents: 1
+  seed: 7
+  start_chips: null
+  k_neighbours: 20
+  m_random: 3
+  j_history: 15
+  temperature: 0.05
+  max_steps: 60
+  boredom_window: 20
+  boredom_threshold: 0.4
+
+outputs:
+  runs_dir: runs
+  write_images: true
+  image_format: png
