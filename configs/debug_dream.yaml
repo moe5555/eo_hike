@@ -1,0 +1,65 @@
+# Debug archive, taste at weight 1.0, and the dream on. The generator is trained once
+# per archive (dream-train) and reused by every run's dream stage.
+
+dataset:
+  name: ssl4eo_s12_v11
+  key: ssl4eo-val-rgb
+  split: val
+  modality: S2RGB
+  seasons: all
+  max_shards: null
+  download: true
+
+encoder:
+  name: dofa_base
+  batch_size: 64
+  device: auto
+  center: true
+
+index:
+  type: flat_ip
+
+agents:
+  n_agents: 2
+  seed: 7
+  start_chips: null
+  k_neighbours: 50
+  m_random: 5
+  j_history: 15
+  temperature: 0.05
+  max_steps: 300
+  boredom_window: 20
+  boredom_threshold: 0.4
+  taste:
+    weight: 1.0
+    alpha: 0.2
+    threshold: 0.9
+    init: first
+
+heatmap:
+  enabled: true
+
+dream:
+  enabled: true
+  at_end: true          # boredom rarely fires in 300 steps on this archive; dream at the end too
+  resolution: 256
+  lora_rank: 8
+  lr: 1.0e-4
+  batch_size: 8
+  train_steps: 3000
+  max_minutes: 90
+  sample_every: 500
+  seed: 0
+  steps: 50
+  n_candidates: 4
+  guidance_scale: 1.5
+  guidance_window: [0.95, 0.4]
+  guidance_iters: 2
+  guidance_views: 4
+  j_history: null
+  include_taste: true
+
+outputs:
+  runs_dir: runs
+  write_images: true
+  image_format: png

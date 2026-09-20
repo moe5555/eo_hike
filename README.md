@@ -6,7 +6,7 @@ in the sense of Lehman & Stanley (2008), run as a plain algorithm over image
 embeddings. The output of a run is a sequence of images and a JSON log of the walk;
 the log is the deliverable, the images are a by-product.
 
-Status: Phase 1 (MVP pipeline). See `docs/datasets.md` for the archive survey,
+Status: Phase 2 (patch-novelty heatmaps) done; the dream (a generated epilogue, see section 8) built on the debug archive. See `docs/datasets.md` for the archive survey,
 `docs/decisions.md` for every non-obvious choice, `docs/log-schema.md` for the log.
 
 ## Install
@@ -32,12 +32,17 @@ uv run python run.py --config configs/debug.yaml            # ingest -> embed ->
 uv run python run.py --config configs/debug.yaml --stage hike --set agents.seed=8 --set agents.temperature=0.3
 uv run python run.py --config configs/debug_clip.yaml       # same archive, CLIP encoder
 uv run python baseline_fps.py --config configs/debug.yaml   # farthest-point baseline
+uv run python run.py --config configs/debug.yaml --stage heatmap --run runs/<dir>   # patch heatmaps for a finished run
+uv run python run.py --config configs/debug_dream.yaml --stage dream-train              # fine-tune the generator once per archive
+uv run python run.py --config configs/debug_dream.yaml --stage dream --run runs/<dir>   # the agents dream at the end of that run
 ```
 
 Every stage is cached: the manifest, the embeddings (per encoder) and the index are
 only computed once per dataset key. `--force` recomputes the selected stage. Each hike
 writes `runs/<timestamp>_<config-hash>/` with `config.yaml`, `log.jsonl`,
-`summary.json`, `novelty_curve.png` and `sequence/agent_<id>/`.
+`summary.json`, `novelty_curve.png` and `sequence/agent_<id>/`. With `heatmap.enabled`
+(default) the heatmap stage then adds `<step>_<chip>_heat.png` next to every sequence
+image, `patch_novelty_agent_<id>.npz`, `heatmap.json` and `heatmap_sheet_agent_<id>.png`.
 
 Configs:
 
@@ -45,6 +50,7 @@ Configs:
 |---|---|---|
 | `configs/debug.yaml` | SSL4EO-S12 v1.1 validation split, RGB, 8,704 chips | end-to-end debug, full metadata |
 | `configs/debug_clip.yaml` | same | the CLIP contrast |
+| `configs/debug_taste.yaml` | same | debug walk with a taste vector (`agents.taste`, see `docs/decisions.md`) |
 | `configs/majortom_sample.yaml` | Major TOM, 30 fragments | adapter check, eyeball the archive |
 | `configs/majortom.yaml` | Major TOM, 2,500 fragments → ~40k chips | real runs |
 | `configs/eurosat.yaml` | EuroSAT RGB, 27k chips, no metadata | 95 MB smoke test |
@@ -119,6 +125,12 @@ walk. That makes novelty a property of the whole walk so far. It is the standard
    nearly uniform. `T` is the single dial for the agent's character.
 6. Move, append to the history, write one log line.
 
+Optionally the agent also carries a *taste vector* (`agents.taste`, off by default): an
+exponential moving average of the embeddings that struck it hardest (novelty at or
+above a threshold), weighted by how hard they struck. Candidates then score
+`novelty + weight * cos_sim(candidate, taste)`, so the hiker is pulled towards what
+resembles its strong encounters while novelty keeps pushing it off what it has seen.
+
 A random jump can only win if its novelty beats the local options after softmax, so
 jumps happen more when the neighbourhood is exhausted. Whether the chosen chip *was*
 a jump is logged.
@@ -147,6 +159,50 @@ largest. It is the same idea with every constraint removed: no locality, no
 randomness, no per-agent history, no path through the archive. Its log uses the same
 schema so the two can be set side by side. What the hiker adds is exactly the
 difference between those two logs.
+
+### 7. The heatmap is the same score, per patch
+
+A vision transformer such as DOFA does not look at the chip as one thing. It cuts it
+into a 14 x 14 grid of 16-pixel patches, turns each into a vector, and the chip's
+embedding is the mean of those 196 vectors. So the patch vectors are already there,
+and we can ask the agent's own question of each one: how far is this patch from the
+`j` nearest patches among all the patches of the chips I have already visited?
+
+That number, per patch, is what the heatmap shows. It is not an explanation produced
+by a second model looking at the first (Grad-CAM and its relatives do that). It is
+the agent's novelty score at a finer grain, so a hot patch is hot for exactly the
+reason the chip was chosen. Tint starts at the 75th percentile of all patch scores
+in the run, so three quarters of all patches show the plain image, and "hot" means
+hot for this walk, not for this chip. `docs/decisions.md` (finding 11) reports what
+the first heatmaps showed, including a real discrepancy between the chip score and
+the patch score.
+
+### 8. The dream: the agent's score as the prompt
+
+The brief said no image generation. The user overrode that on 2026-09-18 with one
+restriction: the generated image is an **epilogue**. It is never added to the archive
+or to the agent's history, and `log.jsonl` does not mention it. The walk stays real.
+
+When a run ends (at boredom, or at `max_steps` if `dream.at_end` is on), each agent
+produces an image that it, with its whole history, would score as particularly novel.
+The hiker has no language, so there is no text prompt. Instead, the generator is a
+Stable Diffusion 1.5 fine-tuned with a LoRA on the archive's chips *under the empty
+prompt* (the text encoder runs once, for "", and is never used again), and at each
+denoising step the current estimate of the finished image is decoded, embedded with
+the same DOFA encoder that embedded the archive, scored with the agent's own
+selection score (novelty against the history, plus the taste term if the run used
+one), and the gradient of that score nudges the sample. The prompt is the score; the
+history is the only thing that shapes the image.
+
+Because the sample could in principle drift into something DOFA finds "novel" for
+uninteresting reasons, every dream is measured honestly: the saved PNG is re-encoded
+through the ordinary path and scored like a chip; a *control* with the same seed and
+no guidance is scored the same way; and the *archive ceiling* (the most novel real
+chip the agent never visited) is recorded next to it. `dreams.json` holds all of it.
+The first runs showed why this matters: a plain pixel gradient produced adversarial
+noise that raised the score without changing the picture. The score is therefore
+averaged over random rotated, flipped and cropped views of the image, which only a
+real change survives. `docs/decisions.md` finding 12 has the numbers and the sheets.
 
 ## Adding an archive or an encoder
 

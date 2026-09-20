@@ -1,0 +1,42 @@
+# Debug run with a taste vector. Same archive and encoder as debug.yaml; only the
+# agents.taste block differs (see docs/decisions.md, "Taste").
+
+dataset:
+  name: ssl4eo_s12_v11
+  key: ssl4eo-val-rgb
+  split: val
+  modality: S2RGB
+  seasons: all
+  max_shards: null
+  download: true
+
+encoder:
+  name: dofa_base
+  batch_size: 64
+  device: auto
+  center: true
+
+index:
+  type: flat_ip
+
+agents:
+  n_agents: 2
+  seed: 7
+  start_chips: null
+  k_neighbours: 50
+  m_random: 5
+  j_history: 15
+  temperature: 0.05
+  max_steps: 300
+  boredom_window: 20
+  boredom_threshold: 0.4
+  taste:
+    weight: 0.3        # score = novelty + weight * cos_sim(candidate, taste)
+    alpha: 0.2         # EMA rate, scaled by the novelty of the encounter
+    threshold: 0.9     # novelty at or above this counts as a strong encounter
+    init: first        # first | zero
+
+outputs:
+  runs_dir: runs
+  write_images: true
+  image_format: png

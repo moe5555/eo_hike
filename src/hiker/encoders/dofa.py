@@ -38,6 +38,7 @@ IMAGENET_STD = [0.229, 0.224, 0.225]
 class DOFABase16:
     name = "dofa_base"
     dim = 768
+    patch_grid = (14, 14)  # 224 px / 16 px patches
 
     def __init__(self, ecfg: dict[str, Any]) -> None:
         import torchgeo
@@ -61,6 +62,28 @@ class DOFABase16:
         x = torch.stack([self.preprocess(im.convert("RGB")) for im in images]).to(self.device)
         feats = self.model.forward_features(x, RGB_WAVELENGTHS_UM)
         return l2_normalise(feats.float().cpu().numpy())
+
+    @torch.no_grad()
+    def encode_patches(self, images: list[Image.Image]) -> np.ndarray:
+        """Per-patch vectors ``(B, 196, 768)``, each L2-normalised.
+
+        Repeats ``forward_features`` up to the transformer blocks, drops the cls
+        token and applies the same ``fc_norm`` LayerNorm the pooled path applies to
+        the mean, so every patch lives in the space the chip embedding is the mean
+        of (up to the order of norm and mean, which differ only slightly).
+        """
+        m = self.model
+        x = torch.stack([self.preprocess(im.convert("RGB")) for im in images]).to(self.device)
+        waves = torch.tensor(RGB_WAVELENGTHS_UM, device=x.device, dtype=x.dtype)
+        x, _ = m.patch_embed(x, waves)
+        x = x + m.pos_embed[:, 1:, :]
+        cls = (m.cls_token + m.pos_embed[:, :1, :]).expand(x.shape[0], -1, -1)
+        x = torch.cat((cls, x), dim=1)
+        for block in m.blocks:
+            x = block(x)
+        tokens = m.fc_norm(x[:, 1:, :]).float().cpu().numpy()  # (B, 196, 768)
+        n = np.linalg.norm(tokens, axis=-1, keepdims=True)
+        return (tokens / np.maximum(n, 1e-12)).astype(np.float32)
 
     def describe(self) -> dict[str, Any]:
         return {

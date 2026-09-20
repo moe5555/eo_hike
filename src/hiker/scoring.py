@@ -101,3 +101,46 @@ def rank_of(index: int, scores: np.ndarray) -> int:
     """
     order = np.lexsort((np.arange(len(scores)), -np.asarray(scores, dtype=np.float64)))
     return int(np.where(order == index)[0][0]) + 1
+
+
+# --- taste ---------------------------------------------------------------------------
+#
+# A *taste vector* is an exponential moving average of the embeddings of the chips
+# that struck the agent hardest. It is updated only on a *strong encounter* (novelty
+# of the chosen chip >= ``threshold``) and the update is weighted by that novelty:
+#
+#     taste <- normalise( (1 - alpha) * taste + alpha * novelty * e )
+#
+# where ``e`` is the chosen chip's unit embedding. A zero taste (nothing has struck
+# yet) becomes ``e`` on the first strong encounter, so "initialise as zeros and let
+# the first spike set it" needs no special case. Taste enters selection as a bonus:
+#
+#     score(c) = novelty(c, H) + weight * cos_sim(c, taste)
+#
+# so the agent is pulled towards things that resemble what struck it, while novelty
+# keeps pushing it away from what it has actually seen.
+
+
+def taste_bonus(candidates: np.ndarray, taste: np.ndarray, weight: float) -> np.ndarray:
+    """``weight * cos_sim(candidate, taste)`` per candidate; all zeros if taste is zero."""
+    c = np.asarray(candidates, dtype=np.float32)
+    t = np.asarray(taste, dtype=np.float32)
+    if weight == 0.0 or not np.any(t):
+        return np.zeros(c.shape[0], dtype=np.float64)
+    return weight * (c @ t).astype(np.float64)
+
+
+def update_taste(taste: np.ndarray, embedding: np.ndarray, novelty: float, alpha: float) -> np.ndarray:
+    """One EMA step towards ``embedding`` with rate ``alpha * novelty``, renormalised.
+
+    Returns a new unit vector (or the zero vector if both inputs are zero).
+    """
+    if not 0.0 < alpha <= 1.0:
+        raise ValueError("alpha must be in (0, 1]")
+    t = np.asarray(taste, dtype=np.float32)
+    e = np.asarray(embedding, dtype=np.float32)
+    new = (1.0 - alpha) * t + alpha * float(novelty) * e
+    n = float(np.linalg.norm(new))
+    if n == 0.0:
+        return np.zeros_like(t)
+    return (new / n).astype(np.float32)

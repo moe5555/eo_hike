@@ -89,6 +89,110 @@ log (the sequence folder and the log would disagree about what image 0000 is).
 **Floats rounded to 6 decimals in the log.** Byte-identical logs across runs need a
 fixed text form; 6 decimals is far beyond what any downstream mapping uses.
 
+## Taste
+
+**A taste vector (`agents.taste`, off by default).** The user's idea (2026-09-18): the
+hiker keeps a running average of the embeddings that struck it hardest and is drawn
+towards things that resemble it. Implemented as the simplest version:
+
+- `taste` is a unit vector. `init: first` sets it to the start chip's embedding;
+  `init: zero` leaves it empty until the first strong encounter sets it.
+- After each step, if the chosen chip's novelty is at or above `threshold`, the taste
+  moves: `taste <- normalise((1 - alpha) * taste + alpha * novelty * e)`. The strike
+  strength (novelty) scales the step, so a harder strike moves taste further. Weak
+  encounters leave it untouched.
+- Selection scores every candidate as `novelty + weight * cos_sim(candidate, taste)`.
+  `novelty` in the log stays the pure Lehman-Stanley quantity; `rank_among_candidates`
+  is by the combined score, since that is what the choice was made from.
+- `weight: 0` reproduces the taste-less walk chip for chip (tested and re-run:
+  `runs/20260918-094014_*_regress` matches the 2026-09-17 final run).
+
+Rejected: using taste as the retrieval query instead of the current chip (would break
+the locality of the walk entirely; can be added as a second mode later). Rejected: a
+forgetting/decay on taste independent of encounters (the user asked for update-on-strike
+only).
+
+## Phase 2: the patch-novelty heatmap
+
+**Patch tokens come from the same forward pass that makes the chip embedding.** DOFA's
+pooled path is *mean of the 196 patch tokens, then LayerNorm*. `encode_patches` takes
+the tokens before the mean, applies that same LayerNorm to each, and L2-normalises.
+Checked: the mean of these per-patch vectors has cosine 1.000 with the chip embedding
+on every chip tried, so the patches live in the space the chip vector is the average
+of. Rejected: taking tokens from an earlier block (more local, but not the space the
+agent decides in).
+
+**Patches are centred like chips, with their own mean.** The mean patch vector over a
+seeded sample of 256 archive chips (50k patches) is cached as
+`patch_mean_<encoder>.npy` next to the embeddings. Rejected: reusing the chip mean
+(a different quantity; the patch cloud is wider than the chip cloud) and the walk's own
+patches (would make one run's heatmap depend on which chips it happened to visit).
+
+**The bank is every patch of every chip visited so far, and the score is the same
+formula as the agent's.** `j_patches = 15` mirrors `j_history`; a chip's 196 patches
+are scored against a bank that grows by 196 per step (58,800 rows by step 300; well
+under a second per step on the GPU). Step 0 has no bank and gets NaN.
+
+**Colour scale is per run, not per chip.** Tint starts at the 75th percentile of all
+patch scores in the run and saturates at the 98th; alpha scales with the score so
+cold patches show the plain image. Rejected: per-chip min-max (every chip would show a
+hot spot, including the ones where nothing is new) and a 2nd-percentile floor (first
+attempt: nearly every patch was tinted and inferno's oranges vanished into desert).
+`cool` (cyan to magenta) is the colourmap because nothing on the ground is magenta.
+
+**Sidecar, not log.** Per-patch scores go to `patch_novelty_agent_<id>.npz`;
+`log.jsonl` is untouched so the byte-identity acceptance test still holds.
+
+**Only DOFA has patch tokens today.** CLIP's image embedding is a projection of the
+cls token; its patch tokens exist but are not in the projected space. The stage
+raises a clear error for it (and `--stage all` skips with a message).
+
+## The dream (generated epilogue)
+
+**The brief's "no image generation" is overridden, as an epilogue only** (user
+decision 2026-09-18). The generated image never enters the archive or the history,
+`log.jsonl` is untouched, and `dream.enabled` is off by default. Rejected: letting the
+agent continue walking from its dream (the user chose the epilogue reading).
+
+**The prompt is the agent's score, not text.** Sampling is steered by the gradient of
+the agent's own selection score (novelty against its history, plus the taste term if
+the run had one) computed through the same DOFA encoder and the same centring as the
+archive embeddings. Rejected: a target embedding rendered by an embedding-conditioned
+decoder (needs an adapter trained on top; and someone has to choose the target) and a
+text prompt written by a narrator LLM (brings language in before Phase 3 intends).
+
+**Stable Diffusion 1.5 + LoRA, empty prompt.** SD 1.5 in fp16 with gradient
+checkpointing fits the 8 GB laptop GPU at 256 px; SDXL does not. LoRA rank 8 on the
+attention projections; base weights frozen. Every chip is trained under the empty
+prompt "" so the generator has a single condition ("a chip from this archive") and no
+text ever varies. Latents are precomputed once through the frozen VAE (`latents_sd15_256.npy`,
+70 MB) with rotation/flip augmentation on the latent. Rejected: a satellite-pretrained
+diffusion model (less ours, weights and licence to verify) and training from scratch
+(days, lower fidelity). Licence: CreativeML OpenRAIL-M.
+
+**Guidance mechanics.** DDIM, eta 0, no classifier-free guidance (there is no text).
+At each step the predicted clean latent is decoded, scored, and moved by a step of
+fixed relative size (`guidance_scale` x the latent's norm, along the normalised
+gradient) within a noise window (`guidance_window`, default 0.9 to 0.2 of the noise
+schedule: not at the very start, where the estimate is mush, and not at the very end,
+where it would only add texture). The UNet's prediction is treated as constant in
+the gradient; backprop runs through the VAE decoder and DOFA only, which is what keeps
+this inside 8 GB. Rejected: backprop through the UNet (does not fit), and a guidance
+step proportional to the raw gradient (its scale depends on the score's, which is tiny).
+
+**Guidance is scored over random views, strongly, early.** First runs (finding 12)
+showed that a plain pixel gradient through DOFA finds adversarial noise: the score
+rose while the image did not change. The objective is therefore averaged over four
+random rotation/flip/crop views of the decoded estimate (`guidance_views`), applied
+with two iterations per step at 1.5 x the latent norm, only while the noise fraction
+is between 0.95 and 0.4. Rejected: the gentle first settings (0.1, one view, window
+0.9 to 0.2), which were measurably adversarial.
+
+**Measured, with a control and a ceiling.** Each saved dream is re-encoded through the
+ordinary `encode` path and scored like a chip; the same seed without guidance is scored
+too; and the most novel unvisited real chip is recorded. Without these three numbers
+side by side a "novel" dream would be an assertion.
+
 ## Stop conditions
 
 `max_steps`, `boredom` (running mean over `boredom_window` < `boredom_threshold`),
@@ -193,3 +297,112 @@ sea) and then bores out in the sea. With k = 50 and no jumps
 The ocean runs in the baseline are the same mechanism confined to the one region dense
 enough to hold the agent against the jump lottery. Protocol options are under
 discussion; nothing in the defaults has been changed.
+
+**10. Taste, first runs (debug archive, `configs/debug_taste.yaml`, 2026-09-18).**
+Three runs, agent 0 unless noted, all seed 7, k = 50, m = 5, T = 0.05, alpha 0.2,
+threshold 0.9:
+
+| run | taste weight | init | jumps | taste updates | mean cos(chosen, taste) first 50 / last 50 | mean novelty |
+|---|---|---|---|---|---|---|
+| `*_regress` | 0 | | 25 % | | | 0.751 |
+| `*_taste_first` | 0.3 | first | 21 % | 20 | 0.09 / 0.07 | 0.736 |
+| `*_taste_zero` | 0.3 | zero | 22 % | 22 | 0.08 / 0.05 | 0.744 |
+| `*_taste_w1` | 1.0 | first | 13 % | 6 | 0.43 / 0.13 | 0.654 |
+
+- *Weight 0.3 is too gentle to see.* The chosen chips' similarity to taste stays near
+  0.07, barely above what a random chip would give. The bonus spread across candidates
+  (~0.2) is the same size as the novelty spread, and the two terms pull in opposite
+  directions: the chips closest to taste resemble the strong encounters, which are in
+  the history, so novelty marks them down. They roughly cancel
+  (`docs/img_taste_w03.png` looks like the baseline).
+- *Weight 1.0 makes a character.* The first 50 chips sit at cosine 0.43 to the taste
+  and the sheet (`docs/img_taste_w1.png`) is a single sustained palette: forested hills
+  and red earth, no sea, no clouds, no cities. Then similarity decays to 0.13 over the
+  walk as novelty exhausts the region the taste points at. Mean novelty drops from
+  0.75 to 0.65 and random jumps halve (75 to 39): the jump lottery loses because a
+  random chip is rarely to the agent's taste.
+- *The absolute threshold makes taste a thing of youth.* Novelty starts near 1.0 and
+  drifts under 0.9 within about 50 steps, so at weight 0.3 every update happens before
+  step 60 (half of them on random jumps); at weight 1.0 the pull towards the familiar
+  keeps novelty low and only 6-8 encounters ever qualify. The more the agent follows
+  its taste, the less anything strikes it. That is a coherent character (it settles),
+  but if taste should keep evolving through a long walk the threshold needs to be
+  relative: a spike above the running mean, not a fixed number. Not implemented; the
+  user decides.
+- *`init: zero` vs `first` makes little difference at weight 0.3*, because the first
+  spike arrives at step 1-5 anyway and alpha 0.2 with ~20 updates leaves almost nothing
+  of the initial vector (drift from initial 0.48-0.66).
+
+**11. What the heatmaps show, and a discrepancy they expose (2026-09-18).** Applied
+to the baseline debug walk (`runs/20260918-094014_*_regress`) and the taste walk at
+weight 1.0 (`runs/20260918-094059_*_taste_w1`); sheets in `docs/img_heatmap_*.png`.
+
+- *The hot patches are the readable ones.* On the baseline walk, step 1 (farmland grid
+  after a forest start) is hot everywhere; clouds are hot the first time and cold
+  every time after; ridges, river meanders, a coastline and a town are hot inside
+  otherwise-cold chips. On the taste walk the best example is step 63: a jump into a
+  dense town after 62 steps of hills and forest, hot everywhere *except* the round
+  green patches of vegetation, the one thing the agent had seen plenty of.
+- *The hot fraction declines with the walk*, from 0.44 of patches in the first 50
+  steps of the baseline to 0.16-0.20 after step 200; on the taste walk it starts lower
+  (0.26) because the agent stays in familiar terrain. Per-chip novelty and the patch
+  mean correlate at 0.53-0.71 per agent.
+- *The discrepancy.* The patch score agrees with the *nearest* chip in history
+  (correlation 0.83-0.86 with the minimum chip distance) much better than with the
+  logged novelty (0.53-0.55). Step 106 of the taste walk is a dark sea chip that
+  scored a chip-level novelty of 0.77 while every one of its patches scored under
+  0.05: the agent had visited the sea at step 105. With `j_history = 15` the chip score
+  averages the distances to the 15 nearest history chips, so one near-twin is
+  outvoted by 14 unrelated chips. On the baseline walk, 10 of 300 chosen chips had a
+  history chip within 0.25 yet were logged at a mean novelty of 0.71; on the taste
+  walk, 34 of 300 (mean 0.61). At patch level the same chip contributes 196 bank
+  entries, so the 15 nearest patches all come from the twin and the score collapses.
+  **This is the mechanism behind the ocean runs the user noticed**: a new ocean chip
+  keeps scoring as novel until about fifteen ocean chips are in the history. It is a
+  property of the sparseness measure, not of the archive. Options, not applied: a
+  smaller `j_history` (Lehman-Stanley's 15 was chosen for a dense behaviour space;
+  the dial table shows the ranking shifts less than the level), or a score that mixes
+  the nearest distance with the j-mean. The user decides; it changes the character of
+  every walk.
+
+**12. The dream: what steering a generator with the agent's score actually does
+(2026-09-18).** Generator: SD 1.5 + LoRA rank 8, 3,000 steps at batch 8 on the 8,704
+debug chips, 13 minutes, 3.2 GB peak; samples are painterly satellite textures
+(`data/models/dream_ssl4eo-val-rgb/samples_03000.png`). Dreams on the taste walk
+(`runs/20260918-102029_*_taste_w1b`) and the baseline (`runs/20260918-094014_*_regress`),
+four candidates per agent, sheets in `docs/img_dream_*.png`; peak 4.0 GB.
+
+- *The first guidance was adversarial.* At scale 0.1 to 0.6 with a single view the
+  measured score rose by up to 0.17 while dream and control differed by 2-10 of 255
+  per pixel and looked identical. Decomposing the score: novelty was flat or fell
+  (0.61 to 0.58), the whole gain was the taste term (cosine to the taste vector
+  0.10 to 0.27). A fixed vector is an easy target for a pixel perturbation that a
+  vision transformer reads as a large semantic move; "far from everything I have
+  seen" is not. Averaging the score over four random views removed that gain
+  entirely (taste-on dream 0.780 vs control 0.779).
+- *With views, strong scale and the high-noise window the gains are real and
+  visible.* Baseline (novelty only): novelty 0.63-0.72 in the controls to 0.74-0.83
+  in the dreams, pixel change 11-20 of 255, and the change survives re-encoding of
+  the saved PNG. The best dreams reach the archive ceiling: 0.834 vs the most novel
+  unvisited real chip at 0.841 (agent 0), 0.803 vs 0.806 (agent 1); on the taste walk
+  0.883 vs 0.872. The last real step of each walk was 0.42-0.75.
+- *What "novel" looks like when it can be invented.* Agent 1 of the taste walk ended
+  in city grids and dreams a mottled green forest, the opposite of its last twenty
+  steps; the striated desert of its control is gone. The baseline's agent 1 dreams
+  green terrain with magenta blotches, a colour the archive never contains. That is
+  the objective read literally: unlike anything seen includes colours no chip has,
+  and a 13-minute LoRA prior does not hold the sample on the manifold hard. A longer
+  training (or a stronger prior term) would trade novelty for plausibility; the
+  trade is the user's.
+- *Taste and novelty cancel here too.* On the taste walk at the strong settings the
+  gain is again mostly taste (0.10 to 0.27) with novelty flat, because the pull
+  towards familiar terrain and the push away from the history oppose each other,
+  exactly as in the walk (finding 10). The dream stage can be run with
+  `dream.include_taste: false` for a pure-novelty dream.
+- *One candidate dominates both runs.* Seed 7's third sample is a red-and-white
+  foliage-like texture that scores 0.85 unguided under any history, because the
+  generator itself put it off-distribution; guidance adds only 0.03. Controls are
+  identical across runs with the same seed by design (the history is the only
+  difference between two runs' dreams); `n_candidates` and the per-candidate log
+  exist so such a sample is seen for what it is.
+

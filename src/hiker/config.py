@@ -47,6 +47,49 @@ DEFAULTS: dict[str, Any] = {
         "max_steps": 300,
         "boredom_window": 20,
         "boredom_threshold": 0.4,
+        # Taste vector (docs/decisions.md, "Taste"). weight 0 = off, walk unchanged.
+        "taste": {
+            "weight": 0.0,  # score = novelty + weight * cos_sim(candidate, taste)
+            "alpha": 0.2,  # EMA rate; the effective rate is alpha * novelty of the encounter
+            "threshold": 0.9,  # an encounter is "strong" when its novelty >= this
+            "init": "first",  # first: taste = start chip's embedding | zero: the first spike sets it
+        },
+    },
+    # Phase 2: per-patch novelty heatmaps, computed on a finished run (src/hiker/heatmap.py).
+    "heatmap": {
+        "enabled": True,  # run after the hike in `--stage all`; needs a ViT encoder (DOFA)
+        "j_patches": 15,  # nearest history patches averaged, mirrors agents.j_history
+        "mean_sample": 256,  # archive chips used for the cached patch mean
+        "scale_percentiles": [75, 98],  # of all patch scores in the run: tint starts at p75, saturates at p98
+        "alpha": 0.7,  # tint strength at the top of the scale
+        "cmap": "cool",  # cyan -> magenta; contrasts with earth tones, unlike inferno
+    },
+    # The dream (src/hiker/dream.py): a generated epilogue steered by the agent's own score.
+    # Off by default: the brief's "no image generation" rule is overridden per config.
+    "dream": {
+        "enabled": False,
+        "at_end": True,  # also dream when the run ends by max_steps, not only at boredom
+        # generator training (dream_train.py)
+        "resolution": 256,
+        "lora_rank": 8,
+        "lr": 1e-4,
+        "batch_size": 8,
+        "train_steps": 3000,
+        "max_minutes": 90,
+        "sample_every": 500,
+        "seed": 0,
+        # guided sampling (dream.py)
+        "steps": 50,  # DDIM steps
+        "n_candidates": 4,  # dreams per agent; the best-scoring one is flagged
+        # Measured on the debug archive (decisions.md finding 12): 0.1-0.6 without views only
+        # produced adversarial noise; 1.5 with 4 views and 2 iterations in the high-noise
+        # window gives visible, re-encodable novelty gains of 0.1-0.15.
+        "guidance_scale": 1.5,  # nudge per guided iteration, as a fraction of the latent's norm
+        "guidance_window": [0.95, 0.4],  # noise fraction (1 = pure noise) within which guidance acts
+        "guidance_iters": 2,
+        "guidance_views": 4,  # random rot/flip/crop views the score is averaged over (0 = off); defeats adversarial noise
+        "j_history": None,  # None -> agents.j_history of the run
+        "include_taste": True,  # add the run's taste term to the objective if the run used taste
     },
     "outputs": {
         "runs_dir": "runs",

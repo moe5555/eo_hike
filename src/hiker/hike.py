@@ -61,6 +61,7 @@ def run_hike(cfg: dict[str, Any], tag: str | None = None) -> Path:
     threshold = float(a["boredom_threshold"])
     max_steps = int(a["max_steps"])
     T = float(a["temperature"])
+    taste = a.get("taste") or {}
 
     log_rows: list[dict[str, Any]] = []
     summaries: list[dict[str, Any]] = []
@@ -77,6 +78,10 @@ def run_hike(cfg: dict[str, Any], tag: str | None = None) -> Path:
                 m_random=int(a["m_random"]),
                 j_history=int(a["j_history"]),
                 temperature=T,
+                taste_weight=float(taste.get("weight", 0.0)),
+                taste_alpha=float(taste.get("alpha", 0.2)),
+                taste_threshold=float(taste.get("threshold", 0.9)),
+                taste_init=str(taste.get("init", "first")),
             )
             start_row = hiker.start(starts[agent_id])
             visits[start_row].append((agent_id, 0))
@@ -94,6 +99,9 @@ def run_hike(cfg: dict[str, Any], tag: str | None = None) -> Path:
                 "geo_distance_km_from_prev": None,
                 "time_delta_days_from_prev": None,
                 "history_size": 1,
+                "taste_similarity": None,
+                "taste_updated": False,
+                "taste_shift": None,
                 "lat": records[start_row]["lat"],
                 "lon": records[start_row]["lon"],
                 "date": records[start_row]["date"],
@@ -131,6 +139,9 @@ def run_hike(cfg: dict[str, Any], tag: str | None = None) -> Path:
                     "geo_distance_km_from_prev": geo,
                     "time_delta_days_from_prev": dt,
                     "history_size": res.history_size,
+                    "taste_similarity": res.taste_similarity,
+                    "taste_updated": res.taste_updated,
+                    "taste_shift": res.taste_shift,
                     "lat": cur["lat"],
                     "lon": cur["lon"],
                     "date": cur["date"],
@@ -155,6 +166,8 @@ def run_hike(cfg: dict[str, Any], tag: str | None = None) -> Path:
                     "novelty_mean": float(np.mean(hiker.novelties)) if hiker.novelties else None,
                     "novelty_final_running_mean": hiker.running_mean(window),
                     "n_random_jumps": hiker.n_random_jumps,
+                    "n_taste_updates": hiker.n_taste_updates if hiker.taste_weight != 0.0 else None,
+                    "taste_drift_from_initial": hiker.taste_drift() if hiker.taste_weight != 0.0 else None,
                     "geo_distance_total_km": geo_total if any(records[i]["lat"] is not None for i in hiker.history) else None,
                     "embedding_distance_total": emb_total,
                     "time_span": {"min_date": min(dates), "max_date": max(dates)} if dates else None,
@@ -162,6 +175,9 @@ def run_hike(cfg: dict[str, Any], tag: str | None = None) -> Path:
                     "chip_ids": [records[i]["chip_id"] for i in hiker.history],
                 }
             )
+            if hiker.taste_weight != 0.0:
+                with open(run_dir / f"taste_agent_{agent_id}.npy", "wb") as f:
+                    np.save(f, hiker.taste.astype(np.float32))
             if cfg["outputs"].get("write_images", True):
                 root = C.processed_dir(cfg)
                 write_sequence(
@@ -188,7 +204,9 @@ def run_hike(cfg: dict[str, Any], tag: str | None = None) -> Path:
     plot_novelty_curves(log_rows, run_dir / "novelty_curve.png", window, threshold)
     for s in summaries:
         print(f"[hike] agent {s['agent_id']}: {s['steps_taken']} steps, stop={s['stop_reason']}, "
-              f"mean novelty {s['novelty_mean']:.4f}, random jumps {s['n_random_jumps']}")
+              f"mean novelty {s['novelty_mean']:.4f}, random jumps {s['n_random_jumps']}"
+              + (f", taste updates {s['n_taste_updates']}, taste drift {s['taste_drift_from_initial']:.3f}"
+                 if s.get("taste_drift_from_initial") is not None else ""))
     if shared:
         print(f"[hike] {len(shared)} chips visited by more than one agent")
     return run_dir
