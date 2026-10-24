@@ -1,8 +1,10 @@
 .venv/
-data/
+data/*
+!data/prepare.py
 runs/
 __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
 orest/
+.ipynb_checkpoints/

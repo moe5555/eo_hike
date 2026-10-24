@@ -1,0 +1,26 @@
+# Noisy-TV control: novelty only (w_g = 0). Should get stuck on clouds or noise.
+policy: curious       # curious | random
+seed: 0               # random init of the network (identical settings, different seeds -> divergence)
+start_lat: 45.46      # start tile = nearest to this point (Milan); same for every run
+start_lon: 9.19
+crop_px: 64           # scale of attention (32 ~ 1.3 km, 64 ~ 2.6 km, 128 ~ 5 km)
+lr: 1.0e-3            # how quickly things become familiar
+buffer_size: 2048     # memory (patches)
+radius_km: 15         # neighbourhood radius ~ step size (~8 neighbours)
+p_long_jump: 0.02     # chance a random far tile is added to the candidates
+patience: 0.6         # boredom threshold
+temperature: 0.5      # softmax temperature over interest
+w_n: 1.0              # novelty weight
+w_g: 0.0              # noisy-TV control: novelty only
+w_e: 0.0              # raw surprise weight
+steps: 1500
+# fixed mechanics
+K: 16                 # patches per tile
+k_nn: 10              # novelty kNN in the archive
+probe_steps: 3        # s: Adam steps in the progress probe
+update_steps: 4       # u: Adam steps on the chosen tile
+replay_batch: 48      # replay patches mixed into each update (16 new + 48 replay = 64)
+reembed_every: 100
+ema_alpha: 0.02       # running z-score rate (~50-step memory)
+heldout_every: 25
+ckpt_every: 250
