@@ -30,16 +30,98 @@ RUNS = ROOT / "runs"
 HELDOUT_N, HELDOUT_SEED = 200, 12345
 
 
-def load_data(device: str):
-    import sys
+class RegionalTiles:
+    """v1 backend: the 1,814 Northern Italy tiles of data/tiles.npy, all on the GPU, noisy TV included."""
 
-    sys.path.insert(0, str(DATA))
-    from prepare import haversine_km, neighbours  # noqa: E402
+    def __init__(self, cfg: dict, device: str) -> None:
+        import sys
 
-    idx = pd.read_parquet(DATA / "tiles.parquet")
-    tiles = torch.from_numpy(np.load(DATA / "tiles.npy")).to(device)
-    tv = torch.from_numpy(idx.tv.to_numpy().copy()).to(device)
-    return idx, tiles, tv, haversine_km, neighbours
+        sys.path.insert(0, str(DATA))
+        from prepare import neighbours  # noqa: E402
+
+        self.dev, self.name = device, "regional"
+        self.idx = pd.read_parquet(DATA / "tiles.parquet")
+        self.tiles = torch.from_numpy(np.load(DATA / "tiles.npy")).to(device)
+        self.tv = torch.from_numpy(self.idx.tv.to_numpy().copy()).to(device)
+        self.lat, self.lon = self.idx.lat.to_numpy(), self.idx.lon.to_numpy()
+        self.N = len(self.idx)
+        self.nbrs = neighbours(self.lat, self.lon, float(cfg["radius_km"]))
+        self.pool_size = self.N
+        self.heldout_pool = np.flatnonzero(~self.idx.tv.to_numpy())
+
+    def start(self, lat: float, lon: float) -> int:
+        return int(np.argmin(haversine_km(self.lat, self.lon, lat, lon)))
+
+    def neighbours(self, t: int) -> list[int]:
+        return list(map(int, self.nbrs[t]))
+
+    def random_tile(self, rng: np.random.Generator) -> int:
+        return int(rng.integers(self.N))
+
+    def get(self, ids: list[int], timeout: float | None = None):
+        """-> (uint8 [C, H, W, 3] on device, tv mask [C], ids actually returned, fetch stats)."""
+        cid = torch.tensor(ids, device=self.dev)
+        return self.tiles[cid], self.tv[cid], list(ids), {}
+
+    def prefetch(self, t: int) -> None:
+        pass
+
+    def summary(self) -> dict:
+        return {}
+
+
+class LazyTiles:
+    """v3 backend: data/tile_store.py over the global Major TOM index, restricted to a World pool
+    (global, regional_lazy for development, or a confinement circle). No noisy TV."""
+
+    def __init__(self, cfg: dict, device: str) -> None:
+        from data.tile_store import TileStore, World
+
+        self.dev, self.cfg = device, cfg
+        self.store = TileStore(cache_gb=float(cfg.get("cache_gb", 50)))
+        self.world = World.from_config(self.store, cfg)
+        self.name = self.world.name
+        self.idx = self.store.idx.assign(tv=False)
+        self.lat, self.lon = self.world.lat, self.world.lon
+        self.N = self.store.N
+        self.pool_size = len(self.world.pool)
+        self.radius = float(cfg["radius_km"])
+        self.ring = float(cfg.get("prefetch_ring_km", 10.0))
+        self.timeout = float(cfg.get("fetch_timeout", 30.0))
+        # held-out tiles come from the whole global index, so global and confined walkers are scored on the same 200
+        self.heldout_pool = np.arange(self.N) if cfg.get("heldout", "global") == "global" else self.world.pool
+
+    def start(self, lat: float, lon: float) -> int:
+        return self.world.nearest(lat, lon)
+
+    def neighbours(self, t: int) -> list[int]:
+        return list(map(int, self.world.neighbours(t, self.radius)))
+
+    def random_tile(self, rng: np.random.Generator) -> int:
+        return self.world.random_tile(rng)
+
+    def get(self, ids: list[int], timeout: float | None = None):
+        arrs, dropped, st = self.store.get_many(ids, timeout=self.timeout if timeout is None else timeout)
+        keep = [i for i in ids if i in arrs]
+        img = torch.from_numpy(np.stack([arrs[i] for i in keep])).to(self.dev) if keep else None
+        st["dropped"] = dropped
+        return img, torch.zeros(len(keep), dtype=torch.bool, device=self.dev), keep, st
+
+    def prefetch(self, t: int) -> None:
+        self.store.prefetch(self.world.neighbours(t, self.radius + self.ring))
+
+    def summary(self) -> dict:
+        return self.store.summary()
+
+
+def load_tiles(cfg: dict, device: str):
+    return RegionalTiles(cfg, device) if cfg.get("world", "regional") == "regional" else LazyTiles(cfg, device)
+
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    from data.tile_store import haversine_km as h
+
+    return h(lat1, lon1, lat2, lon2)
 
 
 def git_hash() -> str:
@@ -73,13 +155,18 @@ def run(cfg: dict, name: str) -> Path:
         f.unlink()
     (out / "config.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
 
-    idx, tiles, tv, haversine_km, neighbours = load_data(dev)
-    N = len(idx)
-    lat, lon = idx.lat.to_numpy(), idx.lon.to_numpy()
-    nbrs = neighbours(lat, lon, float(cfg["radius_km"]))
-    t = int(np.argmin(haversine_km(lat, lon, cfg["start_lat"], cfg["start_lon"])))
-    meta = {"run_id": out.name, "name": name, "seed": seed, "git": git_hash(), "start_tile": t, "n_tiles": N, "device": dev, "torch": torch.__version__, "started": time.strftime("%Y-%m-%d %H:%M:%S")}
+    T = load_tiles(cfg, dev)
+    idx, lat, lon = T.idx, T.lat, T.lon
+    t = T.start(cfg["start_lat"], cfg["start_lon"])
+    meta = {"run_id": out.name, "name": name, "seed": seed, "git": git_hash(), "start_tile": t, "n_tiles": T.N, "device": dev, "torch": torch.__version__, "started": time.strftime("%Y-%m-%d %H:%M:%S")}
+    if T.name != "regional":
+        meta.update(world=T.name, pool_size=T.pool_size, start_cell=str(idx.grid_cell[t]), start_latlon=[float(lat[t]), float(lon[t])],
+                    start_cover=str(idx.cover[t]), confine_center=cfg.get("confine_center"), confine_radius_km=cfg.get("confine_radius_km"))
     (out / "meta.json").write_text(json.dumps(meta, indent=2))
+
+    def look(ids: list[int], g: torch.Generator, timeout: float | None = None):
+        img, is_tv, kept, st = T.get(ids, timeout)
+        return (S.patches(img, is_tv, K, crop, g) if kept else None), kept, st
 
     rng = np.random.default_rng(seed)
     torch.manual_seed(seed)
@@ -93,9 +180,10 @@ def run(cfg: dict, name: str) -> Path:
         opt = torch.optim.Adam(model.parameters(), lr=float(cfg["lr"]))
         # fixed held-out set: same 200 tiles and crop positions for every run of this crop_px
         hrng = np.random.default_rng(HELDOUT_SEED)
-        held_ids = torch.from_numpy(np.sort(hrng.choice(np.flatnonzero(~idx.tv.to_numpy()), HELDOUT_N, replace=False))).to(dev)
+        held_ids = np.sort(hrng.choice(T.heldout_pool, HELDOUT_N, replace=False)).tolist()
         hgen = torch.Generator(device=dev).manual_seed(HELDOUT_SEED)
-        held_x = S.patches(tiles, held_ids, tv, K, crop, hgen)
+        held_x, held_kept, _ = look(held_ids, hgen, timeout=600.0)
+        meta["heldout_n"] = len(held_kept)
     norms = {k: S.RunningNorm(float(cfg["ema_alpha"])) for k in ("e", "n", "g")}
     buf = torch.zeros(int(cfg["buffer_size"]), 3, S.IN_PX, S.IN_PX, device=dev)
     buf_n, buf_ptr = 0, 0
@@ -111,8 +199,11 @@ def run(cfg: dict, name: str) -> Path:
 
     def reembed():
         nonlocal arch_z
-        ids = torch.tensor(arch_tiles, device=dev)
-        zs = [S.mean_latent(model, S.patches(tiles, ids[i : i + 256], tv, K, crop, gen)) for i in range(0, len(ids), 256)]
+        zs = []
+        for i in range(0, len(arch_tiles), 256):
+            x, kept, _ = look(arch_tiles[i : i + 256], gen, timeout=600.0)
+            assert len(kept) == len(arch_tiles[i : i + 256]), "visited tile missing from the store"
+            zs.append(S.mean_latent(model, x))
         arch_z = torch.cat(zs)
 
     if model is not None:
@@ -122,18 +213,36 @@ def run(cfg: dict, name: str) -> Path:
         ts = time.time()
         # -- candidates ------------------------------------------------------------
         if force_teleport:
-            cands, kinds = [int(rng.integers(N))], ["bored"]
+            cands, kinds = [T.random_tile(rng)], ["bored"]
             force_teleport = False
         else:
-            cands = list(map(int, nbrs[t]))
+            cands = T.neighbours(t)
             kinds = ["neighbour"] * len(cands)
             if rng.random() < float(cfg["p_long_jump"]):
-                cands.append(int(rng.integers(N)))
+                cands.append(T.random_tile(rng))
                 kinds.append("long")
             if not cands:
-                cands, kinds = [int(rng.integers(N))], ["empty"]
+                cands, kinds = [T.random_tile(rng)], ["empty"]
+
+        # -- look (lazy store: candidates that can't be fetched in time are dropped) ----
+        x, kept, fst = look(cands, gen) if not random_policy else (None, cands, {})
+        n_redraw = 0
+        if not random_policy and len(kept) < len(cands):
+            if not kept:  # nothing arrived: wait longer rather than stall the walk on an empty choice
+                x, kept, fst2 = look(cands, gen, timeout=120.0)
+                fst["wait_sec"] += fst2["wait_sec"]
+                fst["dropped"] = fst2["dropped"]
+            while not kept:  # still nothing (e.g. one blind target that can't be fetched): blindly redraw it
+                n_redraw += 1
+                if n_redraw > 50:
+                    raise RuntimeError(f"step {step}: no candidate could be fetched after {n_redraw - 1} redraws")
+                cands, kinds = [T.random_tile(rng)], [kinds[0] if kinds[0] in ("bored", "empty") else "redraw"]
+                x, kept, fst2 = look(cands, gen, timeout=120.0)
+                fst["wait_sec"] += fst2["wait_sec"]
+                fst["dropped"] = fst["dropped"] + fst2["dropped"]
+            kinds = [k for c, k in zip(cands, kinds) if c in set(kept)]
+            cands = kept
         C = len(cands)
-        cid = torch.tensor(cands, device=dev)
 
         # -- signals + choice --------------------------------------------------------
         rec = {"step": step}
@@ -142,7 +251,6 @@ def run(cfg: dict, name: str) -> Path:
             e = n = g = ez = nz = gz = I = np.full(C, np.nan)
             maxI = np.nan
         else:
-            x = S.patches(tiles, cid, tv, K, crop, gen)
             g_t, _, _ = S.progress_probe(model, x, float(cfg["lr"]), int(cfg["probe_steps"]))
             e_t = S.recon_err(model, x)
             z_c = S.mean_latent(model, x)
@@ -159,6 +267,7 @@ def run(cfg: dict, name: str) -> Path:
             for c in range(C):
                 cand_log.append({"step": step, "tile_idx": cands[c], "kind": kinds[c], "e": e[c], "n": n[c], "g": g[c], "e_z": ez[c], "n_z": nz[c], "g_z": gz[c], "I": I[c], "p": p[c], "chosen": c == j})
         prev, t = t, cands[j]
+        T.prefetch(t)
 
         # -- train on the chosen tile --------------------------------------------------
         err_before = err_after = np.nan
@@ -204,6 +313,10 @@ def run(cfg: dict, name: str) -> Path:
             B=B_before, B_after=B, bored_event=bored, err_before=err_before, err_after=err_after,
             dist_km=float(haversine_km(lat[prev], lon[prev], lat[t], lon[t])) if step > 0 else 0.0, sec=time.time() - ts,
         )
+        if T.name != "regional":
+            rec.update(cover=str(idx.cover[t]), fetch_sec=float(fst.get("wait_sec", 0.0)), n_fetch=int(fst.get("n", 0)),
+                       n_cache_hit=int(fst.get("cache_hits", 0)), n_dropped=len(fst.get("dropped", [])), n_redraw=n_redraw,
+                       dropped=",".join(map(str, fst.get("dropped", []))))
         steps_log.append(rec)
 
         s1 = step + 1
@@ -217,7 +330,9 @@ def run(cfg: dict, name: str) -> Path:
         if s1 % 100 == 0:
             df = pd.DataFrame(steps_log[-100:])
             print(f"[{out.name}] step {s1}  {time.time() - t0:.0f}s  uniq {len(set(r['tile_idx'] for r in steps_log))}  "
-                  f"tv {df.tv.mean():.2f}  bored {df.bored_event.sum()}  B {B:.2f}  err {df.err_before.mean():.4f}", flush=True)
+                  f"tv {df.tv.mean():.2f}  bored {df.bored_event.sum()}  B {B:.2f}  err {df.err_before.mean():.4f}"
+                  + (f"  fetch {df.fetch_sec.mean():.2f}s  hit {df.n_cache_hit.sum() / max(df.n_fetch.sum(), 1):.2f}  dropped {df.n_dropped.sum()}"
+                     if "fetch_sec" in df else ""), flush=True)
 
     pd.DataFrame(steps_log).to_parquet(out / "steps.parquet")
     if not random_policy:
@@ -228,6 +343,9 @@ def run(cfg: dict, name: str) -> Path:
         np.savez(out / "archive.npz", z=arch_z.cpu().numpy(), tile_idx=np.array(arch_tiles))
         daydream(model, arch_z, gen, out / "daydreams" / "final.png", int(cfg["k_nn"]))
     meta.update(finished=time.strftime("%Y-%m-%d %H:%M:%S"), seconds=round(time.time() - t0, 1))
+    if T.name != "regional":
+        meta["store"] = T.summary()
+        pd.DataFrame(T.store.fetch_log, columns=["tile_idx", "sec", "attempts"]).to_parquet(out / "fetches.parquet")
     (out / "meta.json").write_text(json.dumps(meta, indent=2))
     print(f"[{out.name}] done in {time.time() - t0:.0f}s -> {out}")
     return out

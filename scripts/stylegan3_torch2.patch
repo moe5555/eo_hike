@@ -1,0 +1,36 @@
+diff --git a/torch_utils/custom_ops.py b/torch_utils/custom_ops.py
+index 439e445..e04b6f6 100644
+--- a/torch_utils/custom_ops.py
++++ b/torch_utils/custom_ops.py
+@@ -133,13 +133,14 @@ def get_plugin(module_name, sources, headers=None, source_dir=None, **build_kwar
+ 
+             # Compile.
+             cached_sources = [os.path.join(cached_build_dir, os.path.basename(fname)) for fname in sources]
+-            torch.utils.cpp_extension.load(name=module_name, build_directory=cached_build_dir,
++            module = torch.utils.cpp_extension.load(name=module_name, build_directory=cached_build_dir,
+                 verbose=verbose_build, sources=cached_sources, **build_kwargs)
+         else:
+-            torch.utils.cpp_extension.load(name=module_name, verbose=verbose_build, sources=sources, **build_kwargs)
++            module = torch.utils.cpp_extension.load(name=module_name, verbose=verbose_build, sources=sources, **build_kwargs)
+ 
+-        # Load.
+-        module = importlib.import_module(module_name)
++        # Load. (eo_hike patch: torch >= 2.x returns the module but no longer registers it for importlib)
++        if module is None:
++            module = importlib.import_module(module_name)
+ 
+     except:
+         if verbosity == 'brief':
+diff --git a/torch_utils/misc.py b/torch_utils/misc.py
+index 335397d..2485fc0 100644
+--- a/torch_utils/misc.py
++++ b/torch_utils/misc.py
+@@ -114,7 +114,7 @@ class InfiniteSampler(torch.utils.data.Sampler):
+         assert num_replicas > 0
+         assert 0 <= rank < num_replicas
+         assert 0 <= window_size <= 1
+-        super().__init__(dataset)
++        super().__init__()  # eo_hike patch: torch >= 2.2 Sampler takes no data_source
+         self.dataset = dataset
+         self.rank = rank
+         self.num_replicas = num_replicas

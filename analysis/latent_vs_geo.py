@@ -46,7 +46,7 @@ def embed(run: Path, dev: str) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
     gen = torch.Generator(device=dev).manual_seed(0)
     keep = np.flatnonzero(~idx.tv.to_numpy())
     ids = torch.from_numpy(keep).to(dev)
-    z = torch.cat([S.mean_latent(model, S.patches(tiles, ids[i : i + 128], tv, N_CROPS, int(cfg["crop_px"]), gen)) for i in range(0, len(ids), 128)])
+    z = torch.cat([S.mean_latent(model, S.patches(tiles[ids[i : i + 128]], tv[ids[i : i + 128]], N_CROPS, int(cfg["crop_px"]), gen)) for i in range(0, len(ids), 128)])
     return idx.iloc[keep].reset_index(drop=True), z.cpu().numpy(), tiles_np[keep]
 
 

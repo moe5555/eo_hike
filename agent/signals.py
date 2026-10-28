@@ -15,15 +15,14 @@ IN_PX = 32
 TV_BLOCK = 4  # noisy-TV noise grain in tile pixels (4 px ~ 160 m), same as data/prepare.py
 
 
-def patches(tiles: torch.Tensor, ids: torch.Tensor, tv: torch.Tensor, K: int, crop_px: int, gen: torch.Generator) -> torch.Tensor:
-    """K random crop_px crops per tile, area-resized to 32x32. tiles: uint8 [N, H, W, 3] on device.
+def patches(img: torch.Tensor, is_tv: torch.Tensor, K: int, crop_px: int, gen: torch.Generator) -> torch.Tensor:
+    """K random crop_px crops per tile, area-resized to 32x32. img: uint8 [C, H, W, 3] on device
+    (the candidates' tiles, already gathered; modified in place for noisy-TV tiles).
 
-    Noisy-TV tiles (tv[ids]) are replaced by a fresh noise field every time they are looked at.
+    Noisy-TV tiles (is_tv) are replaced by a fresh noise field every time they are looked at.
     """
-    dev = tiles.device
-    C, H = len(ids), tiles.shape[1]
-    img = tiles[ids]  # [C, H, W, 3] copy
-    is_tv = tv[ids]
+    dev = img.device
+    C, H = img.shape[0], img.shape[1]
     if bool(is_tv.any()):
         n = int(is_tv.sum())
         small = torch.randint(0, 256, (n, H // TV_BLOCK, H // TV_BLOCK, 3), generator=gen, device=dev, dtype=torch.uint8)

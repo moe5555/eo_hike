@@ -22,16 +22,20 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def build(run: Path, alpha_s: float, alpha_b: float, seed: int, tag: str | None) -> Path:
-    steps = pd.read_parquet(run / "steps.parquet")
-    idx = pd.read_parquet(ROOT / "data" / "tiles.parquet")
+def tile_weights(steps: pd.DataFrame, alpha_s: float = 1.0, alpha_b: float = 0.5) -> tuple[pd.DataFrame, int]:
+    """Unique visited tiles (first visit, noisy TV dropped) with surprise, boredom and weight w_i."""
     first = steps.sort_values("step").drop_duplicates("tile_idx", keep="first")
     n_tv = int(first.tv.sum())
     first = first[~first.tv]
-    surprise = first.e_z.to_numpy()
-    boredom = first.B.to_numpy()
-    w = np.clip(np.exp(alpha_s * surprise - alpha_b * boredom), 0.2, 5.0)
-    ids = first.tile_idx.to_numpy()
+    w = np.clip(np.exp(alpha_s * first.e_z.to_numpy() - alpha_b * first.B.to_numpy()), 0.2, 5.0)
+    return pd.DataFrame({"tile_idx": first.tile_idx.to_numpy(), "weight": w, "surprise": first.e_z.to_numpy(), "boredom": first.B.to_numpy()}), n_tv
+
+
+def build(run: Path, alpha_s: float, alpha_b: float, seed: int, tag: str | None) -> Path:
+    steps = pd.read_parquet(run / "steps.parquet")
+    idx = pd.read_parquet(ROOT / "data" / "tiles.parquet")
+    tw, n_tv = tile_weights(steps, alpha_s, alpha_b)
+    ids, w, surprise, boredom = tw.tile_idx.to_numpy(), tw.weight.to_numpy(), tw.surprise.to_numpy(), tw.boredom.to_numpy()
     rng = np.random.default_rng(seed)
     pool = np.flatnonzero(~idx.tv.to_numpy())
     rand_ids = np.sort(rng.choice(pool, size=len(ids), replace=False))
