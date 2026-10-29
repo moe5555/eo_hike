@@ -7,17 +7,28 @@ runs `s` fresh-Adam steps on half A and measures the error drop on half B.
 
 from __future__ import annotations
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.func import functional_call, grad, vmap
 
 IN_PX = 32
 TV_BLOCK = 4  # noisy-TV noise grain in tile pixels (4 px ~ 160 m), same as data/prepare.py
+FIXED_CROP_SEED = 777
 
 
-def patches(img: torch.Tensor, is_tv: torch.Tensor, K: int, crop_px: int, gen: torch.Generator) -> torch.Tensor:
+def fixed_offsets(ids: list[int], K: int, H: int, crop_px: int, device) -> tuple[torch.Tensor, torch.Tensor]:
+    """Crop positions that depend only on the tile id: the same K crops every time a tile is looked at."""
+    o = np.stack([np.random.default_rng([FIXED_CROP_SEED, int(i)]).integers(0, H - crop_px + 1, (2, K)) for i in ids])
+    o = torch.from_numpy(o).to(device)
+    return o[:, 0], o[:, 1]
+
+
+def patches(img: torch.Tensor, is_tv: torch.Tensor, K: int, crop_px: int, gen: torch.Generator,
+            offsets: tuple[torch.Tensor, torch.Tensor] | None = None) -> torch.Tensor:
     """K random crop_px crops per tile, area-resized to 32x32. img: uint8 [C, H, W, 3] on device
     (the candidates' tiles, already gathered; modified in place for noisy-TV tiles).
+    offsets: (oy, ox), each [C, K], to use given crop positions (fixed_offsets) instead of random ones.
 
     Noisy-TV tiles (is_tv) are replaced by a fresh noise field every time they are looked at.
     """
@@ -27,8 +38,11 @@ def patches(img: torch.Tensor, is_tv: torch.Tensor, K: int, crop_px: int, gen: t
         n = int(is_tv.sum())
         small = torch.randint(0, 256, (n, H // TV_BLOCK, H // TV_BLOCK, 3), generator=gen, device=dev, dtype=torch.uint8)
         img[is_tv] = small.repeat_interleave(TV_BLOCK, 1).repeat_interleave(TV_BLOCK, 2)
-    oy = torch.randint(0, H - crop_px + 1, (C, K), generator=gen, device=dev)
-    ox = torch.randint(0, H - crop_px + 1, (C, K), generator=gen, device=dev)
+    if offsets is None:
+        oy = torch.randint(0, H - crop_px + 1, (C, K), generator=gen, device=dev)
+        ox = torch.randint(0, H - crop_px + 1, (C, K), generator=gen, device=dev)
+    else:
+        oy, ox = offsets
     ar = torch.arange(crop_px, device=dev)
     yy = (oy[..., None] + ar)[:, :, :, None]  # C K P 1
     xx = (ox[..., None] + ar)[:, :, None, :]  # C K 1 P
@@ -55,10 +69,13 @@ def mean_latent(model, x: torch.Tensor) -> torch.Tensor:
 
 
 @torch.no_grad()
-def novelty(z: torch.Tensor, archive: torch.Tensor | None, k: int) -> torch.Tensor:
-    """Mean distance from each candidate latent to its k nearest archive latents (0 if archive empty)."""
+def novelty(z: torch.Tensor, archive: torch.Tensor | None, k: int, unit: bool = False) -> torch.Tensor:
+    """Mean distance from each candidate latent to its k nearest archive latents (0 if archive empty).
+    unit: compare L2-normalised latents (direction only), so 'loud' tiles with large latent norms don't win on norm."""
     if archive is None or len(archive) == 0:
         return torch.zeros(len(z), device=z.device)
+    if unit:
+        z, archive = F.normalize(z, dim=1), F.normalize(archive, dim=1)
     d = torch.cdist(z, archive)
     kk = min(k, archive.shape[0])
     return d.topk(kk, dim=1, largest=False).values.mean(1)

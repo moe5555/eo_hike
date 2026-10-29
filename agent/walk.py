@@ -164,15 +164,26 @@ def run(cfg: dict, name: str) -> Path:
                     start_cover=str(idx.cover[t]), confine_center=cfg.get("confine_center"), confine_radius_km=cfg.get("confine_radius_km"))
     (out / "meta.json").write_text(json.dumps(meta, indent=2))
 
-    def look(ids: list[int], g: torch.Generator, timeout: float | None = None):
+    def look(ids: list[int], g: torch.Generator, timeout: float | None = None, fixed: bool = False):
         img, is_tv, kept, st = T.get(ids, timeout)
-        return (S.patches(img, is_tv, K, crop, g) if kept else None), kept, st
+        if not kept:
+            return None, kept, st
+        off = S.fixed_offsets(kept, K, img.shape[1], crop, img.device) if fixed else None
+        return S.patches(img, is_tv, K, crop, g, off), kept, st
 
     rng = np.random.default_rng(seed)
     torch.manual_seed(seed)
     gen = torch.Generator(device=dev).manual_seed(seed)
     random_policy = cfg.get("policy", "curious") == "random"
     K, crop = int(cfg["K"]), int(cfg["crop_px"])
+    # hike revisions (notes/hikes_v3_revised/); the defaults are the v1/v3a walker
+    fixed_crops = cfg.get("score_crops", "random") == "fixed"  # score (and archive) with crops seeded by tile id; train on random crops
+    refresh = cfg.get("refresh_archive", "none") == "candidates"  # re-embed a candidate's own archive entries before novelty
+    unit_z = bool(cfg.get("normalise_latents", False))  # novelty on L2-normalised latents
+    return_cost = float(cfg.get("return_cost", 0.0))  # I -= return_cost * log(1 + visits)
+    no_backstep = bool(cfg.get("no_backstep", False))  # the tile just left is not a candidate
+    visits: dict[int, int] = {}
+    came_from = None
 
     model = opt = None
     if not random_policy:
@@ -201,7 +212,7 @@ def run(cfg: dict, name: str) -> Path:
         nonlocal arch_z
         zs = []
         for i in range(0, len(arch_tiles), 256):
-            x, kept, _ = look(arch_tiles[i : i + 256], gen, timeout=600.0)
+            x, kept, _ = look(arch_tiles[i : i + 256], gen, timeout=600.0, fixed=fixed_crops)
             assert len(kept) == len(arch_tiles[i : i + 256]), "visited tile missing from the store"
             zs.append(S.mean_latent(model, x))
         arch_z = torch.cat(zs)
@@ -217,6 +228,8 @@ def run(cfg: dict, name: str) -> Path:
             force_teleport = False
         else:
             cands = T.neighbours(t)
+            if no_backstep and came_from is not None:
+                cands = [c for c in cands if c != came_from] or cands
             kinds = ["neighbour"] * len(cands)
             if rng.random() < float(cfg["p_long_jump"]):
                 cands.append(T.random_tile(rng))
@@ -225,11 +238,11 @@ def run(cfg: dict, name: str) -> Path:
                 cands, kinds = [T.random_tile(rng)], ["empty"]
 
         # -- look (lazy store: candidates that can't be fetched in time are dropped) ----
-        x, kept, fst = look(cands, gen) if not random_policy else (None, cands, {})
+        x, kept, fst = look(cands, gen, fixed=fixed_crops) if not random_policy else (None, cands, {})
         n_redraw = 0
         if not random_policy and len(kept) < len(cands):
             if not kept:  # nothing arrived: wait longer rather than stall the walk on an empty choice
-                x, kept, fst2 = look(cands, gen, timeout=120.0)
+                x, kept, fst2 = look(cands, gen, timeout=120.0, fixed=fixed_crops)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst2["dropped"]
             while not kept:  # still nothing (e.g. one blind target that can't be fetched): blindly redraw it
@@ -237,7 +250,7 @@ def run(cfg: dict, name: str) -> Path:
                 if n_redraw > 50:
                     raise RuntimeError(f"step {step}: no candidate could be fetched after {n_redraw - 1} redraws")
                 cands, kinds = [T.random_tile(rng)], [kinds[0] if kinds[0] in ("bored", "empty") else "redraw"]
-                x, kept, fst2 = look(cands, gen, timeout=120.0)
+                x, kept, fst2 = look(cands, gen, timeout=120.0, fixed=fixed_crops)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst["dropped"] + fst2["dropped"]
             kinds = [k for c, k in zip(cands, kinds) if c in set(kept)]
@@ -254,10 +267,18 @@ def run(cfg: dict, name: str) -> Path:
             g_t, _, _ = S.progress_probe(model, x, float(cfg["lr"]), int(cfg["probe_steps"]))
             e_t = S.recon_err(model, x)
             z_c = S.mean_latent(model, x)
-            n_t = S.novelty(z_c, arch_z, int(cfg["k_nn"]))
+            seen = [c for c in cands if c in visits] if refresh and arch_z is not None else []
+            if seen:  # a fresh look at revisited candidates replaces their stale archive latents
+                xr, _, _ = look(seen, gen, timeout=600.0, fixed=fixed_crops)
+                at = torch.as_tensor(arch_tiles, device=dev)
+                for c, zr in zip(seen, S.mean_latent(model, xr)):
+                    arch_z[at == c] = zr
+            n_t = S.novelty(z_c, arch_z, int(cfg["k_nn"]), unit=unit_z)
             ez_t, gz_t = norms["e"](e_t), norms["g"](g_t)
             nz_t = norms["n"](n_t) if arch_z is not None else torch.zeros_like(n_t)
             I_t = float(cfg["w_n"]) * nz_t + float(cfg["w_g"]) * gz_t + float(cfg["w_e"]) * ez_t
+            if return_cost:
+                I_t = I_t - return_cost * torch.log1p(torch.tensor([visits.get(c, 0) for c in cands], dtype=I_t.dtype, device=dev))
             e, n, g, ez, nz, gz, I = (v.cpu().numpy().astype(np.float64) for v in (e_t, n_t, g_t, ez_t, nz_t, gz_t, I_t))
             logits = I / float(cfg["temperature"])
             p = np.exp(logits - logits.max())
@@ -267,12 +288,14 @@ def run(cfg: dict, name: str) -> Path:
             for c in range(C):
                 cand_log.append({"step": step, "tile_idx": cands[c], "kind": kinds[c], "e": e[c], "n": n[c], "g": g[c], "e_z": ez[c], "n_z": nz[c], "g_z": gz[c], "I": I[c], "p": p[c], "chosen": c == j})
         prev, t = t, cands[j]
+        came_from = prev
         T.prefetch(t)
 
         # -- train on the chosen tile --------------------------------------------------
         err_before = err_after = np.nan
         if not random_policy:
-            xt = x[j]  # the K patches the agent just looked at
+            xs = x[j]  # the K patches the agent just looked at
+            xt = look([t], gen, timeout=600.0)[0][0] if fixed_crops else xs  # training keeps random crops
             batch = xt
             if buf_n > 0:
                 ri = torch.randint(0, buf_n, (int(cfg["replay_batch"]),), generator=gen, device=dev)
@@ -286,7 +309,7 @@ def run(cfg: dict, name: str) -> Path:
                 opt.step()
             with torch.no_grad():
                 err_after = float(((model(xt) - xt) ** 2).mean())
-                zt = model.encode(xt).mean(0, keepdim=True)
+                zt = model.encode(xs).mean(0, keepdim=True)
             # memory: FIFO patch buffer and archive of visited latents (revisits push again)
             for pch in xt:
                 buf[buf_ptr] = pch
@@ -294,6 +317,7 @@ def run(cfg: dict, name: str) -> Path:
                 buf_n = min(buf_n + 1, len(buf))
             arch_tiles.append(t)
             arch_z = zt if arch_z is None else torch.cat([arch_z, zt])
+            visits[t] = visits.get(t, 0) + 1
 
         # -- boredom -------------------------------------------------------------------
         B_before = B

@@ -1,0 +1,38 @@
+# Hike revision (notes/hikes_v3_revised/): the global baseline walker with all three perception fixes (options 1-3).
+policy: curious       # curious | random
+seed: 0               # random init of the network (identical settings, different seeds -> divergence)
+start_lat: 45.46      # birthplace: Milan, the v1 start (Alps, Po plain, lakes, Apennines and coast all within ~150 km)
+start_lon: 9.19
+crop_px: 64           # scale of attention (32 ~ 1.3 km, 64 ~ 2.6 km, 128 ~ 5 km)
+lr: 1.0e-3            # how quickly things become familiar
+buffer_size: 2048     # memory (patches)
+radius_km: 15         # neighbourhood radius ~ step size (~8 neighbours)
+p_long_jump: 0.02     # chance a random far tile is added to the candidates
+patience: 0.6         # boredom threshold
+temperature: 0.5      # softmax temperature over interest
+w_n: 1.0              # novelty weight
+w_g: 1.0              # progress weight
+w_e: 0.0              # raw surprise weight
+steps: 5000
+# fixed mechanics
+K: 16                 # patches per tile
+k_nn: 10              # novelty kNN in the archive
+probe_steps: 3        # s: Adam steps in the progress probe
+update_steps: 4       # u: Adam steps on the chosen tile
+replay_batch: 48      # replay patches mixed into each update (16 new + 48 replay = 64)
+reembed_every: 100
+ema_alpha: 0.02       # running z-score rate (~50-step memory)
+heldout_every: 25
+ckpt_every: 250
+# dreams v3 world
+world: global         # long jumps and bored teleports draw from the whole filtered global index (blind)
+heldout: global       # the 200 held-out tiles are drawn from the global index (same set for the confined walker)
+cache_gb: 50          # on-disk LRU tile cache
+prefetch_ring_km: 10  # prefetch radius_km + this around the current tile
+fetch_timeout: 30     # seconds; candidates not fetched in time are dropped from that step and logged
+# hike revisions (notes/hikes_v3_revised/, reflection_revisits.md options 1-4); defaults = the v3a walker
+score_crops: fixed            # random | fixed: score candidates (and the archive) on crops seeded by tile id; training keeps random crops
+refresh_archive: candidates   # none | candidates: re-embed a candidate's own archive entries (fresh look, current model) before novelty
+normalise_latents: true       # novelty on L2-normalised latents
+return_cost: 0.0              # temperament, not a fix: I -= return_cost * log(1 + visits)
+no_backstep: false            # temperament, not a fix: the tile just left is not a candidate

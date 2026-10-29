@@ -8,6 +8,7 @@ One entry per experiment, in the order they were run. Each one has a brief (what
 | 2 | Dreams v2: native 10 m + novelty at sampling time | 2026-10-27 | Do 10 m crops and agent-driven selection or guidance change the dreams? | done (Step B, 128 px, not run) | `notes/dreams_v2/` |
 | 3a | Dreams v3, part 1: global and confined walks | 2026-10-28 | The v1 baseline agent walking the whole planet vs. confined to the Great Sand Sea | walks done; being revised | `notes/dreams_v3/` |
 | 3b | Dreams v3, part 2: per-agent StyleGAN2 + latent search | 2026-10-28 | Can the agent's learning progress steer a GAN's latent space to dreams beyond what it saw? | paused before training | `notes/dreams_v3/` |
+| 3c | Hikes v3 revised | 2026-10-29 | Do the walkers still dwell and step straight back once perception is fixed (fixed crops, fresh archive latents, normalised latents)? | in progress | `notes/hikes_v3_revised/` |
 
 ## 1. First walk + dreams v1
 
@@ -59,3 +60,13 @@ All documents and figures in `notes/dreams_v3/`:
 - Scripts: `scripts/dreams_v3_train.bat`, `scripts/dreams_v3_chain.bat`, `scripts/dreams_v3_search.bat`, `scripts/sg.bat` (StyleGAN environment), `scripts/stylegan3_torch2.patch`
 - External: NVlabs `stylegan3` at `c233a91` in `third_party/stylegan3`, venv `.venv-sg` (both git-ignored; setup in `run_log.md`)
 - Outputs: `data/v3/` (GAN datasets, 18 GB), `runs/global_baseline_s0/dreams_v3/` (maps, the stopped `gan/base` run)
+
+## 3c. Hikes v3 revised
+
+All documents in `notes/hikes_v3_revised/`:
+
+- Starting point: `notes/dreams_v3/reflection_revisits.md` (options 1–4), `moe_hike_v3_observations.md`; v3a code tagged `v3a-walks`
+- Log (Mac setup, the revision switches, runs): `log.md`
+- Code: revision switches in `agent/walk.py` and `agent/signals.py` (`score_crops`, `refresh_archive`, `normalise_latents`, `return_cost`, `no_backstep`; defaults = v3a walker)
+- Configs: `configs/global_{fixedcrops,freshlatents,unitlatents,perception}.yaml`
+- Runs: `runs/global_baseline_1k_s0/` and the revisions, 1,000 steps on the Mac (CPU)
