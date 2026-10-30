@@ -9,6 +9,7 @@ One entry per experiment, in the order they were run. Each one has a brief (what
 | 3a | Dreams v3, part 1: global and confined walks | 2026-10-28 | The v1 baseline agent walking the whole planet vs. confined to the Great Sand Sea | walks done; being revised | `notes/dreams_v3/` |
 | 3b | Dreams v3, part 2: per-agent StyleGAN2 + latent search | 2026-10-28 | Can the agent's learning progress steer a GAN's latent space to dreams beyond what it saw? | paused before training | `notes/dreams_v3/` |
 | 3c | Hikes v3 revised | 2026-10-29 | Do the walkers still dwell and step straight back once perception is fixed (fixed crops, fresh archive latents, normalised latents)? | in progress | `notes/hikes_v3_revised/` |
+| 4 | Attention films | 2026-10-29 | Where does a walker look inside a tile it found novel, and in what order? Rendered as a Ken Burns film | first films | `notes/attention_films/` |
 
 ## 1. First walk + dreams v1
 
@@ -70,3 +71,12 @@ All documents in `notes/hikes_v3_revised/`:
 - Code: revision switches in `agent/walk.py` and `agent/signals.py` (`score_crops`, `refresh_archive`, `normalise_latents`, `return_cost`, `no_backstep`; defaults = v3a walker)
 - Configs: `configs/global_{fixedcrops,freshlatents,unitlatents,perception}.yaml`
 - Runs: `runs/global_baseline_1k_s0/` and the revisions, 1,000 steps on the Mac (CPU)
+
+## 4. Attention films
+
+All documents in `notes/attention_films/`:
+
+- Log (no gaze in the walker, the three orders, decisions, runs): `log.md`
+- Follows main's per-patch novelty heat maps (`src/hiker/heatmap.py` on `main`)
+- Code: `analysis/attention.py` (maps, shotlist, preview), `analysis/kenburns.py` (shotlist → MP4)
+- Outputs: `runs/<run>/attention/step_<step>_<order>/` (`shotlist.json`, `maps.npz`, `preview.png`, `film.mp4`)
