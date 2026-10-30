@@ -1,6 +1,6 @@
 # Hikes v3 revised: log
 
-Revising the v3a walks before the GAN dreams (3b) are trained on them. Starting point: the revisit analysis in `notes/dreams_v3/reflection_revisits.md` (the walkers spend ~78 % of steps on tiles they have seen, 43 % of global steps go straight back) and the artist's notes in `moe_hike_v3_observations.md`. The v3a code state is tagged `v3a-walks`.
+Revising the v3a walks before the GAN dreams (3b) are trained on them. Starting point: the revisit analysis in `notes/dreams_v3/reflection_revisits.md` (the walkers spend ~78 % of steps on tiles they have seen, 43 % of global steps go straight back) and the artist's notes in `notes/moe_hike_v3_observations.md`. The v3a code state is tagged `v3a-walks`.
 
 Expectation: not written yet; to be written before the first revised walk, and not edited afterwards.
 
@@ -32,4 +32,5 @@ Configs: `configs/global_fixedcrops.yaml` (1), `global_freshlatents.yaml` (2), `
 
 | Run | Config | Steps | Machine | Notes |
 |---|---|---|---|---|
-| `runs/global_baseline_1k_s0` | `global_baseline.yaml` | 1,000 | Mac (CPU) | Mac baseline for the revisions; git hash marked dirty (uncommitted edit to `moe_hike_v3_observations.md`), code otherwise `v3a-walks` |
+| `runs/global_baseline_1k_s0` | `global_baseline.yaml` | 1,000 | Mac (CPU) | Mac baseline for the revisions; git hash marked dirty (uncommitted edit to the artist's notes), code otherwise `v3a-walks` |
+| `runs/global_perception_1k_s0` | `global_perception.yaml` | 1,000 | Mac (CPU) | options 1–3 together; code `157d2a0`, marked dirty only by the same uncommitted notes edit |

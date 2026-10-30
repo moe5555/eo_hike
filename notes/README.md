@@ -45,7 +45,7 @@ All documents and figures in `notes/dreams_v3/`:
 - **Status when paused, and how to continue: `status_paused_2026-10-28.md`**
 - Reflection on the walkers' revisits: `reflection_revisits.md` (+ `revisit_attractors.png`)
 - Figures: `world_coverage.png`, `global_stretch.png`
-- The artist's own notes on the v3 hikes: `moe_hike_v3_observations.md` (repo root)
+- The artist's own notes on the v3 hikes: `notes/moe_hike_v3_observations.md`
 
 3a, walks:
 
@@ -65,7 +65,7 @@ All documents and figures in `notes/dreams_v3/`:
 
 All documents in `notes/hikes_v3_revised/`:
 
-- Starting point: `notes/dreams_v3/reflection_revisits.md` (options 1–4), `moe_hike_v3_observations.md`; v3a code tagged `v3a-walks`
+- Starting point: `notes/dreams_v3/reflection_revisits.md` (options 1–4), `notes/moe_hike_v3_observations.md`; v3a code tagged `v3a-walks`
 - Log (Mac setup, the revision switches, runs): `log.md`
 - Code: revision switches in `agent/walk.py` and `agent/signals.py` (`score_crops`, `refresh_archive`, `normalise_latents`, `return_cost`, `no_backstep`; defaults = v3a walker)
 - Configs: `configs/global_{fixedcrops,freshlatents,unitlatents,perception}.yaml`
