@@ -10,6 +10,7 @@ One entry per experiment, in the order they were run. Each one has a brief (what
 | 3b | Dreams v3, part 2: per-agent StyleGAN2 + latent search | 2026-10-28 | Can the agent's learning progress steer a GAN's latent space to dreams beyond what it saw? | paused before training | `notes/dreams_v3/` |
 | 3c | Hikes v3 revised | 2026-10-29 | Do the walkers still dwell and step straight back once perception is fixed (fixed crops, fresh archive latents, normalised latents)? | in progress | `notes/hikes_v3_revised/` |
 | 4 | Attention films | 2026-10-29 | Where does a walker look inside a tile it found novel, and in what order? Rendered as a Ken Burns film | first films | `notes/attention_films/` |
+| 5 | Hikes 29.10: four characters | 2026-10-29 | Do Bored, Globalist, Localist and Fast learner settings give walks that differ by more than the seed-to-seed spread? | done (part 1: 1,000 steps from Milan; part 2: 5,000 steps from Paris) | `notes/hikes_2910/` |
 
 ## 1. First walk + dreams v1
 
@@ -80,3 +81,16 @@ All documents in `notes/attention_films/`:
 - Follows main's per-patch novelty heat maps (`src/hiker/heatmap.py` on `main`)
 - Code: `analysis/attention.py` (maps, shotlist, preview), `analysis/kenburns.py` (shotlist → MP4)
 - Outputs: `runs/<run>/attention/step_<step>_<order>/` (`shotlist.json`, `maps.npz`, `preview.png`, `film.mp4`)
+
+## 5. Hikes 29.10: four characters
+
+All documents in `notes/hikes_2910/`:
+
+- Brief (request as written + adjustments): `brief.md`
+- Expectation: `expectations.md`
+- Log: `log.md`
+- Observations, parts 1 and 2: `observations.md` (+ `summary.csv`, `paris_summary.csv`, `paris_blocks.csv`, `paris_maps.png`, `paris_curves.png`, `maps_world.png`, `maps_milan.png`, `curves.png`); analysis `analysis/h2910_compare.py`
+- Configs: `configs/h2910_{bored,globalist,localist,fastlearner}.yaml` (each `global_perception.yaml` at 1,000 steps with one or two keys changed)
+- Script: `scripts/hikes_2910.sh`
+- Runs: `runs/h2910_<character>_s{0,1}/`, reference `runs/global_perception_1k_s{0,1}/`
+- Part 2: Bored and Globalist, 5,000 steps from Paris: `configs/h2910_{bored,globalist}_paris.yaml`, `scripts/hikes_2910_paris.sh`, `runs/h2910_{bored,globalist}_paris_s0/`
