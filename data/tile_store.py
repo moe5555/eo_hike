@@ -136,8 +136,8 @@ class TileStore:
                 f = self._fs().open(self._signed(url), "rb", block_size=1 << 20, cache_type="none")
                 size = f.size
                 md = pq.ParquetFile(f).metadata
-                md.write_metadata_file(str(mp) + ".part")
-                os.replace(str(mp) + ".part", mp)
+                md.write_metadata_file(f"{mp}.part{os.getpid()}")
+                os.replace(f"{mp}.part{os.getpid()}", mp)
                 jp.write_text(json.dumps({"size": size}))
             self.meta_mem[url] = (md, size)
             return md, size
@@ -236,11 +236,12 @@ class TileStore:
         pp = self._p("png", i)
         pp.parent.mkdir(parents=True, exist_ok=True)
         lp.parent.mkdir(parents=True, exist_ok=True)
-        pp.with_suffix(".part").write_bytes(png)
-        os.replace(pp.with_suffix(".part"), pp)
-        with open(lp.with_suffix(".part"), "wb") as fh:
+        part = f".part{os.getpid()}"  # walkers running side by side may fetch the same tile
+        pp.with_suffix(part).write_bytes(png)
+        os.replace(pp.with_suffix(part), pp)
+        with open(lp.with_suffix(part), "wb") as fh:
             np.save(fh, low)
-        os.replace(lp.with_suffix(".part"), lp)
+        os.replace(lp.with_suffix(part), lp)
         self._admit(i, len(png) + low.nbytes + 128)
         return low
 

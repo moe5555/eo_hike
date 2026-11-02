@@ -22,12 +22,16 @@ import yaml
 from PIL import Image
 
 from agent import signals as S
-from agent.model import ConvAE
+from agent.model import CH, LATENT, ConvAE
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 RUNS = ROOT / "runs"
 HELDOUT_N, HELDOUT_SEED = 200, 12345
+# rng_mode: split, one independent generator per decision, in this order (SeedSequence children depend only on their position).
+# "start" and "neighbours" draw nothing today: the start is the tile nearest start_lat/lon and every neighbour in radius is a
+# candidate. They hold their places so that a future draw there shifts nothing else.
+RNG_STREAMS = ("start", "neighbours", "offers", "landing", "choice", "init", "crops", "replay", "daydream")
 
 
 class RegionalTiles:
@@ -171,9 +175,15 @@ def run(cfg: dict, name: str) -> Path:
         off = S.fixed_offsets(kept, K, img.shape[1], crop, img.device) if fixed else None
         return S.patches(img, is_tv, K, crop, g, off), kept, st
 
-    rng = np.random.default_rng(seed)
-    torch.manual_seed(seed)
-    gen = torch.Generator(device=dev).manual_seed(seed)
+    if cfg.get("rng_mode", "legacy") == "split":
+        ss = dict(zip(RNG_STREAMS, np.random.SeedSequence(seed).spawn(len(RNG_STREAMS))))
+        r_offer, r_land, r_choice = (np.random.default_rng(ss[k]) for k in ("offers", "landing", "choice"))
+        torch.manual_seed(int(ss["init"].generate_state(1)[0]))
+        gen, gen_replay, gen_dream = (torch.Generator(device=dev).manual_seed(int(ss[k].generate_state(1)[0])) for k in ("crops", "replay", "daydream"))
+    else:
+        r_offer = r_land = r_choice = np.random.default_rng(seed)
+        torch.manual_seed(seed)
+        gen = gen_replay = gen_dream = torch.Generator(device=dev).manual_seed(seed)
     random_policy = cfg.get("policy", "curious") == "random"
     K, crop = int(cfg["K"]), int(cfg["crop_px"])
     # hike revisions (notes/hikes_v3_revised/); the defaults are the v1/v3a walker
@@ -182,12 +192,17 @@ def run(cfg: dict, name: str) -> Path:
     unit_z = bool(cfg.get("normalise_latents", False))  # novelty on L2-normalised latents
     return_cost = float(cfg.get("return_cost", 0.0))  # I -= return_cost * log(1 + visits)
     no_backstep = bool(cfg.get("no_backstep", False))  # the tile just left is not a candidate
+    # round h0111 (notes/brief_0111.md); the defaults are the h2910 walker
+    uniform_choice = cfg.get("choice", "softmax") == "uniform"  # all signals computed and logged, the choice ignores them
+    land_k = int(cfg.get("landing_k", 1)) if cfg.get("teleport_landing", "blind") == "best_of_k" else 0  # teleport to the most novel of k random tiles
+    log_prev = bool(cfg.get("log_prev_error", False))  # log the error on the current and previous tile after each update
+    ae_width = float(cfg.get("ae_width", 1.0))  # multiplies the autoencoder's channels and latent size
     visits: dict[int, int] = {}
     came_from = None
 
     model = opt = None
     if not random_policy:
-        model = ConvAE().to(dev)
+        model = ConvAE(tuple(int(c * ae_width) for c in CH), int(LATENT * ae_width)).to(dev)
         opt = torch.optim.Adam(model.parameters(), lr=float(cfg["lr"]))
         # fixed held-out set: same 200 tiles and crop positions for every run of this crop_px
         hrng = np.random.default_rng(HELDOUT_SEED)
@@ -202,7 +217,7 @@ def run(cfg: dict, name: str) -> Path:
     arch_z: torch.Tensor | None = None
     B = 0.0
     force_teleport = False
-    steps_log, cand_log, held_log = [], [], []
+    steps_log, cand_log, held_log, land_log = [], [], [], []
     t0 = time.time()
 
     def heldout_eval(step):
@@ -217,6 +232,17 @@ def run(cfg: dict, name: str) -> Path:
             zs.append(S.mean_latent(model, x))
         arch_z = torch.cat(zs)
 
+    def best_landing(step: int) -> int:
+        """The most novel of land_k random tiles under the current network; the first draw if none of them could be fetched."""
+        offers = [T.random_tile(r_land) for _ in range(land_k)]
+        xl, kept, _ = look(offers, gen, fixed=fixed_crops)
+        if not kept:
+            return offers[0]
+        nl = S.novelty(S.mean_latent(model, xl), arch_z, int(cfg["k_nn"]), unit=unit_z).cpu().numpy()
+        best = int(nl.argmax())
+        land_log.extend({"step": step, "tile_idx": i, "n": float(v), "landed": o == best} for o, (i, v) in enumerate(zip(kept, nl)))
+        return kept[best]
+
     if model is not None:
         heldout_eval(0)
 
@@ -224,18 +250,18 @@ def run(cfg: dict, name: str) -> Path:
         ts = time.time()
         # -- candidates ------------------------------------------------------------
         if force_teleport:
-            cands, kinds = [T.random_tile(rng)], ["bored"]
+            cands, kinds = [best_landing(step) if land_k else T.random_tile(r_land)], ["bored"]
             force_teleport = False
         else:
             cands = T.neighbours(t)
             if no_backstep and came_from is not None:
                 cands = [c for c in cands if c != came_from] or cands
             kinds = ["neighbour"] * len(cands)
-            if rng.random() < float(cfg["p_long_jump"]):
-                cands.append(T.random_tile(rng))
+            if r_offer.random() < float(cfg["p_long_jump"]):
+                cands.append(T.random_tile(r_offer))
                 kinds.append("long")
             if not cands:
-                cands, kinds = [T.random_tile(rng)], ["empty"]
+                cands, kinds = [T.random_tile(r_land)], ["empty"]
 
         # -- look (lazy store: candidates that can't be fetched in time are dropped) ----
         x, kept, fst = look(cands, gen, fixed=fixed_crops) if not random_policy else (None, cands, {})
@@ -249,7 +275,7 @@ def run(cfg: dict, name: str) -> Path:
                 n_redraw += 1
                 if n_redraw > 50:
                     raise RuntimeError(f"step {step}: no candidate could be fetched after {n_redraw - 1} redraws")
-                cands, kinds = [T.random_tile(rng)], [kinds[0] if kinds[0] in ("bored", "empty") else "redraw"]
+                cands, kinds = [T.random_tile(r_land)], [kinds[0] if kinds[0] in ("bored", "empty") else "redraw"]
                 x, kept, fst2 = look(cands, gen, timeout=120.0, fixed=fixed_crops)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst["dropped"] + fst2["dropped"]
@@ -260,7 +286,7 @@ def run(cfg: dict, name: str) -> Path:
         # -- signals + choice --------------------------------------------------------
         rec = {"step": step}
         if random_policy:
-            j = int(rng.integers(C))
+            j = int(r_choice.integers(C))
             e = n = g = ez = nz = gz = I = np.full(C, np.nan)
             maxI = np.nan
         else:
@@ -283,7 +309,9 @@ def run(cfg: dict, name: str) -> Path:
             logits = I / float(cfg["temperature"])
             p = np.exp(logits - logits.max())
             p /= p.sum()
-            j = int(rng.choice(C, p=p))
+            if uniform_choice:
+                p = np.full(C, 1.0 / C)
+            j = int(r_choice.choice(C, p=p))
             maxI = float(I.max())
             for c in range(C):
                 cand_log.append({"step": step, "tile_idx": cands[c], "kind": kinds[c], "e": e[c], "n": n[c], "g": g[c], "e_z": ez[c], "n_z": nz[c], "g_z": gz[c], "I": I[c], "p": p[c], "chosen": c == j})
@@ -298,7 +326,7 @@ def run(cfg: dict, name: str) -> Path:
             xt = look([t], gen, timeout=600.0)[0][0] if fixed_crops else xs  # training keeps random crops
             batch = xt
             if buf_n > 0:
-                ri = torch.randint(0, buf_n, (int(cfg["replay_batch"]),), generator=gen, device=dev)
+                ri = torch.randint(0, buf_n, (int(cfg["replay_batch"]),), generator=gen_replay, device=dev)
                 batch = torch.cat([xt, buf[ri]])
             with torch.no_grad():
                 err_before = float(((model(xt) - xt) ** 2).mean())
@@ -310,6 +338,9 @@ def run(cfg: dict, name: str) -> Path:
             with torch.no_grad():
                 err_after = float(((model(xt) - xt) ** 2).mean())
                 zt = model.encode(xs).mean(0, keepdim=True)
+            if log_prev:  # the scoring crops of each tile, so comparable with candidates.parquet; draws no random numbers
+                rec["e_self_after"] = float(S.recon_err(model, look([t], gen, timeout=600.0, fixed=True)[0]))
+                rec["e_prev_after"] = float(S.recon_err(model, look([prev], gen, timeout=600.0, fixed=True)[0]))
             # memory: FIFO patch buffer and archive of visited latents (revisits push again)
             for pch in xt:
                 buf[buf_ptr] = pch
@@ -327,7 +358,7 @@ def run(cfg: dict, name: str) -> Path:
             if B > float(cfg["patience"]):
                 bored = True
                 torch.save({"model": model.state_dict(), "step": step}, out / f"bored_{step:04d}.pt")
-                daydream(model, arch_z, gen, out / "daydreams" / f"bored_{step:04d}.png", int(cfg["k_nn"]))
+                daydream(model, arch_z, gen_dream, out / "daydreams" / f"bored_{step:04d}.png", int(cfg["k_nn"]))
                 B = 0.0
                 force_teleport = True
 
@@ -365,7 +396,9 @@ def run(cfg: dict, name: str) -> Path:
         torch.save({"model": model.state_dict(), "step": int(cfg["steps"]), "norms": {k: v.state() for k, v in norms.items()}}, out / "final.pt")
         reembed()
         np.savez(out / "archive.npz", z=arch_z.cpu().numpy(), tile_idx=np.array(arch_tiles))
-        daydream(model, arch_z, gen, out / "daydreams" / "final.png", int(cfg["k_nn"]))
+        daydream(model, arch_z, gen_dream, out / "daydreams" / "final.png", int(cfg["k_nn"]))
+        if land_log:
+            pd.DataFrame(land_log).to_parquet(out / "landings.parquet")
     meta.update(finished=time.strftime("%Y-%m-%d %H:%M:%S"), seconds=round(time.time() - t0, 1))
     if T.name != "regional":
         meta["store"] = T.summary()
