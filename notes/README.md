@@ -11,6 +11,7 @@ One entry per experiment, in the order they were run. Each one has a brief (what
 | 3c | Hikes v3 revised | 2026-10-29 | Do the walkers still dwell and step straight back once perception is fixed (fixed crops, fresh archive latents, normalised latents)? | in progress | `notes/hikes_v3_revised/` |
 | 4 | Attention films | 2026-10-29 | Where does a walker look inside a tile it found novel, and in what order? Rendered as a Ken Burns film | first films | `notes/attention_films/` |
 | 5 | Hikes 29.10: four characters | 2026-10-29 | Do Bored, Globalist, Localist and Fast learner settings give walks that differ by more than the seed-to-seed spread? | done (part 1: 1,000 steps from Milan; part 2: 5,000 steps from Paris) | `notes/hikes_2910/` |
+| 6 | Round h0111 | 2026-11-01 | Emergent or designed arc for the film? Is "interesting" the same as "hard to draw", and what does the scorer really do? | done (the recommended 5,000-step walk not run) | `notes/` (top level, see below) |
 
 ## 1. First walk + dreams v1
 
@@ -90,8 +91,21 @@ All documents in `notes/hikes_2910/`:
 - Expectation: `expectations.md`
 - Log: `log.md`
 - Observations, parts 1 and 2: `observations.md` (+ `summary.csv`, `paris_summary.csv`, `paris_blocks.csv`, `paris_maps.png`, `paris_curves.png`, `maps_world.png`, `maps_milan.png`, `curves.png`); analysis `analysis/h2910_compare.py`
-- Configs: `configs/h2910_{bored,globalist,localist,fastlearner}.yaml` (each `global_perception.yaml` at 1,000 steps with one or two keys changed)
 - Reflection on why the walkers still return: `reflection_revisits.md` (+ `revisit_favourites.png`); analysis `analysis/h2910_revisits.py`
+- Configs: `configs/h2910_{bored,globalist,localist,fastlearner}.yaml` (each `global_perception.yaml` at 1,000 steps with one or two keys changed)
 - Script: `scripts/hikes_2910.sh`
 - Runs: `runs/h2910_<character>_s{0,1}/`, reference `runs/global_perception_1k_s{0,1}/`
 - Part 2: Bored and Globalist, 5,000 steps from Paris: `configs/h2910_{bored,globalist}_paris.yaml`, `scripts/hikes_2910_paris.sh`, `runs/h2910_{bored,globalist}_paris_s0/`
+
+## 6. Round h0111
+
+Documents in `notes/`:
+
+- Brief: `brief_0111.md`
+- Expectation: `hikes_2910/expectations.md`, section "Round h0111"
+- Log (decisions, deviations, the `.git` incident): `log_h0111.md`
+- Observations, action plan, config options: `observations_h0111.md`
+- Code: `analysis/h0111/` (scripts, CSVs, figures, contact sheets); options in `agent/walk.py` (`rng_mode`, `choice`, `teleport_landing`, `landing_k`, `log_prev_error`, `ae_width`; defaults = the h2910 walker)
+- Configs: `configs/h0111_*.yaml`; `configs/h0111_walk_5k.yaml` is the recommended walk, not yet run
+- Script: `scripts/hikes_0111.sh` (`start`, `stop`; with a disk and `.git` watchdog)
+- Runs: `runs/h0111_*`; films in `runs/h0111_films/`
