@@ -4,7 +4,7 @@ seed: 0               # random init of the network (identical settings, differen
 start_lat: 45.46      # birthplace: Milan, the v1 start (Alps, Po plain, lakes, Apennines and coast all within ~150 km)
 start_lon: 9.19
 crop_px: 64           # scale of attention (32 ~ 1.3 km, 64 ~ 2.6 km, 128 ~ 5 km)
-lr: 3.0e-3            # how quickly things become familiar   # hikes_2910 (was 1.0e-3)
+lr: 3.0e-3            # how quickly things become familiar   # hikes_2910 (was 1.0e-3)   # UNSAFE: seed 1's network died at step 142 (notes/hikes_2910/observations.md, part 1, §5)
 buffer_size: 2048     # memory (patches)
 radius_km: 15         # neighbourhood radius ~ step size (~8 neighbours)
 p_long_jump: 0.02     # chance a random far tile is added to the candidates

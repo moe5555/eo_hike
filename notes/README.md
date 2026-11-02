@@ -91,6 +91,7 @@ All documents in `notes/hikes_2910/`:
 - Log: `log.md`
 - Observations, parts 1 and 2: `observations.md` (+ `summary.csv`, `paris_summary.csv`, `paris_blocks.csv`, `paris_maps.png`, `paris_curves.png`, `maps_world.png`, `maps_milan.png`, `curves.png`); analysis `analysis/h2910_compare.py`
 - Configs: `configs/h2910_{bored,globalist,localist,fastlearner}.yaml` (each `global_perception.yaml` at 1,000 steps with one or two keys changed)
+- Reflection on why the walkers still return: `reflection_revisits.md` (+ `revisit_favourites.png`); analysis `analysis/h2910_revisits.py`
 - Script: `scripts/hikes_2910.sh`
 - Runs: `runs/h2910_<character>_s{0,1}/`, reference `runs/global_perception_1k_s{0,1}/`
 - Part 2: Bored and Globalist, 5,000 steps from Paris: `configs/h2910_{bored,globalist}_paris.yaml`, `scripts/hikes_2910_paris.sh`, `runs/h2910_{bored,globalist}_paris_s0/`
