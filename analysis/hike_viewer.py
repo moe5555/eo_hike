@@ -8,8 +8,13 @@ a filmstrip, a map of the path so far, the step's signals (I, n_z, g_z, e_z, B),
 bored events and long jumps, and the latest daydream. Images and data are embedded, so the file can be moved
 or sent on its own. Each unique tile is stored once; revisits reuse it.
 
-Keys: <-/-> step, Shift = 10, PgUp/PgDn = 100, Home/End, Space play, +/- speed,
+Keys: <-/-> step, Shift = 10, PgUp/PgDn = 100, Home/End, Space play, +/- speed, W player (fixed / weighted), D remove duplicates (weighted),
 B / Shift+B next / previous bored event, J / Shift+J next / previous long jump, M map zoom (path / world / near).
+
+Two players. Fixed: a constant number of steps per second. Weighted: each step is held for a duration set by its I,
+d = i * x^s above the typical interest m and d = i / y^s below it, where s is the distance from m as a share of the
+way to H or L, at most 1. i, x and y can be changed in the page; changing i keeps every ratio between durations.
+"Remove duplicates" shows each tile once, at its first visit and with that visit's duration; the map keeps the whole path.
 """
 
 from __future__ import annotations
@@ -32,6 +37,7 @@ from data.tile_store import EARTH_R_KM  # noqa: E402
 
 MAP_W = 960  # land raster width (drawn at half size, so it stays sharp on hi-dpi screens)
 JUMP_KM = 30.0  # moves longer than this are drawn as dashed jumps, as in analysis/v3_maps.py
+TIMING = {"m": 1.1, "H": 5.5, "L": -1.3}  # weighted player: about the median, p99 and p1 of the chosen tiles' I over the fixed-perception walks
 
 
 def jpeg_uri(a: np.ndarray, px: int, quality: int) -> str:
@@ -141,7 +147,7 @@ def build(run: Path, hires: bool, px: int | None, quality: int) -> Path:
     data = {
         "run": run.name, "world": cfg.get("world", "regional"), "policy": cfg.get("policy"), "seed": meta.get("seed"),
         "started": meta.get("started"), "px": px, "hires": bool(hires and cfg.get("world", "regional") != "regional"),
-        "patience": float(cfg.get("patience", np.nan)), "jump_km": JUMP_KM,
+        "patience": float(cfg.get("patience", np.nan)), "jump_km": JUMP_KM, "timing": TIMING,
         "confine": None if conf is None else {"lat": r(conf[0], 4), "lon": r(conf[1], 4), "r_km": float(cfg["confine_radius_km"])},
         "views": views,
         "steps": {
@@ -202,6 +208,8 @@ PAGE = r"""<!DOCTYPE html>
   #controls { display:flex; gap:8px; align-items:center; padding:10px 18px 4px; flex-wrap:wrap; }
   #controls .grow { flex:1; }
   #stepin { width:80px; }
+  #weightset input[type=number] { width:68px; }
+  #wclock { color:var(--muted); font-variant-numeric:tabular-nums; }
   #timeline { display:block; width:calc(100% - 36px); margin:0 18px; height:86px; cursor:pointer; background:var(--panel); border:1px solid var(--line); border-radius:6px; }
   #slider { width:calc(100% - 36px); margin:6px 18px 0; }
   #legend { padding:2px 18px; color:var(--muted); font-size:12px; }
@@ -236,7 +244,15 @@ PAGE = r"""<!DOCTYPE html>
   <button id="play" title="Space" style="min-width:70px">&#x25B6; play</button>
   <button id="next" title="&rarr;">&#x25B6;</button>
   <button id="last" title="End">&#x23ED;</button>
-  <label>speed <select id="speed"></select></label>
+  <label>player <select id="pmode" title="W"><option value="fixed">fixed speed</option><option value="weighted">weighted by interest</option></select></label>
+  <label id="fixedset">speed <select id="speed"></select></label>
+  <span id="weightset" hidden>
+    <label title="seconds for a tile of typical interest">i <input id="wi" type="number" min="0.01" step="0.05"> s</label>
+    <label title="how much the most interesting tiles are slowed down">x <input id="wx" type="number" min="1" step="0.5"></label>
+    <label title="how much the most boring tiles are sped up">y <input id="wy" type="number" min="1" step="0.5"></label>
+    <label title="D: show each tile once, at its first visit"><input id="wdedupe" type="checkbox"> remove duplicates</label>
+    <span id="wclock"></span>
+  </span>
   <span class="grow"></span>
   <button id="pbored" title="Shift+B">&larr; bored</button><button id="nbored" title="B">bored &rarr;</button>
   <button id="plong" title="Shift+J">&larr; long jump</button><button id="nlong" title="J">long jump &rarr;</button>
@@ -250,7 +266,7 @@ PAGE = r"""<!DOCTYPE html>
 </div>
 <div id="keys">
   <kbd>&larr;</kbd><kbd>&rarr;</kbd> step &nbsp; <kbd>Shift</kbd> &times;10 &nbsp; <kbd>PgUp</kbd><kbd>PgDn</kbd> &times;100 &nbsp;
-  <kbd>Home</kbd><kbd>End</kbd> &nbsp; <kbd>Space</kbd> play &nbsp; <kbd>+</kbd><kbd>-</kbd> speed &nbsp;
+  <kbd>Home</kbd><kbd>End</kbd> &nbsp; <kbd>Space</kbd> play &nbsp; <kbd>+</kbd><kbd>-</kbd> speed &nbsp; <kbd>W</kbd> player &nbsp; <kbd>D</kbd> remove duplicates &nbsp;
   <kbd>B</kbd> next bored event &nbsp; <kbd>J</kbd> next long jump (<kbd>Shift</kbd> = previous) &nbsp; <kbd>M</kbd> map zoom (path / world / near) &nbsp;
   the URL keeps the step (<code>#step=123</code>)
 </div>
@@ -417,6 +433,8 @@ function drawInfo() {
     ["move", `${badge(S.jump[i])} ${fmt(S.dist[i], 1)} km`],
     ["candidates", S.n_cand[i]],
     ["I (chosen / max)", `<b>${fmt(S.I[i])}</b> / ${fmt(S.max_I[i])}`],
+    mode === "weighted" ? ["held for", `<b>${dur[i].toFixed(2)} s</b> (i &times; ${(dur[i] / wi).toFixed(2)})`] : null,
+    filming() ? ["returns not shown", visitsOf[t] - 1] : null,
     ["novelty n_z", fmt(S.n_z[i])],
     ["learning progress g_z", fmt(S.g_z[i])],
     ["recon error e_z", fmt(S.e_z[i])],
@@ -425,8 +443,8 @@ function drawInfo() {
   ].filter(Boolean);
   $("info").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
   for (let k = 0; k < STRIP; k++) {
-    const j = i + k - (STRIP >> 1), e = stripEls[k];
-    if (j < 0 || j >= N) { e.f.style.visibility = "hidden"; continue; }
+    const j = filming() ? order[pos[i] + k - (STRIP >> 1)] : i + k - (STRIP >> 1), e = stripEls[k];
+    if (j === undefined || j < 0 || j >= N) { e.f.style.visibility = "hidden"; continue; }
     e.f.style.visibility = ""; e.im.src = img(S.tile[j]); e.f.className = j === i ? "cur" : "";
     e.cap.textContent = `${S.step[j]}${S.jump[j] !== "neighbour" ? " · " + S.jump[j] : ""}${S.bored[j] ? " · bored" : ""}`;
     e.f.onclick = () => { stop(); go(j); };
@@ -443,28 +461,89 @@ const slider = $("slider"); slider.max = N - 1;
 const SPEEDS = [1, 2, 4, 8, 16, 32, 64];
 SPEEDS.forEach(v => $("speed").add(new Option(`${v} steps/s`, v)));
 $("speed").value = 8;
+// weighted player: d = i * x^s above m, i / y^s below it, with s the distance from m as a share of the way to H or L, at most 1
+let mode = "fixed", wi = 2, wx = 4, wy = 2, total = 0, dedupe = false;
+// with duplicates removed the film is the first visits: order lists them, pos[k] is the last one at or before step k
+const order = [], pos = new Int32Array(N), visitsOf = {};
+for (let k = 0; k < N; k++) { if (S.visit[k] === 1) order.push(k); pos[k] = order.length - 1; visitsOf[S.tile[k]] = S.visit[k]; }
+const filming = () => mode === "weighted" && dedupe;
+const end = () => filming() ? order[order.length - 1] : N - 1;
+const dur = new Float64Array(N), cum = new Float64Array(N);
+function retime() {
+  const { m, H, L } = D.timing;
+  total = 0;
+  for (let k = 0; k < N; k++) {
+    const I = S.I[k];
+    dur[k] = dedupe && S.visit[k] > 1 ? 0 : wi * (I === null ? 1 : I >= m ? Math.pow(wx, Math.min((I - m) / (H - m), 1)) : Math.pow(wy, -Math.min((m - I) / (m - L), 1)));
+    cum[k] = total; total += dur[k];
+  }
+}
+const clock = t => { const s = Math.floor(t); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+function showClock() { if (mode === "weighted") $("wclock").textContent = `${clock(cum[cur] + (playing ? Math.min(acc, dur[cur]) : 0))} / ${clock(total)}`; }
+function showWeights() { $("wi").value = wi; $("wx").value = wx; $("wy").value = wy; }
+function setWeights(i, x, y) {  // a value out of range keeps the previous one
+  if (i > 0) wi = Math.max(0.01, +i.toFixed(3));
+  if (x >= 1) wx = x;
+  if (y >= 1) wy = y;
+  showWeights(); retime(); drawInfo(); showClock(); setHash();
+}
+function setMode(m) {
+  mode = m === "weighted" && finite(S.I).length ? "weighted" : "fixed";
+  $("pmode").value = mode; $("fixedset").hidden = mode !== "fixed"; $("weightset").hidden = mode !== "weighted";
+  acc = 0;
+  if (filming()) go(cur); else drawInfo();
+  showClock(); setHash();
+}
+function setDedupe(on) {
+  dedupe = on; $("wdedupe").checked = on; acc = 0; retime();
+  if (filming()) go(cur); else drawInfo();
+  showClock(); setHash();
+}
+function setHash() {
+  clearTimeout(hashTimer);
+  hashTimer = setTimeout(() => history.replaceState(null, "", `#step=${S.step[cur]}` + (mode === "weighted" ? `&mode=weighted&i=${wi}&x=${wx}&y=${wy}${dedupe ? "&dedupe=1" : ""}` : "")), 250);
+}
 let hashTimer = null;
-function draw() { drawInfo(); drawMap(); drawTimeline(); }
-function go(i) {
+function draw() { drawInfo(); drawMap(); drawTimeline(); showClock(); }
+function go(i, dir = -1) {  // dir: which way to look for a shown step when i was removed from the film
   cur = Math.max(0, Math.min(N - 1, i));
+  if (filming()) cur = order[Math.min(pos[cur] + (dir > 0 && S.visit[cur] > 1 ? 1 : 0), order.length - 1)];
   slider.value = cur; $("stepin").value = S.step[cur];
   draw();
-  clearTimeout(hashTimer); hashTimer = setTimeout(() => history.replaceState(null, "", `#step=${S.step[cur]}`), 250);
+  setHash();
 }
 let last = 0, acc = 0;
 function tick(ts) {
   if (!playing) return;
-  acc += (ts - last) / 1000 * Number($("speed").value); last = ts;
-  if (acc >= 1) { const n = Math.floor(acc); acc -= n; go(cur + n); if (cur >= N - 1) { stop(); return; } }
+  const dt = (ts - last) / 1000; last = ts;
+  if (mode === "weighted") {  // leftover time carries over, so tiles shorter than a frame still take their share
+    acc += dt;
+    let j = cur;
+    while (j < end() && acc >= dur[j]) { acc -= dur[j]; j++; }
+    if (j !== cur) go(j);
+    showClock();
+    if (j === end() && acc >= dur[j]) { stop(); return; }
+  } else {
+    acc += dt * Number($("speed").value);
+    if (acc >= 1) { const n = Math.floor(acc); acc -= n; go(cur + n); if (cur >= N - 1) { stop(); return; } }
+  }
   requestAnimationFrame(tick);
 }
-function play() { if (cur >= N - 1) go(0); playing = true; $("play").innerHTML = "&#x23F8; pause"; last = performance.now(); acc = 0; requestAnimationFrame(tick); }
+function play() { if (cur >= end()) go(0); playing = true; $("play").innerHTML = "&#x23F8; pause"; last = performance.now(); acc = 0; requestAnimationFrame(tick); }
 function stop() { playing = false; $("play").innerHTML = "&#x25B6; play"; }
-const nextOf = (arr, dir) => { const c = dir > 0 ? arr.find(i => i > cur) : [...arr].reverse().find(i => i < cur); if (c !== undefined) go(c); };
-const speedBy = d => { const s = $("speed"); s.selectedIndex = Math.max(0, Math.min(SPEEDS.length - 1, s.selectedIndex + d)); };
+const nextOf = (arr, dir) => { const c = dir > 0 ? arr.find(i => i > cur) : [...arr].reverse().find(i => i < cur); if (c !== undefined) go(c, dir); };
+const move = m => go(filming() ? order[Math.max(0, Math.min(order.length - 1, pos[cur] + m))] : cur + m);
+const speedBy = d => {
+  if (mode === "weighted") return setWeights(wi * Math.pow(2, -d / 2), wx, wy);
+  const s = $("speed"); s.selectedIndex = Math.max(0, Math.min(SPEEDS.length - 1, s.selectedIndex + d));
+};
 $("play").onclick = () => playing ? stop() : play();
-$("prev").onclick = () => { stop(); go(cur - 1); };
-$("next").onclick = () => { stop(); go(cur + 1); };
+$("pmode").onchange = () => setMode($("pmode").value);
+$("wdedupe").onchange = () => setDedupe($("wdedupe").checked);
+if (!finite(S.I).length) { $("pmode").options[1].disabled = true; $("pmode").title = "this walk has no interest scores"; }
+for (const id of ["wi", "wx", "wy"]) $(id).onchange = () => setWeights(Number($("wi").value), Number($("wx").value), Number($("wy").value));
+$("prev").onclick = () => { stop(); move(-1); };
+$("next").onclick = () => { stop(); move(1); };
 $("first").onclick = () => { stop(); go(0); };
 $("last").onclick = () => { stop(); go(N - 1); };
 $("nbored").onclick = () => { stop(); nextOf(boredIdx, 1); };
@@ -479,10 +558,10 @@ document.addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" && e.target.type === "number") return;
   const k = e.key;
   const m = e.shiftKey ? 10 : 1;
-  if (k === "ArrowRight") { stop(); go(cur + m); }
-  else if (k === "ArrowLeft") { stop(); go(cur - m); }
-  else if (k === "PageDown") { stop(); go(cur + 100); }
-  else if (k === "PageUp") { stop(); go(cur - 100); }
+  if (k === "ArrowRight") { stop(); move(m); }
+  else if (k === "ArrowLeft") { stop(); move(-m); }
+  else if (k === "PageDown") { stop(); move(100); }
+  else if (k === "PageUp") { stop(); move(-100); }
   else if (k === "Home") { stop(); go(0); }
   else if (k === "End") { stop(); go(N - 1); }
   else if (k === " ") { playing ? stop() : play(); }
@@ -491,12 +570,19 @@ document.addEventListener("keydown", e => {
   else if (k.toLowerCase() === "b") { stop(); nextOf(boredIdx, e.shiftKey ? -1 : 1); }
   else if (k.toLowerCase() === "j") { stop(); nextOf(longIdx, e.shiftKey ? -1 : 1); }
   else if (k.toLowerCase() === "m") $("mapbtn").click();
+  else if (k.toLowerCase() === "w") setMode(mode === "fixed" ? "weighted" : "fixed");
+  else if (k.toLowerCase() === "d" && mode === "weighted") setDedupe(!dedupe);
   else return;
   e.preventDefault();
 });
 window.addEventListener("resize", () => { tlStatic = null; draw(); });
 const h = location.hash.match(/step=(\d+)/);
-go(h ? Math.max(0, S.step.findIndex(s => s >= Number(h[1]))) : 0);
+const hw = location.hash.match(/mode=weighted&i=([\d.]+)&x=([\d.]+)&y=([\d.]+)(&dedupe=1)?/);
+if (hw) { wi = Number(hw[1]) || wi; wx = Math.max(1, Number(hw[2])) || wx; wy = Math.max(1, Number(hw[3])) || wy; dedupe = !!hw[4]; $("wdedupe").checked = dedupe; }
+retime(); showWeights();
+cur = h ? Math.max(0, S.step.findIndex(s => s >= Number(h[1]))) : 0;
+setMode(hw ? "weighted" : "fixed");
+go(cur);
 </script>
 </body>
 </html>
