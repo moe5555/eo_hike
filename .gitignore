@@ -14,3 +14,4 @@ orest/
 logs/
 third_party/
 .venv-sg/
+.DS_Store
