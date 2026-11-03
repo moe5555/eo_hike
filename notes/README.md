@@ -12,6 +12,7 @@ One entry per experiment, in the order they were run. Each one has a brief (what
 | 4 | Attention films | 2026-10-29 | Where does a walker look inside a tile it found novel, and in what order? Rendered as a Ken Burns film | first films | `notes/attention_films/` |
 | 5 | Hikes 29.10: four characters | 2026-10-29 | Do Bored, Globalist, Localist and Fast learner settings give walks that differ by more than the seed-to-seed spread? | done (part 1: 1,000 steps from Milan; part 2: 5,000 steps from Paris) | `notes/hikes_2910/` |
 | 6 | Round h0111 | 2026-11-01 | Emergent or designed arc for the film? Is "interesting" the same as "hard to draw", and what does the scorer really do? | done (the recommended 5,000-step walk not run) | `notes/` (top level, see below) |
+| 7 | Round h0311: character sheet | 2026-11-03 | Which settings are responsible for what, in what the walker sees and how it moves? | planned (`notes/brief_0311.md`) | `notes/` (top level) |
 
 ## 1. First walk + dreams v1
 
