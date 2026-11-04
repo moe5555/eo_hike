@@ -45,11 +45,9 @@ Three findings shape the design:
 
 ## How to attribute an effect to a setting
 
-**One setting at a time, from the Reference.** Every new walk is `configs/h0111_reference.yaml` with one key changed: Paris, 1,000 steps, `rng_mode: split`, `log_prev_error: true`.
+**One setting at a time, from the Reference.** Every new walk is `configs/h0111_reference.yaml` with one key changed: Paris, 1,000 steps, `rng_mode: split`, `log_prev_error: true`. This lets the existing h0111 runs (Reference, Null, Bored, landing variants; seeds 0–3) sit on the same sheet without rerunning them.
 
-**Compare cloud walks only with cloud walks.** This round runs in Claude Cloud. The h0111 runs exist only on the Mac (`runs/` is not in git), and a different CPU and maths library may not reproduce them step for step. So the Reference, Null and Bored are walked again in the cloud (Stage 0), and every comparison is between walks made on the same machine. The Mac's numbers (`analysis/h0111/h0111_summary.csv`) serve only as a check that the cloud walks land in the same range.
-
-**Compare by seed, in pairs.** Under `split`, two walks with the same seed share the network's starting weights, the far offers and the teleport landing tiles. Checked on the h0111 runs: in all four seeds, the n-th teleport of Reference, Bored and Null lands on the same tile. So the main noise source is shared within a seed. This only holds if the machine gives the same walk twice for the same config and seed, which the setup checks. For every readout, report the paired difference `setting_s − reference_s` for each seed, its mean and its range, not just the two means.
+**Compare by seed, in pairs.** Under `split`, two walks with the same seed share the network's starting weights, the far offers and the teleport landing tiles. Checked on the h0111 runs: in all four seeds, the n-th teleport of Reference, Bored and Null lands on the same tile. So the main noise source is shared within a seed. For every readout, report the paired difference `setting_s − reference_s` for each seed, its mean and its range, not just the two means.
 
 **Two strengths of evidence:**
 
@@ -67,7 +65,7 @@ Only results go on the sheet as statements. Leads go on it marked as leads. A se
 - No walker code changes are needed: every setting above is already a config key. If one becomes necessary, it goes behind a config option whose default reproduces existing runs.
 - Before any walk, add dated predictions to `notes/hikes_2910/expectations.md` (new section "Round h0311"). The "first guess" column below is a starting point, not a substitute.
 - New run names start with `h0311_`, in the form `h0311_<setting>_<level>_s<seed>`, e.g. `h0311_knn_3_s0`. Never overwrite existing runs.
-- Claude Cloud, set up as below. Large outputs (checkpoints, films, `hike.html` pages, the tile cache) stay under `runs/` and `data/`, never in a folder git can see (see `notes/log_h0111.md`, the incident).
+- Mac CPU, three walks side by side, using `scripts/hikes_0311.sh`, a copy of `scripts/hikes_0111.sh` with its disk and `.git` watchdog. Large outputs (films, `hike.html` pages) go under `runs/`, never in a folder git can see (see `notes/log_h0111.md`, the incident).
 - Report in the style of `observations_h0111.md`: tables first, numbered findings in plain language, a table against expectations, then "for the next round".
 
 ## Long jumps and teleports stay blind this round
@@ -79,25 +77,7 @@ The walker's far offers and teleport landings are random draws, and this round k
 - **A rationale needs preferences that can be stated.** The taste panel and selection differentials of this round are where those come from.
 - **Only part of the sheet depends on how jumps work.** Eye and Taste readouts (the panel, choices within a place) do not. Rhythm readouts (places, teleports, rejected landings, far tiles taken) do, and will need measuring again once jumps get a rationale.
 
-## Setup in the cloud
-
-The repository arrives without `runs/`, `data/` or `.venv`, so the first session sets up and measures the machine before any of the stages. Record everything in `notes/log_h0311.md`.
-
-1. **Environment.** `uv sync` (Python 3.12). Record the CPU model, number of cores, memory, free disk, and whether a GPU is present.
-2. **Network.** Tiles come from Major TOM on Hugging Face (`data/tile_store.py`), including redirects to its file servers. Run a 5-step Reference walk to check that tiles download. If they don't, stop and report what is blocked. If downloads are throttled, a token in `HF_TOKEN` helps.
-3. **Index.** `data/global/index.parquet` is not in git. Rebuild it with `python data/global_index.py` and log the tile count and cover shares, so it can be compared with the Mac's index.
-4. **Same walk twice.** Run Reference seed 0 twice for 200 steps and compare the paths. They must be identical, or paired comparisons are not valid on this machine. If they differ, report before going on.
-5. **Speed and parallelism.** Time a 100-step walk alone, then choose how many walks run side by side and with how many threads each (walks × threads at most the number of cores). Set `cache_gb` to at most half the free disk. Every time in this brief is from the Mac (about ten 1,000-step walks an hour, three side by side) and needs replacing with the measured figure.
-6. **Batch script.** `scripts/hikes_0311.sh`, adapted from `scripts/hikes_0111.sh`: drop `caffeinate` (macOS only), read the list of walks from a file, keep the disk and `.git` watchdog, and skip walks that have finished, so that a new session continues where the last one stopped. A walk cut off midway starts again from step 0; `agent/walk.py` cannot resume.
-7. **Keep the results.** The cloud machine may not outlive a session, and `runs/` is not in git. At the end of every stage, and before a session ends, commit and push:
-   - everything in `analysis/sheet/` and `notes/`;
-   - a compact copy of each walk in `results/h0311/<run>/`: `steps.parquet`, `candidates.parquet`, `heldout.parquet`, `archive.npz`, `config.yaml`, `meta.json`. That is about 0.9 MB per walk, about 150 MB for the whole round.
-
-   Never commit checkpoints (`*.pt`), daydreams, films or tiles. Anything that needs checkpoints (the taste panel) is computed in the cloud before the session ends.
-
-## Stage 0: build the readouts and calibrate them (12 walks, then analysis)
-
-First walk the Reference, Null and Bored in the cloud: `configs/h0111_{reference,null,bored}.yaml`, seeds 0–3, run names `h0311_{reference,null,bored}_s{0..3}`. These are the baseline every later walk is paired with.
+## Stage 0: build the readouts and calibrate them (offline, no walks)
 
 ### 0.1 The sheet readouts
 
@@ -119,23 +99,22 @@ First walk the Reference, Null and Bored in the cloud: `configs/h0111_{reference
 
 A fixed set of about 300 tiles, scored by every walker's own network. This is the readout closest to "how the agent sees the world", and it is identical for all walkers, so it is free of path and landing luck.
 
-- Choose the tiles once, stratified by `cover` (land, coast, ocean) and by quartile of texture and brightness, from tiles that none of the Stage 0 walks visited. Save the list as `analysis/sheet/panel.csv` and never change it.
+- Choose the tiles once, stratified by `cover` (land, coast, ocean) and by quartile of texture and brightness, from tiles that none of the existing h0111 walks visited. Save the list as `analysis/sheet/panel.csv` and never change it.
 - For each run and each checkpoint (`ckpt_0250` … `ckpt_1000`), rebuild the archive up to that step from the visited tiles in `steps.parquet`, embed them with that checkpoint, and compute surprise, novelty and progress for every panel tile.
 - Summarise per stratum: which kinds of terrain does this walker find most novel, most hard to draw, most learnable, at each age?
 - Taste similarity: rank correlation of panel interest between every pair of walkers. Two walkers with the same taste rank the panel alike, wherever they walked.
 
-### 0.3 Calibrate on the Stage 0 walks
+### 0.3 Calibrate on the runs that exist
 
-Run 0.1 and 0.2 on the 12 Stage 0 walks. Report:
+Run 0.1 and 0.2 on the h0111 Paris runs (Reference, Null, Bored, and the four landing variants, seeds 0–3). Report:
 
-- whether the cloud Reference, Null and Bored land in the Mac's ranges (`analysis/h0111/h0111_summary.csv`),
 - which readouts separate **Null from Reference** (any readout that cannot see the scorer cannot see taste),
 - which separate **Bored from Reference** (a known temperament effect),
 - the paired spread of each readout, and from it how large an effect four seeds can detect.
 
 ### 0.4 Optional: where would a reason have taken it? (offline)
 
-A first look at jump rationales, without changing the walker. At each real teleport of the Stage 0 walks, draw 50 random tiles and score them with the walker's network at that step (nearest checkpoint, archive up to that step). Record which tile each rule would have picked:
+A first look at jump rationales, without changing the walker. At each real teleport of the h0111 Reference and Bored walks, draw 50 random tiles and score them with the walker's network at that step (nearest checkpoint, archive up to that step). Record which tile each rule would have picked:
 
 - **rhyme:** closest in latent to the walker's favourite tiles so far (most visits);
 - **fracture:** farthest from everything in its archive (the most novel);
@@ -143,11 +122,11 @@ A first look at jump rationales, without changing the walker. At each real telep
 
 Compare the three on terrain (cover, texture, brightness) and on how the walker's network rates them. Do this last, and only if Stage 0 is otherwise done.
 
-**Report here.** Drop or redefine readouts that see nothing, before any further walk.
+**Report here.** Drop or redefine readouts that see nothing, before any new walk.
 
-## Stage 1: one setting at a time (48 + 28 + 28 walks)
+## Stage 1: one setting at a time (48 + 28 + 26 walks)
 
-All seeds 0–3 unless stated, each paired with the Stage 0 Reference of the same seed.
+All seeds 0–3 unless stated, each paired with the h0111 Reference of the same seed. At about ten walks an hour (three side by side, ~17 min each), tier 1 is an evening, tiers 2 and 3 another each.
 
 ### Tier 1: taste and decisiveness (never tested on the planet walker), plus the noise floor
 
@@ -184,12 +163,12 @@ All seeds 0–3 unless stated, each paired with the Stage 0 Reference of the sam
 | Config | Change from Reference | Question |
 |---|---|---|
 | `h0311_buffer_512`, `h0311_buffer_8192` | `buffer_size` | does a short memory create "nostalgia" returns to forgotten terrain (v1, finding 3)? |
-| `h0311_width_05`, `h0311_width_2` | `ae_width: 0.5`, `2` | capacity (the h0111 runs had one seed each, on the Mac) |
+| `h0311_width_05`, `h0311_width_2`, seeds 1–3 | `ae_width: 0.5`, `2` | capacity, with the s0 runs of h0111 making four seeds |
 | `h0311_radius_25` | `radius_km: 25` | stride; about twice the candidates, so about twice the run time |
 | `h0311_returncost_05` | `return_cost: 0.5` | aversion to returning, gradual |
 | `h0311_nobackstep` | `no_backstep: true` | aversion to returning, absolute |
 
-28 walks. Width 2 and radius 25 take two to three times as long as the Reference.
+26 walks (about 3.5 hours because of width 2 and radius 25).
 
 **Report here**, with the knob-to-effect matrix (below) filled in for Stage 1. Then run seeds 4–7 for every lead, before Stage 2.
 
@@ -229,19 +208,17 @@ Traits seen in 1,000 steps may belong to a young network. Assemble two or three 
 
 ## Budget
 
-Times are Mac figures (about ten 1,000-step walks an hour, three side by side). Replace them with the speed measured in the cloud setup. Without a tile cache, the first walks also wait for downloads.
-
-| Stage | Walks | Time on the Mac |
+| Stage | Walks | Time |
 |---|---|---|
-| 0: baseline walks, readouts, taste panel, calibration | 12 | ~1.2 h |
+| 0: readouts, taste panel, calibration | none | analysis only |
 | 1, tier 1 | 48 | ~5 h |
 | 1, tier 2 | 28 | ~3 h |
-| 1, tier 3 | 28 | ~4 h |
+| 1, tier 3 | 26 | ~3.5 h |
 | seeds 4–7 for leads | ~30–50, depending | ~3–5 h |
 | 2: interactions | ~32 | ~3.5 h |
 | 3: long walks | 10–13 at 5,000 steps | ~5 h |
 
-Tile cache: as large as the disk allows (setup, item 5). All walks start from Paris on the same random streams, so later walks reuse many of the earlier walks' tiles, as long as the cache survives between sessions.
+Tile cache: keep the 30 GB cap. All walks start from Paris on the same random streams, so many tiles are already cached.
 
 ## Out of scope
 
