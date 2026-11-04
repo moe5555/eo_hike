@@ -4,9 +4,7 @@ Curious agents grow their own perception, a small conv autoencoder trained from 
 
 **Index of all experiments (briefs, expectations, logs, observations, code and outputs of each): `notes/README.md`.**
 
-- First walk: brief `bored-machines_first-walk-brief.md`, predictions `notes/expectations.md`, results and deviations `notes/observations.md`
-- Dreams v2 (native 10 m, novelty at sampling time): `notes/dreams_v2/`, outputs in `runs/<run>/dreams_v2/`
-- Dreams v3 (global and confined walks, per-agent StyleGAN2 + latent search; paused before GAN training): `notes/dreams_v3/`, status and how to continue in `notes/dreams_v3/status_paused_2026-10-28.md`
+Experiments, in order: `01_first_walk` (walks + DDPM dreams v1), `02_dreams_hires` (dreams v2), `03_planet_walks` (global walks + paused GAN dreams), `04_perception_fix`, `05_attention_films`, `06_characters`, `07_film_arc`. Each has a folder in `notes/` and, if it has configs, one in `configs/` with the same name.
 
 ## Setup
 
@@ -20,7 +18,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv sync
 
 ```
 python data/prepare.py --check                 # 1,814 Major TOM tiles -> data/tiles.npy, tiles.parquet, neighbours; ~15 min fetch
-python -m agent.walk configs/baseline.yaml --seed 0     # ~80 s on an RTX 4070 laptop GPU
+python -m agent.walk configs/01_first_walk/baseline.yaml --seed 0     # ~80 s on an RTX 4070 laptop GPU
 bash scripts/gate1.sh && bash scripts/gate1_extra.sh    # all 20 walks
 python analysis/build_walks_nb.py && jupyter nbconvert --to notebook --execute --inplace analysis/walks.ipynb
 
@@ -33,10 +31,10 @@ python -m gen.hires data/sets/baseline_s0      # 10 m tiles -> data/hires/, crop
 bash scripts/dreams_v2_train.sh baseline_s0    # 10 m and 40 m DDPMs, ~76 min each on a Quadro RTX 5000 (fp16)
 bash scripts/dreams_v2_sample.sh baseline_s0   # 512-sample pools, novelty guidance, report
 
-# dreams v3 (Windows; GAN side in .venv-sg via scripts\sg.bat, see notes/dreams_v3/)
+# dreams v3 (Windows; GAN side in .venv-sg via scripts\sg.bat, see notes/03_planet_walks/)
 python data/global_index.py                    # planet index of Major TOM Core -> data/global/
-python -m agent.walk configs/global_baseline.yaml       # lazy tile store, ~30 min
-python -m agent.walk configs/confined_baseline.yaml     # Great Sand Sea, 300 km
+python -m agent.walk configs/03_planet_walks/global_baseline.yaml       # lazy tile store, ~30 min
+python -m agent.walk configs/03_planet_walks/confined_baseline.yaml     # Great Sand Sea, 300 km
 python -m gen.v3_datasets agent runs/global_baseline_s0 # then: base runs/global_baseline_s0
 scripts\dreams_v3_train.bat base 3000          # + dreams_v3_chain.bat, dreams_v3_search.bat
 ```
@@ -49,7 +47,7 @@ scripts\dreams_v3_train.bat base 3000          # + dreams_v3_chain.bat, dreams_v
 | `agent/model.py` | 272k-parameter conv autoencoder (32×32 → 64-d) |
 | `agent/signals.py` | patches, surprise, archive-kNN novelty, vmapped learning-progress probe, EMA z-scores |
 | `agent/walk.py` | the loop, boredom, daydreams, logging → `runs/<config>_s<seed>/` |
-| `configs/*.yaml` | one complete file per temperament; `tvtest_*` start next to the noisy TV |
+| `configs/NN_topic/*.yaml` | one complete file per walker, grouped by experiment; `tvtest_*` start next to the noisy TV |
 | `gen/build_sets.py` | per-tile weights; `path_weighted`, `path_uniform`, `random_uniform` |
 | `gen/train_ddpm.py` | diffusers `UNet2DModel` at 64 px, weighted sampling, EMA |
 | `gen/sample.py` | 64 samples per model, same noise seed for every model |
@@ -61,7 +59,9 @@ scripts\dreams_v3_train.bat base 3000          # + dreams_v3_chain.bat, dreams_v
 | `gen/dream_search.py`, `gen/dreams_v3_report.py` | v3: latent evolution in W driven by the agent's learning progress; report |
 | `analysis/build_*_nb.py` | generators for the two gate notebooks |
 | `analysis/hike_viewer.py` | step-by-step HTML viewer of a walk (`runs/<run>/hike.html`) |
-| `notes/` | one folder per experiment, index in `notes/README.md` |
+| `analysis/h0111/` | scripts of experiment 07; results go to `notes/07_film_arc/results/` |
+| `narration/` | prompts for narrating a walk with a language model, and test outputs |
+| `notes/` | one folder per experiment (`NN_topic`), index and naming rules in `notes/README.md`; `notes/agents_paper/` |
 
 Each run folder holds `config.yaml`, `meta.json` (seed, git hash, start tile, timing), `steps.parquet`, `candidates.parquet`, `heldout.parquet`, checkpoints every 250 steps plus one per bored event, `final.pt`, `archive.npz`, and `daydreams/*.png`.
 

@@ -1,6 +1,6 @@
 """Dreams v3: document the one fixed global RGB scale, from a global random sample of tiles.
 
-    python data/global_stretch.py            # -> data/global_stretch.json (+ notes/dreams_v3/global_stretch.png)
+    python data/global_stretch.py            # -> data/global_stretch.json (+ notes/03_planet_walks/global_stretch.png)
 
 v3 takes RGB from the archive's `thumbnail` column for both the walker and the GAN crops (decided with the
 artist, 2026-10-28), so no stretch is applied by this project: the thumbnail already is B04/B03/B02 under one
@@ -103,7 +103,7 @@ def main() -> None:
     axs[0].legend()
     axs[0].set_title(f"thumbnail RGB, {len(ids):,} random global tiles")
     fig.tight_layout()
-    p = ROOT.parent / "notes" / "dreams_v3" / "global_stretch.png"
+    p = ROOT.parent / "notes" / "03_planet_walks" / "global_stretch.png"
     fig.savefig(p, dpi=110)
     print(f"[stretch] -> {p}")
 

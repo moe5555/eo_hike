@@ -137,7 +137,7 @@ n = len(runs); ncol = 2; nrow = int(np.ceil(n / ncol))
 fig, axes = plt.subplots(nrow, ncol, figsize=(13, 5.3 * nrow))
 for ax, p in zip(axes.flat, runs): path_map(ax, p.name)
 for ax in axes.flat[n:]: ax.axis('off')
-fig.tight_layout(); fig.savefig(ROOT/'notes/img/gate1_paths.png', dpi=60); plt.show()
+fig.tight_layout(); fig.savefig(ROOT/'notes/01_first_walk/img/gate1_paths.png', dpi=60); plt.show()
 """)
 
 md("## Visit density\nWhere each temperament spends its time (both seeds pooled), as tile visit counts.")
@@ -170,8 +170,8 @@ def contact_sheet(name, every=10, ncol=15, px=56):
 
 for p in runs:
     sh = contact_sheet(p.name)
-    Image.fromarray(sh).save(ROOT/f'notes/img/gate1_contact_{p.name}.png')
-    if not p.name.endswith('_s0'): continue   # all sheets are saved to notes/img; seed 0 shown inline
+    Image.fromarray(sh).save(ROOT/f'notes/01_first_walk/img/gate1_contact_{p.name}.png')
+    if not p.name.endswith('_s0'): continue   # all sheets are saved to notes/01_first_walk/img; seed 0 shown inline
     plt.figure(figsize=(12, 12 * sh.shape[0] / sh.shape[1])); plt.imshow(sh); plt.axis('off'); plt.title(p.name); plt.show()
 """)
 
@@ -293,7 +293,7 @@ if {'baseline', 'novelty_only'} <= set(gm.index):
 for k, v in checks.items(): print(k, v)
 """)
 
-md("## Observations\n*(filled in after running; see `notes/observations.md`)*")
+md("## Observations\n*(filled in after running; see `notes/01_first_walk/observations.md`)*")
 
 nb = nbf.v4.new_notebook(cells=cells, metadata={"kernelspec": {"name": "python3", "display_name": "Python 3", "language": "python"}})
 nbf.write(nb, Path(__file__).with_name("walks.ipynb"))

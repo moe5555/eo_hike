@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Round h0111 (notes/brief_0111.md): null walker, teleport landing variants and eye sizes, 1,000 steps from Paris, split streams.
+# Round h0111 (notes/07_film_arc/brief.md): null walker, teleport landing variants and eye sizes, 1,000 steps from Paris, split streams.
 #
 #     scripts/hikes_0111.sh start    # detached, keeps the Mac awake, log in runs/hikes_0111.log, one log per walk in runs/h0111_logs/
 #     scripts/hikes_0111.sh stop     # stops the batch and every walk it started
@@ -55,7 +55,7 @@ walk() {
   local c=$1 s=$2
   [ -f "runs/${c}_s${s}/final.pt" ] && { echo "=== have ${c}_s${s}"; return; }
   echo "=== $(date '+%F %T') start ${c}_s${s}"
-  if .venv/bin/python -m agent.walk "configs/${c}.yaml" --seed "$s" > "runs/h0111_logs/${c}_s${s}.log" 2>&1; then
+  if .venv/bin/python -m agent.walk "configs/07_film_arc/${c}.yaml" --seed "$s" > "runs/h0111_logs/${c}_s${s}.log" 2>&1; then
     tail -n 1 "runs/h0111_logs/${c}_s${s}.log"
   else
     echo "=== FAILED: ${c}_s${s}"

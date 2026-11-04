@@ -1,4 +1,4 @@
-"""Round h0111 (notes/brief_0111.md): shared loading and walk statistics, same definitions as analysis/h2910_compare.py."""
+"""Round h0111 (notes/07_film_arc/brief.md): shared loading and walk statistics, same definitions as analysis/h2910_compare.py."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-OUT = ROOT / "analysis" / "h0111"
+OUT = ROOT / "notes" / "07_film_arc" / "results"
 RUNS = ROOT / "runs"
 JUMP_KM = 30.0  # a place ends at a step longer than this, as in analysis/h2910_compare.py
 WARMUP = 50  # the running z-scores use a plain average until then
@@ -21,7 +21,7 @@ H2910 = {"global_perception_1k_s0": ("Reference", "Milan"), "global_perception_1
          "h2910_localist_s0": ("Localist", "Milan"), "h2910_localist_s1": ("Localist", "Milan"),
          "h2910_fastlearner_s0": ("Fast learner", "Milan"), "h2910_fastlearner_s1": ("Fast learner", "Milan"),
          "h2910_bored_paris_s0": ("Bored", "Paris 5k"), "h2910_globalist_paris_s0": ("Globalist", "Paris 5k")}
-DEAD = {"h2910_fastlearner_s1": 142}  # its network died at this step (observations.md, part 1, §5); later steps are left out
+DEAD = {"h2910_fastlearner_s1": 142}  # its network died at this step (notes/06_characters/observations.md, part 1, §5); later steps are left out
 
 
 def steps(run: str) -> pd.DataFrame:

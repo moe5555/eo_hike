@@ -2,7 +2,7 @@
 
     python analysis/h0111/drawings.py
 
-Checks first that the rebuilt networks and held-out crops give the logged held-out error. Then writes to analysis/h0111/drawings/:
+Checks first that the rebuilt networks and held-out crops give the logged held-out error. Then writes to notes/07_film_arc/results/drawings/:
 drawings_never_seen.png, drawings_walked.png (a tile cut into its 4x4 grid of 64 px crops, each drawn separately, so seams are the
 network's), drawings_baselines.csv (the network against one flat colour per crop and against PCA with as many numbers as the latent),
 drawings_seen_vs_unseen.csv (tiles visited during a stay against neighbours offered there and never visited in the whole walk).

@@ -143,7 +143,7 @@ def main() -> None:
     fig.text(0.01, -0.01, f"Encoder: {run_name}/final.pt; tile latent = mean over {N_CROPS} crops at the run's crop size. "
              f"{len(z)} tiles (noisy-TV cells excluded); * = never visited on the walk. "
              "latent pct = percentile of the pair's latent distance among all pairs (0 = closest).", fontsize=11, color="#555555")
-    out = ROOT / "notes" / "img" / f"latent_vs_geo_{run_name}.png"
+    out = ROOT / "notes" / "01_first_walk" / "img" / f"latent_vs_geo_{run_name}.png"
     fig.savefig(out, dpi=80, bbox_inches="tight")
     print(f"rho={rho:.3f}  -> {out}")
     for name, pairs in (("twins", twins), ("strangers", strangers)):

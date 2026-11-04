@@ -1,4 +1,4 @@
-"""Why the v3 walkers keep returning to the same tiles (notes/dreams_v3/reflection_revisits.md).
+"""Why the v3 walkers keep returning to the same tiles (notes/03_planet_walks/reflection_revisits.md).
 
     python analysis/v3_revisits.py runs/global_baseline_s0 runs/confined_baseline_s0
 
@@ -125,7 +125,7 @@ def attractor_strip(runs: list[Path], n: int = 6) -> Path:
             ax.set_xticks([])
             ax.set_yticks([])
         row[0].set_ylabel(run.name, fontsize=9)
-    out = ROOT / "notes" / "dreams_v3" / "revisit_attractors.png"
+    out = ROOT / "notes" / "03_planet_walks" / "revisit_attractors.png"
     fig.tight_layout()
     fig.savefig(out, dpi=110)
     plt.close(fig)

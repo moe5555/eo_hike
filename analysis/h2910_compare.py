@@ -1,9 +1,9 @@
-"""Hikes 29.10: compare the four characters with the reference (notes/hikes_2910/).
+"""Hikes 29.10: compare the four characters with the reference (notes/06_characters/).
 
     python analysis/h2910_compare.py
 
 Reads runs/global_perception_1k_s{0,1} and runs/h2910_<character>_s{0,1} (missing runs are skipped). Writes to
-notes/hikes_2910/: summary.csv (one row per run), maps_world.png, maps_milan.png (±6° around the start),
+notes/06_characters/: summary.csv (one row per run), maps_world.png, maps_milan.png (±6° around the start),
 curves.png (unique tiles, held-out MSE, boredom B over steps), and prints a per-character table.
 
 Colour diversity is a yardstick shared by all runs (each run's own latents come from a different encoder):
@@ -28,7 +28,7 @@ sys.path.insert(0, str(ROOT))
 from data.global_index import world_axes  # noqa: E402
 from data.tile_store import EARTH_R_KM, haversine_km  # noqa: E402
 
-OUT = ROOT / "notes" / "hikes_2910"
+OUT = ROOT / "notes" / "06_characters"
 CHARACTERS = {"Reference": "global_perception_1k", "Bored": "h2910_bored", "Globalist": "h2910_globalist",
               "Localist": "h2910_localist", "Fast learner": "h2910_fastlearner"}
 SEEDS = (0, 1)
@@ -269,7 +269,7 @@ def paris() -> None:
     fig.tight_layout()
     fig.savefig(OUT / "paris_curves.png", dpi=120)
     plt.close(fig)
-    print("wrote notes/hikes_2910/paris_{summary,blocks}.csv, paris_maps.png, paris_curves.png")
+    print("wrote notes/06_characters/paris_{summary,blocks}.csv, paris_maps.png, paris_curves.png")
 
 
 if __name__ == "__main__":

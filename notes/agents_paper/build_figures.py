@@ -2,7 +2,7 @@
 
     .venv/bin/python notes/agents_paper/build_figures.py
 
-Writes notes/agents_paper/fig/. Reads analysis/h0111/drawings/ (run analysis/h0111/drawings.py first).
+Writes notes/agents_paper/fig/. Reads notes/07_film_arc/results/drawings/ (run analysis/h0111/drawings.py first).
 """
 
 from __future__ import annotations
@@ -178,7 +178,7 @@ def boredom_figure(end: int = 125) -> None:
 
 def heldout_figure() -> None:
     h = pd.read_parquet(RUNS / RUN / "heldout.parquet")
-    b = pd.read_csv(ROOT / "analysis" / "h0111" / "drawings" / "drawings_baselines.csv")
+    b = pd.read_csv(ROOT / "notes" / "07_film_arc" / "results" / "drawings" / "drawings_baselines.csv")
     flat, pca = float(b.mean_mse[0]), float(b.mean_mse[1])
     h1 = h[h.step > 0]
     fig, ax = plt.subplots(figsize=(6.2, 2.5))

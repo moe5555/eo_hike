@@ -1,4 +1,4 @@
-"""Why the fixed-perception walkers still return to tiles (notes/hikes_2910/reflection_revisits.md).
+"""Why the fixed-perception walkers still return to tiles (notes/06_characters/reflection_revisits.md).
 
     python analysis/h2910_revisits.py
 
@@ -223,7 +223,7 @@ def favourites(walks: dict[str, tuple[pd.DataFrame, pd.DataFrame]], min_visits: 
         for ax in row:
             ax.set_xticks([])
             ax.set_yticks([])
-    out = ROOT / "notes" / "hikes_2910" / "revisit_favourites.png"
+    out = ROOT / "notes" / "06_characters" / "revisit_favourites.png"
     fig.tight_layout()
     fig.savefig(out, dpi=90)
     plt.close(fig)

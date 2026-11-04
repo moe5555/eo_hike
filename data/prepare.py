@@ -1,9 +1,9 @@
 """Session 1: subset Major TOM Core-S2L2A, fetch RGB thumbnails, cache 256 px tiles, neighbours.
 
     python data/prepare.py            # fetch (cached), build tiles.npy / tiles.parquet / neighbours
-    python data/prepare.py --check    # also draw notes/img/prepare_check.png
+    python data/prepare.py --check    # also draw notes/01_first_walk/img/prepare_check.png
 
-Choices (see notes/expectations.md for why):
+Choices (see notes/01_first_walk/expectations.md for why):
 - Region: Northern Italy, lat 43.5-47.0, lon 6.5-12.6 (~1,850 cells on the 10 km grid):
   Alps, Po valley farmland, Milan/Turin, the lakes, Ligurian + Adriatic coast, Apennine forest.
 - Major TOM Core keeps one product per cell and caps cloud cover at 25 %, so the brief's
@@ -207,7 +207,7 @@ def check(probe_latlon=(45.46, 9.19)) -> None:
     ax2.set_xlim(-22, 22)
     ax2.set_ylim(-22, 22)
     ax2.set_title("probe tile and neighbours placed by haversine offset (km); edges should continue")
-    out = ROOT.parent / "notes" / "img" / "prepare_check.png"
+    out = ROOT.parent / "notes" / "01_first_walk" / "img" / "prepare_check.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
     fig.savefig(out, dpi=110)

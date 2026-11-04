@@ -1,6 +1,6 @@
 """Dreams v3 world: the whole of Major TOM Core-S2L2A as one filtered index + one haversine BallTree.
 
-    python data/global_index.py            # data/global/index.parquet, coverage.json, notes/dreams_v3/world_coverage.png
+    python data/global_index.py            # data/global/index.parquet, coverage.json, notes/03_planet_walks/world_coverage.png
 
 Same filters as v1 (no-data <= 10 %, cloud cover <= 70 %; Core itself caps cloud at 25 %), and the
 same one-cell-one-tile rule (earliest product per grid cell). Tile indices into this file are the
@@ -140,7 +140,7 @@ def report(idx: pd.DataFrame) -> dict:
     for k, c in col.items():
         ax.scatter([], [], c=[c], s=30, marker="s", label=f"{k} ({int((idx.cover == k).sum()):,})")
     ax.legend(loc="lower left", fontsize=8)
-    out = ROOT.parent / "notes" / "dreams_v3" / "world_coverage.png"
+    out = ROOT.parent / "notes" / "03_planet_walks" / "world_coverage.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
     fig.savefig(out, dpi=130)

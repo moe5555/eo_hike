@@ -3,6 +3,6 @@
 set -e
 for c in surprise_only tvtest_baseline tvtest_novelty_only tvtest_surprise_only; do
   for s in 0 1; do
-    .venv/Scripts/python -m agent.walk configs/$c.yaml --seed $s
+    .venv/Scripts/python -m agent.walk configs/01_first_walk/$c.yaml --seed $s
   done
 done

@@ -71,7 +71,7 @@ for a in agents:
     for j, s in enumerate(SETS):
         axes[0, j].imshow(grid(samples[a][s])); axes[0, j].set_title(f'{a} | {s} | samples'); axes[0, j].axis('off')
         axes[1, j].imshow(grid(reals[a][s])); axes[1, j].set_title(f'{s} | real crops'); axes[1, j].axis('off')
-    fig.tight_layout(); fig.savefig(ROOT/f'notes/img/gate2_sheets_{a}.png', dpi=70); plt.show()
+    fig.tight_layout(); fig.savefig(ROOT/f'notes/01_first_walk/img/gate2_sheets_{a}.png', dpi=70); plt.show()
 """)
 
 md("""
@@ -252,7 +252,7 @@ for a in agents:
 pd.DataFrame(rows).set_index(['agent', 'set'])
 """)
 
-md("## 4. Observations (descriptive, one line per model)\n*(written after running; see `notes/observations.md`)*")
+md("## 4. Observations (descriptive, one line per model)\n*(written after running; see `notes/01_first_walk/observations.md`)*")
 
 nb = nbf.v4.new_notebook(cells=cells, metadata={"kernelspec": {"name": "python3", "display_name": "Python 3", "language": "python"}})
 nbf.write(nb, Path(__file__).with_name("dreams.ipynb"))

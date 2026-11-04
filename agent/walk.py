@@ -1,7 +1,7 @@
 """The walk: candidates -> signals -> softmax choice -> train -> boredom -> log.
 
-    python -m agent.walk configs/baseline.yaml --seed 1
-    python -m agent.walk configs/baseline.yaml --steps 50 --name smoke     # quick test
+    python -m agent.walk configs/01_first_walk/baseline.yaml --seed 1
+    python -m agent.walk configs/01_first_walk/baseline.yaml --steps 50 --name smoke     # quick test
 
 Writes runs/<name>_s<seed>/: config.yaml, meta.json, steps.parquet, candidates.parquet,
 heldout.parquet, ckpt_*.pt, final.pt, archive.npz, daydreams/*.png.
@@ -186,13 +186,13 @@ def run(cfg: dict, name: str) -> Path:
         gen = gen_replay = gen_dream = torch.Generator(device=dev).manual_seed(seed)
     random_policy = cfg.get("policy", "curious") == "random"
     K, crop = int(cfg["K"]), int(cfg["crop_px"])
-    # hike revisions (notes/hikes_v3_revised/); the defaults are the v1/v3a walker
+    # hike revisions (notes/04_perception_fix/); the defaults are the v1/v3a walker
     fixed_crops = cfg.get("score_crops", "random") == "fixed"  # score (and archive) with crops seeded by tile id; train on random crops
     refresh = cfg.get("refresh_archive", "none") == "candidates"  # re-embed a candidate's own archive entries before novelty
     unit_z = bool(cfg.get("normalise_latents", False))  # novelty on L2-normalised latents
     return_cost = float(cfg.get("return_cost", 0.0))  # I -= return_cost * log(1 + visits)
     no_backstep = bool(cfg.get("no_backstep", False))  # the tile just left is not a candidate
-    # round h0111 (notes/brief_0111.md); the defaults are the h2910 walker
+    # round h0111 (notes/07_film_arc/brief.md); the defaults are the h2910 walker
     uniform_choice = cfg.get("choice", "softmax") == "uniform"  # all signals computed and logged, the choice ignores them
     land_k = int(cfg.get("landing_k", 1)) if cfg.get("teleport_landing", "blind") == "best_of_k" else 0  # teleport to the most novel of k random tiles
     log_prev = bool(cfg.get("log_prev_error", False))  # log the error on the current and previous tile after each update

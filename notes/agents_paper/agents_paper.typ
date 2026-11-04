@@ -406,6 +406,6 @@ The agent is small enough to state in about a dozen equations: an autoencoder tr
   [Running z-scores (@eq-z-score)], [`signals.RunningNorm`],
   [Loop, choice, training, boredom (@alg-walk)], [`agent/walk.py`],
   [Tile store and neighbours], [`data/tile_store.py`],
-  [Character settings (@tab-characters)], [`configs/h0111_*.yaml`, `configs/h2910_*.yaml`],
+  [Character settings (@tab-characters)], [`configs/07_film_arc/h0111_*.yaml`, `configs/06_characters/h2910_*.yaml`],
   rule,
 )
