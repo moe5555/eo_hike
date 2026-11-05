@@ -13,6 +13,8 @@ Definitions (brief, Stage 0.1), all on steps with a choice (more than one candid
 - selection differential (sel_): on steps where a neighbour was chosen, the chosen tile's property minus the mean over the neighbours on offer,
   averaged over steps. Far offers are left out: they are the same tile for every walker of a seed, and taking them is far_taken's readout.
   Standardised (selz_): the same difference divided by the SD of the property among the neighbours, over the steps where it varies.
+  Per place (selp_, added in Stage 1 after Reference seed 6, log 2026-11-05): selz_ averaged within each place, then over the places with at
+  least PLACE_MIN such steps, so one long place cannot outweigh the rest of the walk. Not a core readout; a check on the core taste readouts.
 - top chosen: share of choices that took the highest-interest candidate; `_excess` subtracts the blind chance 1/C.
 - appetite end: the first logged step from 100 on at which the fall in log held-out error over the trailing 200 steps stops (h0111 task 7);
   1,000 if it never stops (censored).
@@ -38,7 +40,8 @@ from task7_appetite import appetite  # noqa: E402
 
 TASTE = {"texture": "grad", "contrast": "grey_std", "entropy": "entropy", "brightness": "grey_mean", "bright": "bright", "saturation": "sat", "ocean": "ocean"}
 NOISE_PAIRS = [("Reference k=3", "Reference"), ("Reference k=8", "Reference"), ("Bored k=3", "Bored"), ("Bored k=8", "Bored")]
-DETECT_SD = 2.0  # 70 % power for a four-seed lead between independent walks
+DETECT_SD = 2.0
+PLACE_MIN = 10  # selp_: places with fewer steps of that differential are left out  # 70 % power for a four-seed lead between independent walks
 
 
 def teleport_flags(s: pd.DataFrame) -> pd.DataFrame:
@@ -66,6 +69,13 @@ def appetite_end(h: pd.DataFrame, n: int) -> float:
     return float(hit[0]) if hit else float(n)
 
 
+def per_place(o: pd.DataFrame, col: str) -> float:
+    """selp_: the standardised differential averaged within each place, then over places with at least PLACE_MIN such steps."""
+    m = o.groupby("place")[col].agg(["mean", "count"])
+    m = m[m["count"] >= PLACE_MIN]
+    return float(m["mean"].mean()) if len(m) else np.nan
+
+
 def readouts(group: str, seed: int, run: str, ts: pd.DataFrame) -> list[dict]:
     s = places(steps(run))
     c = candidates(run).join(ts[list(TASTE.values())], on="tile_idx")
@@ -86,6 +96,7 @@ def readouts(group: str, seed: int, run: str, ts: pd.DataFrame) -> list[dict]:
         offer[f"sel_{name}"] = nchosen[col] - nper[col].mean()
         sd = nper[col].std(ddof=0)
         offer[f"selz_{name}"] = offer[f"sel_{name}"] / sd.where(sd > 0)  # standardised: in SDs of what was on offer; steps without spread left out
+    offer["place"] = s.set_index("step").place.reindex(offer.index).to_numpy()  # the place the choice was made in (a neighbour keeps the place)
     far = c[c.kind == "long"].groupby("step").agg(taken=("chosen", "max"), C=("C", "first"))
     first = s.drop_duplicates("tile_idx")
     rows = []
@@ -103,6 +114,7 @@ def readouts(group: str, seed: int, run: str, ts: pd.DataFrame) -> list[dict]:
              "back_share": float(o.back.mean()), "back_excess": float(o.back.mean() - o.back_chance.mean()),
              "top_chosen": float(o.top_chosen.mean()), "top_chosen_excess": float(o.top_chosen.mean() - (1 / o.C).mean()),
              **{f"sel_{k}": float(o[f"sel_{k}"].mean()) for k in TASTE}, **{f"selz_{k}": float(o[f"selz_{k}"].mean()) for k in TASTE},
+             **{f"selp_{k}": per_place(o, f"selz_{k}") for k in TASTE},
              "unique_tiles": len(u), "ocean_share": float((u.cover == "ocean").mean()), "colour_diversity": colour_div(urgb)}
         if phase == "all":
             hm = h.set_index("step").heldout_mse
