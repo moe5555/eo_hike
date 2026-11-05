@@ -76,3 +76,17 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 - Predictions 19–35 in `notes/06_characters/expectations.md`, section "Round h0311 / experiment 08", written and committed before the first walk.
 - Configs in `configs/08_character_sheet/`, one per setting, each the h0111 Reference with one key changed and the old value noted on that line. `e08_reference.yaml` is the h0111 Reference unchanged (seeds 4–7 only; seeds 0–3 are `h0111_reference_s0`–`s3`).
 - Batch: `scripts/hikes_e08.sh start` (a copy of `hikes_0111.sh` with its disk and `.git` watchdog), logs in `runs/hikes_e08.log` and `runs/e08_logs/`. All three tiers in one queue, tier 1 first, 102 walks; finished walks are skipped on restart. Capacity runs seeds 1–3 only (s0 are `h0111_eye_half_s0` and `h0111_eye_double_s0`).
+- Batch started 2026-11-05 12:07, about 21 min per walk, three side by side: about 12 h for all 102.
+- **Analysis code for Stage 1.** `sheet.py` now names the Stage 1 settings (`SETTINGS`) and lets a group take its seeds from more than one stem (the Reference: `h0111_reference` for seeds 0–3, `e08_reference` for 4–7; capacity: the h0111 eye-size walk for seed 0). Calibration stays the Stage 0 one (h0111 walks, seeds 0–3): rerunning `readouts.py` and `panel.py summarise` reproduced `calibration.csv` and the panel files unchanged. The lead rule's spread is now the Reference's range over the seeds compared, which is what it was in Stage 0. `matrix.py` writes `results/matrix.csv` and `matrix.png`: each setting's paired effect on the 17 core readouts in Stage 0 seed SDs (fixed units, chosen before any Stage 1 walk), with its verdict.
+
+## Paused 2026-11-05 12:38: where Stage 1 stands and how to continue
+
+- **Done:** `e08_reference_s4` (1,695 s). The batch was stopped by request at 12:38 with `scripts/hikes_e08.sh stop`; `e08_reference_s5` and `s6` had reached step 750 and `s7` had just started. A walk cannot resume, so these three walk again from step 0. Their unfinished folders stay in `runs/` until then; on restart the batch script moves each one to `runs/e08_partial/` before walking it again (added at the pause), so nothing is walked on top of old files. `runs/e08_partial/` can be deleted once the batch is through.
+- **Not yet run on Stage 1 walks:** `readouts.py`, `panel.py score` / `summarise`, `matrix.py`. Nothing in `results/` uses an e08 walk yet; `readouts.csv` and `paired.csv` gained only the two h0111 eye-size walks (seed 0 of the capacity settings) and `matrix.csv` / `matrix.png` show Stage 0's Null and Bored.
+
+**To continue**
+
+1. `scripts/hikes_e08.sh start` — the remaining 101 walks, about 12 h (Reference seeds 5–7 first, then tiers 1, 2, 3). Finished walks are skipped.
+2. As walks finish (any time, also while the batch runs): `.venv/bin/python analysis/e08/readouts.py`, then `.venv/bin/python analysis/e08/panel.py score` (resumable, about 20–40 s per walk and checkpoint) and `panel.py summarise`, then `.venv/bin/python analysis/e08/matrix.py`.
+3. First check: prediction 19 (the Reference's seeds 4–7 against 0–3).
+4. Report after Stage 1 in `observations.md` (Stage 1 section), with the matrix and a table against predictions 19–35, then stop for review before seeds 4–7 of the leads.

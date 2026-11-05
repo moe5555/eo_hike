@@ -16,7 +16,7 @@ Definitions (brief, Stage 0.1), all on steps with a choice (more than one candid
 - top chosen: share of choices that took the highest-interest candidate; `_excess` subtracts the blind chance 1/C.
 - appetite end: the first logged step from 100 on at which the fall in log held-out error over the trailing 200 steps stops (h0111 task 7);
   1,000 if it never stops (censored).
-- spread: the range (max − min) over seeds of the Reference. Lead: all paired differences with the same sign and |mean| > spread / 2.
+- spread: the range (max − min) of the Reference over the seeds compared. Lead: all paired differences with the same sign and |mean| > spread / 2.
   Result: a lead with 8 seeds, at least 7 of them with the same sign.
 - seed SD: the spread between seeds of one setting, pooled over all groups (RMS of the within-group SDs). Pairing by seed barely reduces it once
   two walks diverge, which every setting but the landing variants does from step 0: on the panel, same-seed pairs of different settings agree
@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from sheet import OUT, PHASES, REFERENCE, RUNS, candidates, config, heldout, places, runs, steps, tile_stats  # sets sys.path
+from sheet import OUT, PHASES, REFERENCE, RUNS, STAGE0, STAGE0_SEEDS, candidates, config, heldout, places, runs, steps, tile_stats  # sets sys.path
 
 from compare import BURST_GAP  # noqa: E402  (analysis/h0111)
 from task7_appetite import appetite  # noqa: E402
@@ -137,7 +137,7 @@ def paired(R: pd.DataFrame, against: str = REFERENCE, groups=None) -> pd.DataFra
                 d = (G.loc[sd, m] - ref.loc[sd, m]).dropna()
                 if d.empty:
                     continue
-                rng = float(ref[m].max() - ref[m].min())
+                rng = float(ref.loc[sd, m].max() - ref.loc[sd, m].min())  # the Reference's spread over the seeds compared
                 same = int(max((d > 0).sum(), (d < 0).sum()))
                 big = abs(d.mean()) > rng / 2
                 result = len(d) >= 8 and same >= len(d) - 1 and big
@@ -175,7 +175,7 @@ def main() -> None:
     R.to_csv(OUT / "readouts.csv", index=False)
     P = paired(R)
     P.to_csv(OUT / "paired.csv", index=False)
-    C = calibration(R)
+    C = calibration(R[R.group.isin(STAGE0) & R.seed.isin(STAGE0_SEEDS)])  # Stage 0: the h0111 walks only
     C.to_csv(OUT / "calibration.csv", index=False)
     pd.set_option("display.width", 250)
     for phase in PHASES:

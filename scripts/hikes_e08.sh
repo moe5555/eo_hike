@@ -55,6 +55,12 @@ watchdog=$!
 walk() {
   local c=$1 s=$2
   [ -f "runs/${c}_s${s}/final.pt" ] && { echo "=== have ${c}_s${s}"; return; }
+  # a walk stopped halfway cannot resume: move its folder aside rather than walk again on top of its files
+  if [ -d "runs/${c}_s${s}" ]; then
+    mkdir -p runs/e08_partial
+    mv "runs/${c}_s${s}" "runs/e08_partial/${c}_s${s}_$(date '+%Y%m%d_%H%M%S')"
+    echo "=== moved partial ${c}_s${s} to runs/e08_partial/"
+  fi
   echo "=== $(date '+%F %T') start ${c}_s${s}"
   if .venv/bin/python -m agent.walk "configs/08_character_sheet/${c}.yaml" --seed "$s" > "runs/e08_logs/${c}_s${s}.log" 2>&1; then
     tail -n 1 "runs/e08_logs/${c}_s${s}.log"

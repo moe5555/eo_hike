@@ -23,7 +23,7 @@ import sys
 import numpy as np
 import pandas as pd
 import torch
-from sheet import CACHE, CKPTS, GROUPS, OUT, PANEL, ROOT, RUNS, S, _stats_of, config, net, runs, scoring_crops, steps  # sets sys.path
+from sheet import CACHE, CKPTS, GROUPS, OUT, STAGE0, STAGE0_SEEDS, PANEL, ROOT, RUNS, S, _stats_of, config, net, runs, scoring_crops, steps  # sets sys.path
 
 from readouts import calibration, paired  # noqa: E402
 
@@ -41,11 +41,7 @@ def select() -> None:
     store = TileStore()
     cover = store.idx.cover.to_numpy()
     walked = set()
-    for stem in GROUPS.values():
-        for p in RUNS.glob(f"{stem}_s*"):
-            if (p / "steps.parquet").exists():
-                walked |= set(pd.read_parquet(p / "steps.parquet", columns=["tile_idx"]).tile_idx)
-    for p in RUNS.glob("h0111_*_s*"):  # every h0111 walk, not only the groups used here
+    for p in RUNS.glob("h0111_*_s*"):  # every h0111 walk
         if (p / "steps.parquet").exists():
             walked |= set(pd.read_parquet(p / "steps.parquet", columns=["tile_idx"]).tile_idx)
     rng = np.random.default_rng(SEED)
@@ -129,7 +125,9 @@ def summarise() -> None:
     from scipy.stats import spearmanr
 
     panel = pd.read_csv(PANEL).set_index("tile_idx")[["cover", "texture_q", "brightness_q", *PROPS.values()]]
-    sc = with_interest(pd.read_parquet(SCORES)).join(panel, on="tile_idx")
+    label = {r: g for g, _, r in runs()}  # labels as sheet.py names them now
+    sc = pd.read_parquet(SCORES).pipe(lambda d: d[d.run.isin(label)]).pipe(lambda d: d.assign(group=d.run.map(label)))
+    sc = with_interest(sc).join(panel, on="tile_idx")
 
     # -- per stratum: which kinds of terrain each walker finds most novel, hard to draw, learnable, interesting --------------------------
     strata = []
@@ -152,7 +150,7 @@ def summarise() -> None:
     R = pd.DataFrame(rows)
     R.to_csv(OUT / "panel_readouts.csv", index=False)
     paired(R).to_csv(OUT / "panel_paired.csv", index=False)
-    C = calibration(R)
+    C = calibration(R[R.group.isin(STAGE0) & R.seed.isin(STAGE0_SEEDS)])  # Stage 0: the h0111 walks only
     C.to_csv(OUT / "panel_calibration.csv", index=False)
 
     # -- taste similarity: rank correlation of panel interest between every pair of walkers -------------------------------------------
