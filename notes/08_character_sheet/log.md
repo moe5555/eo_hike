@@ -69,3 +69,10 @@ Brief: `brief.md` (the Mac version of 2026-11-04, from branch `claude-cloud`, co
 ## Stage 0 done, 2026-11-04
 
 Report: `observations.md`. It stops here for review before any Stage 1 walk, as the brief asks. Open decisions for that review: the core of 17 readouts, whether to walk the Reference's seeds 4–7 first, and the dated predictions for Stage 1.
+
+## Stage 1 set up, 2026-11-05
+
+- After review ("commit and continue"): the core of 17 readouts is fixed as in `observations.md`, and the Reference's seeds 4–7 walk first.
+- Predictions 19–35 in `notes/06_characters/expectations.md`, section "Round h0311 / experiment 08", written and committed before the first walk.
+- Configs in `configs/08_character_sheet/`, one per setting, each the h0111 Reference with one key changed and the old value noted on that line. `e08_reference.yaml` is the h0111 Reference unchanged (seeds 4–7 only; seeds 0–3 are `h0111_reference_s0`–`s3`).
+- Batch: `scripts/hikes_e08.sh start` (a copy of `hikes_0111.sh` with its disk and `.git` watchdog), logs in `runs/hikes_e08.log` and `runs/e08_logs/`. All three tiers in one queue, tier 1 first, 102 walks; finished walks are skipped on restart. Capacity runs seeds 1–3 only (s0 are `h0111_eye_half_s0` and `h0111_eye_double_s0`).
