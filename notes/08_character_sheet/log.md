@@ -112,3 +112,15 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 - **The tile cache overshoots its cap** (34.2 GB on disk against 30 GB): each process counts the cache from its own scan at start plus its own writes, so with three walks and the panel scoring fetching at once the total runs over by what the others add. Every new walk rescans and evicts back to the cap on its first write. This, with swap, explains most of the fall to 35 GB free.
 - The three walks frozen by the sleep finished with 2, 2 and 3 dropped candidates, none near the steps where they were frozen (about 600, 200, 200). Kept.
 - **First matrix rows, 16:30** (novelty only, progress only, surprise added; four seeds each; read in `results/matrix.csv`). Leads: 0, 7 and 4 of 17 (chance about 1.5). First reading, for the Stage 1 report: removing novelty takes away the returns (progress only: revisits beyond blind 0.05 against 0.18, top tile 0.21 against 0.42, and a Bored-like rhythm); removing progress changes nothing measurable; adding surprise brings a preference for texture and contrast among neighbours.
+- The Mac slept again from 17:12:38 to 17:20:56 (lid closed on battery); `e08_knn_30_s3`, `e08_ema_005_s0` and `s1` were frozen and carried on, and are kept: 0, 1 and 1 dropped candidates, none near the frozen steps.
+
+## Paused 2026-11-05 18:02: where Stage 1 stands and how to continue
+
+- **Done:** 30 of 102 walks: Reference s4–s7; novelty only, progress only, surprise added, k_nn 3, k_nn 30, ema 0.005, each s0–s3; ema 0.08 s0–s1. Panel scores for everything finished up to the surprise walks (16:30); `results/` and the matrix hold novelty only, progress only and surprise added.
+- **Stopped by request** with `scripts/hikes_e08.sh stop`: `e08_ema_08_s2`, `s3` and `e08_temp_02_s0` were partway and are lost. On restart the batch script moves their folders to `runs/e08_partial/` and walks them again.
+
+**To continue**
+
+1. `scripts/hikes_e08.sh start`: the remaining 72 walks, about 9 h at the current 15–25 min per walk, three side by side. Keep the Mac plugged in; for a closed lid run `sudo pmset -a disablesleep 1` first and `sudo pmset -a disablesleep 0` afterwards. A sleep only freezes the walks.
+2. `OMP_NUM_THREADS=2 .venv/bin/python analysis/e08/panel.py score` (resumable), then `readouts.py`, `panel.py summarise`, `matrix.py`.
+3. Report after Stage 1 (all three tiers) in `observations.md`, with the matrix and a table against predictions 19–35; then stop for review before seeds 4–7 of the leads.
