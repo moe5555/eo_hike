@@ -17,6 +17,7 @@ One folder per experiment, numbered in the order they were run. Each one has a b
 | 05 | `05_attention_films/` | 2026-10-29 | Where does a walker look inside a tile it found novel, and in what order? Rendered as a Ken Burns film | first films | attention films / – |
 | 06 | `06_characters/` | 2026-10-29 | Do Bored, Globalist, Localist and Fast learner settings give walks that differ by more than the seed-to-seed spread? | done (part 1: 1,000 steps from Milan; part 2: 5,000 steps from Paris) | hikes 29.10 / `h2910_` |
 | 07 | `07_film_arc/` | 2026-11-01 | Emergent or designed arc for the film? Is "interesting" the same as "hard to draw", and what does the scorer really do? | done (the recommended 5,000-step walk not run) | round h0111 / `h0111_` |
+| 08 | `08_character_sheet/` | 2026-11-03 | Which settings are responsible for what, in what the walker sees and how it moves? A character sheet backed by paired walks | Stage 0 done (readouts, taste panel, calibration); Stage 1 waits for review | round h0311 / `e08_` |
 
 Not an experiment: `agents_paper/`, the write-up of the agent design (Typst source, figures built by `build_figures.py`, PDF).
 
@@ -120,3 +121,15 @@ All documents in `notes/07_film_arc/`:
 - Configs: `configs/07_film_arc/h0111_*.yaml`; `h0111_walk_5k.yaml` is the recommended walk, not yet run
 - Script: `scripts/hikes_0111.sh` (`start`, `stop`; with a disk and `.git` watchdog)
 - Runs: `runs/h0111_*`; films in `runs/h0111_films/`
+
+## 08. Character sheet (round h0311)
+
+All documents in `notes/08_character_sheet/`:
+
+- Brief: `brief.md` (written as round h0311, before the naming convention; the note at its top maps its names to `e08_`)
+- Expectation: `notes/06_characters/expectations.md`, section "Round h0311" (before the first Stage 1 walk)
+- Log: `log.md`
+- Observations, Stage 0 (what the readouts see, noise, the recommended core of readouts): `observations.md`
+- Results: `results/` (readouts, paired differences, calibration, taste panel summaries and figures)
+- Code: `analysis/e08/` (`sheet.py` shared, `readouts.py` Stage 0.1 and 0.3, `panel.py` Stage 0.2), the panel's tile list `analysis/e08/panel.csv` (fixed, never changed); per-tile statistics and raw panel scores are cached in `data/sheet/` (git-ignored)
+- Configs and runs: `configs/08_character_sheet/e08_*.yaml`, `runs/e08_*` (Stage 1 on)

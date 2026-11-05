@@ -4,7 +4,7 @@ Curious agents grow their own perception, a small conv autoencoder trained from 
 
 **Index of all experiments (briefs, expectations, logs, observations, code and outputs of each): `notes/README.md`.**
 
-Experiments, in order: `01_first_walk` (walks + DDPM dreams v1), `02_dreams_hires` (dreams v2), `03_planet_walks` (global walks + paused GAN dreams), `04_perception_fix`, `05_attention_films`, `06_characters`, `07_film_arc`. Each has a folder in `notes/` and, if it has configs, one in `configs/` with the same name.
+Experiments, in order: `01_first_walk` (walks + DDPM dreams v1), `02_dreams_hires` (dreams v2), `03_planet_walks` (global walks + paused GAN dreams), `04_perception_fix`, `05_attention_films`, `06_characters`, `07_film_arc`, `08_character_sheet`. Each has a folder in `notes/` and, if it has configs, one in `configs/` with the same name.
 
 ## Setup
 
