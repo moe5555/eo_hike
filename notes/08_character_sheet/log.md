@@ -124,3 +124,8 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 1. `scripts/hikes_e08.sh start`: the remaining 72 walks, about 9 h at the current 15–25 min per walk, three side by side. Keep the Mac plugged in; for a closed lid run `sudo pmset -a disablesleep 1` first and `sudo pmset -a disablesleep 0` afterwards. A sleep only freezes the walks.
 2. `OMP_NUM_THREADS=2 .venv/bin/python analysis/e08/panel.py score` (resumable), then `readouts.py`, `panel.py summarise`, `matrix.py`.
 3. Report after Stage 1 (all three tiers) in `observations.md`, with the matrix and a table against predictions 19–35; then stop for review before seeds 4–7 of the leads.
+
+## 2026-11-06 07:53: Stage 1 resumed
+
+- `scripts/hikes_e08.sh start` on AC power; 72 walks left. 32 GB free (37 at the pause; nothing of the project ran overnight).
+- Panel scoring next to three walks pushed swap to 10 GB (free disk 32 → 28 GB); without it memory is 67 % free. Panel scoring of Stage 1 walks waits until the batch is through (scored so far: up to `e08_knn_30_s2`).

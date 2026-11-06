@@ -1,4 +1,347 @@
 ckpt,a,b,group_a,group_b,kind,pair,rho
+250,e08_knn_30_s0,e08_knn_30_s1,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.7852797887264945
+250,e08_knn_30_s0,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.5634377189608148
+250,e08_knn_30_s0,e08_knn_3_s0,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.645020421342553
+250,e08_knn_30_s0,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.8304229670158484
+250,e08_knn_30_s0,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5037628204230759
+250,e08_knn_30_s0,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.6842173100184025
+250,e08_knn_30_s0,e08_novelty_only_s0,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.7703413972025016
+250,e08_knn_30_s0,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.7243213200860721
+250,e08_knn_30_s0,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.7696191667950014
+250,e08_knn_30_s0,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6884706915567266
+250,e08_knn_30_s0,e08_progress_only_s0,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.2650196702229292
+250,e08_knn_30_s0,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.12210249493938709
+250,e08_knn_30_s0,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.4985769838724839
+250,e08_knn_30_s0,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.5748009588553115
+250,e08_knn_30_s0,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.7759379050740353
+250,e08_knn_30_s0,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.7032744148878132
+250,e08_knn_30_s0,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,-0.06797743707762022
+250,e08_knn_30_s0,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.815103682286177
+250,e08_knn_30_s0,e08_surprise_s0,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.6189565703966867
+250,e08_knn_30_s0,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.7058419995426615
+250,e08_knn_30_s0,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5303195658439684
+250,e08_knn_30_s0,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.32603902844232235
+250,e08_knn_30_s0,h0111_bored_k3_s0,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.8970970559888568
+250,e08_knn_30_s0,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.41326712813856337
+250,e08_knn_30_s0,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.40383857683720414
+250,e08_knn_30_s0,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.7949972321908537
+250,e08_knn_30_s0,h0111_bored_k8_s0,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.6749016488853541
+250,e08_knn_30_s0,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.12228427477733636
+250,e08_knn_30_s0,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.8488342867885836
+250,e08_knn_30_s0,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.8220962059792233
+250,e08_knn_30_s0,h0111_bored_s0,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.7152985511613577
+250,e08_knn_30_s0,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.6942543126599879
+250,e08_knn_30_s0,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7451375560034125
+250,e08_knn_30_s0,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7697498349425738
+250,e08_knn_30_s0,h0111_eye_double_s0,k_nn 30,width 2,"same seed, other setting",k_nn 30 / width 2,0.5667395341591649
+250,e08_knn_30_s0,h0111_eye_half_s0,k_nn 30,width 0.5,"same seed, other setting",k_nn 30 / width 0.5,-0.00831187197899354
+250,e08_knn_30_s0,h0111_null_s0,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.4460701665729989
+250,e08_knn_30_s0,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7485220388053286
+250,e08_knn_30_s0,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.6293509104214292
+250,e08_knn_30_s0,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7223524088828562
+250,e08_knn_30_s0,h0111_reference_k3_s0,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.658387683949307
+250,e08_knn_30_s0,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.11463663254850222
+250,e08_knn_30_s0,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.6982392467114628
+250,e08_knn_30_s0,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4614912302339427
+250,e08_knn_30_s0,h0111_reference_k8_s0,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.7288858162614732
+250,e08_knn_30_s0,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,-0.05900489094431959
+250,e08_knn_30_s0,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.6982392467114628
+250,e08_knn_30_s0,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.7222684079308455
+250,e08_knn_30_s0,h0111_reference_s0,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.7870246973910149
+250,e08_knn_30_s0,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.8329381066318752
+250,e08_knn_30_s0,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6982392467114628
+250,e08_knn_30_s0,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.45249112823278664
+250,e08_knn_30_s1,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.7105389416635611
+250,e08_knn_30_s1,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.7012659476807404
+250,e08_knn_30_s1,e08_knn_3_s1,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.7107882778227043
+250,e08_knn_30_s1,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.7286747027577424
+250,e08_knn_30_s1,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5970967670966938
+250,e08_knn_30_s1,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.7121234040652461
+250,e08_knn_30_s1,e08_novelty_only_s1,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.7004397160945601
+250,e08_knn_30_s1,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6866937825295353
+250,e08_knn_30_s1,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.5929780537512759
+250,e08_knn_30_s1,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.4370905092479937
+250,e08_knn_30_s1,e08_progress_only_s1,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.2948715640999487
+250,e08_knn_30_s1,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.3742777973705924
+250,e08_knn_30_s1,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.5265897457948968
+250,e08_knn_30_s1,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6498929210086604
+250,e08_knn_30_s1,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.790114510186671
+250,e08_knn_30_s1,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.06246181901172658
+250,e08_knn_30_s1,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.7140607593552727
+250,e08_knn_30_s1,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.6763576653868744
+250,e08_knn_30_s1,e08_surprise_s1,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.6226432788460492
+250,e08_knn_30_s1,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5958016413074904
+250,e08_knn_30_s1,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.14367340607638
+250,e08_knn_30_s1,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.8162116948436526
+250,e08_knn_30_s1,h0111_bored_k3_s1,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.5701813509441996
+250,e08_knn_30_s1,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.2833896561938813
+250,e08_knn_30_s1,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6637886340489637
+250,e08_knn_30_s1,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.5151678385688371
+250,e08_knn_30_s1,h0111_bored_k8_s1,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.24647501560573243
+250,e08_knn_30_s1,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.7220799613506731
+250,e08_knn_30_s1,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.6856799932621459
+250,e08_knn_30_s1,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.767643144400081
+250,e08_knn_30_s1,h0111_bored_s1,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.6158623131062152
+250,e08_knn_30_s1,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.844189345257024
+250,e08_knn_30_s1,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.6539583004162937
+250,e08_knn_30_s1,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.45669028693436303
+250,e08_knn_30_s1,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.18950014766834025
+250,e08_knn_30_s1,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.5688546692418069
+250,e08_knn_30_s1,h0111_null_s1,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.7926643168622578
+250,e08_knn_30_s1,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7644871086316756
+250,e08_knn_30_s1,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7864855801699085
+250,e08_knn_30_s1,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.7696707229348599
+250,e08_knn_30_s1,h0111_reference_k3_s1,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.2575942527348643
+250,e08_knn_30_s1,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.8074142618060782
+250,e08_knn_30_s1,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4096804208225471
+250,e08_knn_30_s1,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.6903733797871932
+250,e08_knn_30_s1,h0111_reference_k8_s1,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.19916025714958102
+250,e08_knn_30_s1,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.8074142618060782
+250,e08_knn_30_s1,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.6677371232429523
+250,e08_knn_30_s1,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.855562807489596
+250,e08_knn_30_s1,h0111_reference_s1,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.7620275252008412
+250,e08_knn_30_s1,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.8074142618060782
+250,e08_knn_30_s1,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.3609669798479938
+250,e08_knn_30_s2,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.6699722596856098
+250,e08_knn_30_s2,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.504282826316476
+250,e08_knn_30_s2,e08_knn_3_s2,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.8261455852055212
+250,e08_knn_30_s2,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.38755705898000176
+250,e08_knn_30_s2,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.5601487927974295
+250,e08_knn_30_s2,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.5697173456854733
+250,e08_knn_30_s2,e08_novelty_only_s2,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.478590535137176
+250,e08_knn_30_s2,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.4893044343391447
+250,e08_knn_30_s2,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.433705581996596
+250,e08_knn_30_s2,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.01609862689554926
+250,e08_knn_30_s2,e08_progress_only_s2,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.2722704190647494
+250,e08_knn_30_s2,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.4071310585964419
+250,e08_knn_30_s2,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.46737085242521637
+250,e08_knn_30_s2,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.769948948310303
+250,e08_knn_30_s2,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.1963722255518896
+250,e08_knn_30_s2,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.46868108949679205
+250,e08_knn_30_s2,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5796752363193449
+250,e08_knn_30_s2,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5343036109964802
+250,e08_knn_30_s2,e08_surprise_s2,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.722528855327027
+250,e08_knn_30_s2,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.16515320506965744
+250,e08_knn_30_s2,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.5827494933831472
+250,e08_knn_30_s2,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.7562643487737305
+250,e08_knn_30_s2,h0111_bored_k3_s2,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.22162895623928183
+250,e08_knn_30_s2,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.5339573848503616
+250,e08_knn_30_s2,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.4441368113283062
+250,e08_knn_30_s2,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.4069035004618941
+250,e08_knn_30_s2,h0111_bored_k8_s2,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.5069090783028875
+250,e08_knn_30_s2,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.601121701601507
+250,e08_knn_30_s2,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7807850711196949
+250,e08_knn_30_s2,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.4272979538212544
+250,e08_knn_30_s2,h0111_bored_s2,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.781857972168129
+250,e08_knn_30_s2,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.5458344083455168
+250,e08_knn_30_s2,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.47237002019356217
+250,e08_knn_30_s2,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.2550706685786883
+250,e08_knn_30_s2,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7370872425443044
+250,e08_knn_30_s2,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7578874782803094
+250,e08_knn_30_s2,h0111_null_s2,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.7900611762488864
+250,e08_knn_30_s2,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.701745953120802
+250,e08_knn_30_s2,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.7836939929763649
+250,e08_knn_30_s2,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4707806688475803
+250,e08_knn_30_s2,h0111_reference_k3_s2,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.7875051472805581
+250,e08_knn_30_s2,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4440101432260677
+250,e08_knn_30_s2,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.483874595023188
+250,e08_knn_30_s2,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.41138310678632134
+250,e08_knn_30_s2,h0111_reference_k8_s2,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.7875051472805581
+250,e08_knn_30_s2,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5100473360920312
+250,e08_knn_30_s2,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.7187034786394246
+250,e08_knn_30_s2,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5162469619100127
+250,e08_knn_30_s2,h0111_reference_s2,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.7875051472805581
+250,e08_knn_30_s2,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.29616180094485517
+250,e08_knn_3_s0,e08_knn_3_s1,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.4861777322365209
+250,e08_knn_3_s0,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.6084031174575534
+250,e08_knn_3_s0,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.48351859098847566
+250,e08_knn_3_s0,e08_novelty_only_s0,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.7066633421845447
+250,e08_knn_3_s0,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6790554737398135
+250,e08_knn_3_s0,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6886160265371897
+250,e08_knn_3_s0,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.5418148072344819
+250,e08_knn_3_s0,e08_progress_only_s0,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.341136532880706
+250,e08_knn_3_s0,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,-0.07667620233029308
+250,e08_knn_3_s0,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.21317908269627056
+250,e08_knn_3_s0,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3903068679222809
+250,e08_knn_3_s0,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.47610295138900466
+250,e08_knn_3_s0,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7791650527594868
+250,e08_knn_3_s0,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.2225009661220605
+250,e08_knn_3_s0,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4674321864536687
+250,e08_knn_3_s0,e08_surprise_s0,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.6797172590178244
+250,e08_knn_3_s0,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5589412235560892
+250,e08_knn_3_s0,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.694416092271268
+250,e08_knn_3_s0,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.20390342201656064
+250,e08_knn_3_s0,h0111_bored_k3_s0,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.6009776999694886
+250,e08_knn_3_s0,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5276888693627416
+250,e08_knn_3_s0,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.3125917649288914
+250,e08_knn_3_s0,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5682493290479514
+250,e08_knn_3_s0,h0111_bored_k8_s0,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.3819952181680281
+250,e08_knn_3_s0,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.15741489514658943
+250,e08_knn_3_s0,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6111435929607202
+250,e08_knn_3_s0,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.5610563586387313
+250,e08_knn_3_s0,h0111_bored_s0,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.6209312594431626
+250,e08_knn_3_s0,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5517429197530905
+250,e08_knn_3_s0,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6299149168135016
+250,e08_knn_3_s0,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5824828236942241
+250,e08_knn_3_s0,h0111_eye_double_s0,k_nn 3,width 2,"same seed, other setting",k_nn 3 / width 2,0.7143660961490896
+250,e08_knn_3_s0,h0111_eye_half_s0,k_nn 3,width 0.5,"same seed, other setting",k_nn 3 / width 0.5,0.44870086305422574
+250,e08_knn_3_s0,h0111_null_s0,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.6013808156492441
+250,e08_knn_3_s0,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.864418463409252
+250,e08_knn_3_s0,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.7779343721451065
+250,e08_knn_3_s0,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.8395239590493137
+250,e08_knn_3_s0,h0111_reference_k3_s0,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.6070017682422623
+250,e08_knn_3_s0,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.38236633348511284
+250,e08_knn_3_s0,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.8040968908758743
+250,e08_knn_3_s0,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.16301229191708616
+250,e08_knn_3_s0,h0111_reference_k8_s0,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.5865379807637819
+250,e08_knn_3_s0,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.138925796714585
+250,e08_knn_3_s0,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.8040968908758743
+250,e08_knn_3_s0,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.4493110921923782
+250,e08_knn_3_s0,h0111_reference_s0,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.7251115512642476
+250,e08_knn_3_s0,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.49948232746637794
+250,e08_knn_3_s0,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.8040968908758743
+250,e08_knn_3_s0,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.27263397874064793
+250,e08_knn_3_s1,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.4195165322984772
+250,e08_knn_3_s1,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.6980090218800258
+250,e08_knn_3_s1,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.7438308745276891
+250,e08_knn_3_s1,e08_novelty_only_s1,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.7386401490328002
+250,e08_knn_3_s1,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.7315894024576723
+250,e08_knn_3_s1,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.7560132348166613
+250,e08_knn_3_s1,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.17939914430141318
+250,e08_knn_3_s1,e08_progress_only_s1,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.1263723211085281
+250,e08_knn_3_s1,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4953951700341493
+250,e08_knn_3_s1,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.49709830044740505
+250,e08_knn_3_s1,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.8295149567250651
+250,e08_knn_3_s1,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5673035405512373
+250,e08_knn_3_s1,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,-0.24826036917307284
+250,e08_knn_3_s1,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.9197417570732468
+250,e08_knn_3_s1,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.48379148297014035
+250,e08_knn_3_s1,e08_surprise_s1,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.7288618159894701
+250,e08_knn_3_s1,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.41897697062788936
+250,e08_knn_3_s1,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.3729684491979798
+250,e08_knn_3_s1,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.846540483014363
+250,e08_knn_3_s1,h0111_bored_k3_s1,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.30770815402574564
+250,e08_knn_3_s1,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.40600882365555696
+250,e08_knn_3_s1,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.847652051167691
+250,e08_knn_3_s1,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.7125958538641216
+250,e08_knn_3_s1,h0111_bored_k8_s1,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.10291249967499631
+250,e08_knn_3_s1,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.8395279590946475
+250,e08_knn_3_s1,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.8674189418591188
+250,e08_knn_3_s1,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6190059042891375
+250,e08_knn_3_s1,h0111_bored_s1,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.7289249278158486
+250,e08_knn_3_s1,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7020188451024667
+250,e08_knn_3_s1,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7818304163002736
+250,e08_knn_3_s1,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.4246219234929107
+250,e08_knn_3_s1,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,-0.1954851043867386
+250,e08_knn_3_s1,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.4167018337318934
+250,e08_knn_3_s1,h0111_null_s1,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.6337300711630287
+250,e08_knn_3_s1,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5236439346312591
+250,e08_knn_3_s1,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6059764232883528
+250,e08_knn_3_s1,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5759423051239025
+250,e08_knn_3_s1,h0111_reference_k3_s1,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,-0.023768936047941877
+250,e08_knn_3_s1,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6164729866938492
+250,e08_knn_3_s1,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6100826920482877
+250,e08_knn_3_s1,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6097626884215799
+250,e08_knn_3_s1,h0111_reference_k8_s1,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,-0.18986059619786802
+250,e08_knn_3_s1,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6164729866938492
+250,e08_knn_3_s1,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.8364772578533668
+250,e08_knn_3_s1,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6765927791626083
+250,e08_knn_3_s1,h0111_reference_s1,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.8539094554182726
+250,e08_knn_3_s1,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6164729866938492
+250,e08_knn_3_s1,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5120451365115471
+250,e08_knn_3_s2,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.27706025112729055
+250,e08_knn_3_s2,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.43554071390586874
+250,e08_knn_3_s2,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.4633050285681016
+250,e08_knn_3_s2,e08_novelty_only_s2,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.34010229893716576
+250,e08_knn_3_s2,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.32543902164224525
+250,e08_knn_3_s2,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.5139380468534199
+250,e08_knn_3_s2,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.16371763324428787
+250,e08_knn_3_s2,e08_progress_only_s2,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.11583931284554558
+250,e08_knn_3_s2,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4448799308614387
+250,e08_knn_3_s2,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.394698028799882
+250,e08_knn_3_s2,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6873093450614662
+250,e08_knn_3_s2,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.3118104227403466
+250,e08_knn_3_s2,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.3705324215896669
+250,e08_knn_3_s2,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5095375525367065
+250,e08_knn_3_s2,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4241614738300367
+250,e08_knn_3_s2,e08_surprise_s2,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.5699235702449073
+250,e08_knn_3_s2,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,-0.010563008602986389
+250,e08_knn_3_s2,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5658204126313432
+250,e08_knn_3_s2,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.7720538610548697
+250,e08_knn_3_s2,h0111_bored_k3_s2,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.01551195357991835
+250,e08_knn_3_s2,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.3301386304600341
+250,e08_knn_3_s2,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.2206098335781139
+250,e08_knn_3_s2,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.4666415108260116
+250,e08_knn_3_s2,h0111_bored_k8_s2,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.39575137407112837
+250,e08_knn_3_s2,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.4508253315759801
+250,e08_knn_3_s2,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7951341226311676
+250,e08_knn_3_s2,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.37801072856603485
+250,e08_knn_3_s2,h0111_bored_s2,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.7745898897965288
+250,e08_knn_3_s2,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.4011816578365666
+250,e08_knn_3_s2,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.2485074830848083
+250,e08_knn_3_s2,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.41850229858160615
+250,e08_knn_3_s2,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.733844539126999
+250,e08_knn_3_s2,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6944418703411972
+250,e08_knn_3_s2,h0111_null_s2,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.8181290499070101
+250,e08_knn_3_s2,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6637099664907313
+250,e08_knn_3_s2,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.7495673839859074
+250,e08_knn_3_s2,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5204274537333645
+250,e08_knn_3_s2,h0111_reference_k3_s2,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.7954056812643877
+250,e08_knn_3_s2,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.28583190609493575
+250,e08_knn_3_s2,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.3897788619382131
+250,e08_knn_3_s2,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.5207110125025861
+250,e08_knn_3_s2,h0111_reference_k8_s2,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.7954056812643877
+250,e08_knn_3_s2,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.37459202315404017
+250,e08_knn_3_s2,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7248711040947353
+250,e08_knn_3_s2,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5146500549228447
+250,e08_knn_3_s2,h0111_reference_s2,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.7954056812643877
+250,e08_knn_3_s2,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.11069525454621819
+250,e08_knn_3_s3,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.639011908801633
+250,e08_knn_3_s3,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.5886157820899748
+250,e08_knn_3_s3,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6509773777436144
+250,e08_knn_3_s3,e08_novelty_only_s3,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.6307895933931695
+250,e08_knn_3_s3,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.07111569486676404
+250,e08_knn_3_s3,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.16466919958426196
+250,e08_knn_3_s3,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.44467015070615246
+250,e08_knn_3_s3,e08_progress_only_s3,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.32069674567422873
+250,e08_knn_3_s3,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6180823382665004
+250,e08_knn_3_s3,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5167980792671206
+250,e08_knn_3_s3,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,-0.081492256912245
+250,e08_knn_3_s3,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7130976373287786
+250,e08_knn_3_s3,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4968662978180419
+250,e08_knn_3_s3,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5689773372987116
+250,e08_knn_3_s3,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4863137337778717
+250,e08_knn_3_s3,e08_surprise_s3,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.41456669842258215
+250,e08_knn_3_s3,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.6330687303344994
+250,e08_knn_3_s3,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.2560915690377824
+250,e08_knn_3_s3,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.4560800577962106
+250,e08_knn_3_s3,h0111_bored_k3_s3,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.708314027558979
+250,e08_knn_3_s3,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6754238770261618
+250,e08_knn_3_s3,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.102551606695987
+250,e08_knn_3_s3,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.7616079648902687
+250,e08_knn_3_s3,h0111_bored_k8_s3,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.6801128190563938
+250,e08_knn_3_s3,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.45504004600941034
+250,e08_knn_3_s3,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5883580013906824
+250,e08_knn_3_s3,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5534904951145002
+250,e08_knn_3_s3,h0111_bored_s3,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.6803657108113892
+250,e08_knn_3_s3,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.49376892938119965
+250,e08_knn_3_s3,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,-0.11831267421030772
+250,e08_knn_3_s3,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.29764048436993396
+250,e08_knn_3_s3,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.49295380903205793
+250,e08_knn_3_s3,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.33011818578388336
+250,e08_knn_3_s3,h0111_null_s3,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.46524371720657276
+250,e08_knn_3_s3,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.48181679392366444
+250,e08_knn_3_s3,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.022520033004818498
+250,e08_knn_3_s3,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.43135666648666465
+250,e08_knn_3_s3,h0111_reference_k3_s3,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.5168829691180945
+250,e08_knn_3_s3,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6237908474073818
+250,e08_knn_3_s3,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,-0.07151792164755645
+250,e08_knn_3_s3,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.43135666648666465
+250,e08_knn_3_s3,h0111_reference_k8_s3,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.7225559667454009
+250,e08_knn_3_s3,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5563229716603455
+250,e08_knn_3_s3,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.591769151161491
+250,e08_knn_3_s3,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.43135666648666465
+250,e08_knn_3_s3,h0111_reference_s3,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.5588083331611091
 250,e08_novelty_only_s0,e08_novelty_only_s1,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.9539488114198628
 250,e08_novelty_only_s0,e08_novelty_only_s2,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.9615000081112031
 250,e08_novelty_only_s0,e08_novelty_only_s3,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.9092940831107197
@@ -1034,6 +1377,349 @@ ckpt,a,b,group_a,group_b,kind,pair,rho
 250,h0111_reference_s1,h0111_reference_s2,Reference,Reference,"same setting, other seed",Reference / Reference,0.6807066035637293
 250,h0111_reference_s1,h0111_reference_s3,Reference,Reference,"same setting, other seed",Reference / Reference,0.42587615992981254
 250,h0111_reference_s2,h0111_reference_s3,Reference,Reference,"same setting, other seed",Reference / Reference,0.2436976507955979
+500,e08_knn_30_s0,e08_knn_30_s1,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.16806301582529046
+500,e08_knn_30_s0,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.43623716624343967
+500,e08_knn_30_s0,e08_knn_3_s0,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.48792664094637517
+500,e08_knn_30_s0,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.659222804525118
+500,e08_knn_30_s0,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.24200385382145442
+500,e08_knn_30_s0,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.6275868904292027
+500,e08_knn_30_s0,e08_novelty_only_s0,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.6811554975400832
+500,e08_knn_30_s0,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6531187353456672
+500,e08_knn_30_s0,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6160036480413444
+500,e08_knn_30_s0,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.722383520346564
+500,e08_knn_30_s0,e08_progress_only_s0,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,-0.09952846132256166
+500,e08_knn_30_s0,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.38646104655852764
+500,e08_knn_30_s0,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.45371114205961
+500,e08_knn_30_s0,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.17186350334192677
+500,e08_knn_30_s0,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5750649618473453
+500,e08_knn_30_s0,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6711136059542008
+500,e08_knn_30_s0,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,-0.4222734524324609
+500,e08_knn_30_s0,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6438208521918803
+500,e08_knn_30_s0,e08_surprise_s0,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.24016249961944014
+500,e08_knn_30_s0,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5363347451271114
+500,e08_knn_30_s0,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.44311679976817514
+500,e08_knn_30_s0,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.2665583543280157
+500,e08_knn_30_s0,h0111_bored_k3_s0,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.7074255730453834
+500,e08_knn_30_s0,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.2815687466680178
+500,e08_knn_30_s0,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.34818639055687073
+500,e08_knn_30_s0,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6307878155952434
+500,e08_knn_30_s0,h0111_bored_k8_s0,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.7596594983632037
+500,e08_knn_30_s0,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,-0.18736590125799205
+500,e08_knn_30_s0,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.7507251748853153
+500,e08_knn_30_s0,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.7083193609527575
+500,e08_knn_30_s0,h0111_bored_s0,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.48366037037308646
+500,e08_knn_30_s0,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.6707536018741546
+500,e08_knn_30_s0,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.5726391565771078
+500,e08_knn_30_s0,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7073931282332311
+500,e08_knn_30_s0,h0111_eye_double_s0,k_nn 30,width 2,"same seed, other setting",k_nn 30 / width 2,0.5516295851352983
+500,e08_knn_30_s0,h0111_eye_half_s0,k_nn 30,width 0.5,"same seed, other setting",k_nn 30 / width 0.5,0.609896467715523
+500,e08_knn_30_s0,h0111_null_s0,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.5959065313851335
+500,e08_knn_30_s0,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.474418932303455
+500,e08_knn_30_s0,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.580683692192956
+500,e08_knn_30_s0,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.437146065433186
+500,e08_knn_30_s0,h0111_reference_k3_s0,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.6096124644968198
+500,e08_knn_30_s0,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.6532405145036089
+500,e08_knn_30_s0,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4259774944116033
+500,e08_knn_30_s0,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.5906135825094907
+500,e08_knn_30_s0,h0111_reference_k8_s0,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.6712456074502178
+500,e08_knn_30_s0,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.530700459049647
+500,e08_knn_30_s0,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.4259774944116033
+500,e08_knn_30_s0,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5170629711581176
+500,e08_knn_30_s0,h0111_reference_s0,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.5326609257127136
+500,e08_knn_30_s0,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.7024784058663776
+500,e08_knn_30_s0,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.4259774944116033
+500,e08_knn_30_s0,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6370549977344188
+500,e08_knn_30_s1,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,-0.17832890994986833
+500,e08_knn_30_s1,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,-0.12199049367003938
+500,e08_knn_30_s1,e08_knn_3_s1,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.010592342268767934
+500,e08_knn_30_s1,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,-0.2184795872130995
+500,e08_knn_30_s1,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.09005279837615937
+500,e08_knn_30_s1,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,-0.22934593258723598
+500,e08_knn_30_s1,e08_novelty_only_s1,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,-0.2604031734581881
+500,e08_knn_30_s1,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,-0.2412900679541035
+500,e08_knn_30_s1,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.16676877893505015
+500,e08_knn_30_s1,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.014515942291790419
+500,e08_knn_30_s1,e08_progress_only_s1,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.04006200959166426
+500,e08_knn_30_s1,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.24677990795006788
+500,e08_knn_30_s1,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.13830356744043099
+500,e08_knn_30_s1,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.29208353250225727
+500,e08_knn_30_s1,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.07013746155789766
+500,e08_knn_30_s1,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,-0.07941312223760758
+500,e08_knn_30_s1,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.001249125267864147
+500,e08_knn_30_s1,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.0997697973910371
+500,e08_knn_30_s1,e08_surprise_s1,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,-0.033111708599364124
+500,e08_knn_30_s1,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.05595285635459424
+500,e08_knn_30_s1,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.588698449693541
+500,e08_knn_30_s1,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,-0.032311255083113166
+500,e08_knn_30_s1,h0111_bored_k3_s1,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.5389089965241828
+500,e08_knn_30_s1,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.4398403181902728
+500,e08_knn_30_s1,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.07525663068625889
+500,e08_knn_30_s1,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.2332490879341077
+500,e08_knn_30_s1,h0111_bored_k8_s1,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,-0.17535732071630145
+500,e08_knn_30_s1,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.009701665507764643
+500,e08_knn_30_s1,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.18697523016371964
+500,e08_knn_30_s1,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,-0.24434565813968115
+500,e08_knn_30_s1,h0111_bored_s1,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,-0.04047890320534744
+500,e08_knn_30_s1,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.01929066307195926
+500,e08_knn_30_s1,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.31729492934253256
+500,e08_knn_30_s1,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.43664072637267665
+500,e08_knn_30_s1,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.44378302954100146
+500,e08_knn_30_s1,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.43448425748825154
+500,e08_knn_30_s1,h0111_null_s1,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,-0.17909114081070696
+500,e08_knn_30_s1,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,-0.0630556035190621
+500,e08_knn_30_s1,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,-0.2085136964885602
+500,e08_knn_30_s1,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,-0.22068316774256774
+500,e08_knn_30_s1,h0111_reference_k3_s1,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.28384966140727375
+500,e08_knn_30_s1,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,-0.11586420201651174
+500,e08_knn_30_s1,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.29939961541786364
+500,e08_knn_30_s1,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.05355594030065674
+500,e08_knn_30_s1,h0111_reference_k8_s1,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.10110670143150512
+500,e08_knn_30_s1,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,-0.11586420201651174
+500,e08_knn_30_s1,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,-0.00473183140520037
+500,e08_knn_30_s1,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5536078297776263
+500,e08_knn_30_s1,h0111_reference_s1,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.1854778798604162
+500,e08_knn_30_s1,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,-0.11586420201651174
+500,e08_knn_30_s1,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.34134142409169527
+500,e08_knn_30_s2,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.8346176812226094
+500,e08_knn_30_s2,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.48944888042064477
+500,e08_knn_30_s2,e08_knn_3_s2,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.8337327823048661
+500,e08_knn_30_s2,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5475530944906265
+500,e08_knn_30_s2,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.5958811977646857
+500,e08_knn_30_s2,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6488964652710508
+500,e08_knn_30_s2,e08_novelty_only_s2,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.6685082430934217
+500,e08_knn_30_s2,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.42833885450701775
+500,e08_knn_30_s2,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.25815337018263984
+500,e08_knn_30_s2,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.4004692053176603
+500,e08_knn_30_s2,e08_progress_only_s2,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.36374390020864683
+500,e08_knn_30_s2,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.3296799585950863
+500,e08_knn_30_s2,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.34336722482854803
+500,e08_knn_30_s2,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6569512232249743
+500,e08_knn_30_s2,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.14132671281385634
+500,e08_knn_30_s2,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.4670161817389486
+500,e08_knn_30_s2,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.14157382672559177
+500,e08_knn_30_s2,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.600740363946347
+500,e08_knn_30_s2,e08_surprise_s2,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.7497162745622228
+500,e08_knn_30_s2,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.010325228130363255
+500,e08_knn_30_s2,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6102644718862369
+500,e08_knn_30_s2,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.17409108414339808
+500,e08_knn_30_s2,h0111_bored_k3_s2,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.15419841424869482
+500,e08_knn_30_s2,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.5068450775775459
+500,e08_knn_30_s2,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.35282466534620727
+500,e08_knn_30_s2,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.4648423793247435
+500,e08_knn_30_s2,h0111_bored_k8_s2,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.578051217913803
+500,e08_knn_30_s2,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.4736433679581702
+500,e08_knn_30_s2,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.8390515092504381
+500,e08_knn_30_s2,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7083633614514298
+500,e08_knn_30_s2,h0111_bored_s2,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.6946152056389973
+500,e08_knn_30_s2,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.38544325724580436
+500,e08_knn_30_s2,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.4247850364526354
+500,e08_knn_30_s2,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.32302477205852775
+500,e08_knn_30_s2,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.3456228059473563
+500,e08_knn_30_s2,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.807054257726032
+500,e08_knn_30_s2,h0111_null_s2,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.7873295897353504
+500,e08_knn_30_s2,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7991875019027993
+500,e08_knn_30_s2,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.6982481357010935
+500,e08_knn_30_s2,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.5055277293142656
+500,e08_knn_30_s2,h0111_reference_k3_s2,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.7738441035665071
+500,e08_knn_30_s2,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.263916991059232
+500,e08_knn_30_s2,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5946887398057178
+500,e08_knn_30_s2,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.4103119835358134
+500,e08_knn_30_s2,h0111_reference_k8_s2,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.7738441035665071
+500,e08_knn_30_s2,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.42617349663296183
+500,e08_knn_30_s2,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.31329932850350084
+500,e08_knn_30_s2,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.41383069008115425
+500,e08_knn_30_s2,h0111_reference_s2,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.7738441035665071
+500,e08_knn_30_s2,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.2913390796206801
+500,e08_knn_3_s0,e08_knn_3_s1,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.5155847321825203
+500,e08_knn_3_s0,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.7712436296500249
+500,e08_knn_3_s0,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.4977440855440806
+500,e08_knn_3_s0,e08_novelty_only_s0,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.5908522518810769
+500,e08_knn_3_s0,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6566561087692327
+500,e08_knn_3_s0,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6729985162054059
+500,e08_knn_3_s0,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.369524854615019
+500,e08_knn_3_s0,e08_progress_only_s0,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.2980476000950233
+500,e08_knn_3_s0,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4781163075403743
+500,e08_knn_3_s0,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4566009525885738
+500,e08_knn_3_s0,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.34689126476766735
+500,e08_knn_3_s0,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.31768871158317574
+500,e08_knn_3_s0,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7446588839117955
+500,e08_knn_3_s0,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.10723077083762504
+500,e08_knn_3_s0,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4398727630024251
+500,e08_knn_3_s0,e08_surprise_s0,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.1298474716046782
+500,e08_knn_3_s0,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5775885460035214
+500,e08_knn_3_s0,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.7496562738822151
+500,e08_knn_3_s0,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.011189682371955771
+500,e08_knn_3_s0,h0111_bored_k3_s0,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.6347838608837567
+500,e08_knn_3_s0,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.22471565788856718
+500,e08_knn_3_s0,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.1843787562925713
+500,e08_knn_3_s0,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.43658250349059513
+500,e08_knn_3_s0,h0111_bored_k8_s0,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.40051631696270334
+500,e08_knn_3_s0,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.34020407786843804
+500,e08_knn_3_s0,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.59735854784132
+500,e08_knn_3_s0,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.4632570280240954
+500,e08_knn_3_s0,h0111_bored_s0,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.7905105146747219
+500,e08_knn_3_s0,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7361250094167734
+500,e08_knn_3_s0,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7051926588501336
+500,e08_knn_3_s0,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.4149551472694468
+500,e08_knn_3_s0,h0111_eye_double_s0,k_nn 3,width 2,"same seed, other setting",k_nn 3 / width 2,0.4766611799378171
+500,e08_knn_3_s0,h0111_eye_half_s0,k_nn 3,width 0.5,"same seed, other setting",k_nn 3 / width 0.5,0.20211673510077557
+500,e08_knn_3_s0,h0111_null_s0,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.29643958187081676
+500,e08_knn_3_s0,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.8297834042119144
+500,e08_knn_3_s0,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.8197397348281058
+500,e08_knn_3_s0,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.8287447257735587
+500,e08_knn_3_s0,h0111_reference_k3_s0,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.7086820317296929
+500,e08_knn_3_s0,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5304577896327269
+500,e08_knn_3_s0,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.824737569248007
+500,e08_knn_3_s0,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.22242452081123587
+500,e08_knn_3_s0,h0111_reference_k8_s0,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.6584076841759762
+500,e08_knn_3_s0,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.3534335611359151
+500,e08_knn_3_s0,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.824737569248007
+500,e08_knn_3_s0,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.44706928900749765
+500,e08_knn_3_s0,h0111_reference_s0,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.3857881500434783
+500,e08_knn_3_s0,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.458948090300579
+500,e08_knn_3_s0,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.824737569248007
+500,e08_knn_3_s0,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.30181653169847034
+500,e08_knn_3_s1,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.34957262848978954
+500,e08_knn_3_s1,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.6820750635173866
+500,e08_knn_3_s1,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6847835386578826
+500,e08_knn_3_s1,e08_novelty_only_s1,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.6680926828281831
+500,e08_knn_3_s1,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.5932469456876067
+500,e08_knn_3_s1,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6109404795476571
+500,e08_knn_3_s1,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.05163591854041012
+500,e08_knn_3_s1,e08_progress_only_s1,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.5476095395747819
+500,e08_knn_3_s1,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.5005898955743721
+500,e08_knn_3_s1,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.32483590369579746
+500,e08_knn_3_s1,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5936891729217375
+500,e08_knn_3_s1,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6558778777270586
+500,e08_knn_3_s1,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,-0.18285340567193095
+500,e08_knn_3_s1,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7684778205264104
+500,e08_knn_3_s1,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.16775945682939963
+500,e08_knn_3_s1,e08_surprise_s1,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.6206459228760148
+500,e08_knn_3_s1,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4762247305469462
+500,e08_knn_3_s1,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.14375785147787232
+500,e08_knn_3_s1,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.783303766331574
+500,e08_knn_3_s1,h0111_bored_k3_s1,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,-0.03201702952633463
+500,e08_knn_3_s1,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.3828601168591022
+500,e08_knn_3_s1,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.6607926000939122
+500,e08_knn_3_s1,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.727230241942742
+500,e08_knn_3_s1,h0111_bored_k8_s1,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.14234005763176427
+500,e08_knn_3_s1,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.799344837019264
+500,e08_knn_3_s1,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.7394321580089018
+500,e08_knn_3_s1,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6544974176373999
+500,e08_knn_3_s1,h0111_bored_s1,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.7838224388765295
+500,e08_knn_3_s1,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7131443045243402
+500,e08_knn_3_s1,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6955254381771883
+500,e08_knn_3_s1,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.3344680128597013
+500,e08_knn_3_s1,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.5394898919965537
+500,e08_knn_3_s1,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5486846628706237
+500,e08_knn_3_s1,h0111_null_s1,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.5845988476758293
+500,e08_knn_3_s1,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5544136166876558
+500,e08_knn_3_s1,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.4374980694225646
+500,e08_knn_3_s1,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.7008974990605449
+500,e08_knn_3_s1,h0111_reference_k3_s1,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.6720527277086918
+500,e08_knn_3_s1,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5634688304245226
+500,e08_knn_3_s1,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.61988191421725
+500,e08_knn_3_s1,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6877777948150079
+500,e08_knn_3_s1,h0111_reference_k8_s1,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.6033097263991214
+500,e08_knn_3_s1,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.5634688304245226
+500,e08_knn_3_s1,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6795803685775106
+500,e08_knn_3_s1,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.20578744336880261
+500,e08_knn_3_s1,h0111_reference_s1,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.7433153131291044
+500,e08_knn_3_s1,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5634688304245226
+500,e08_knn_3_s1,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.580683692192956
+500,e08_knn_3_s2,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.3393956242615194
+500,e08_knn_3_s2,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.3842805774020994
+500,e08_knn_3_s2,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.4320322296986033
+500,e08_knn_3_s2,e08_novelty_only_s2,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.48700707496907186
+500,e08_knn_3_s2,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.2809407395506038
+500,e08_knn_3_s2,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.33625692202289403
+500,e08_knn_3_s2,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3026258742043521
+500,e08_knn_3_s2,e08_progress_only_s2,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.27279264720555724
+500,e08_knn_3_s2,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.24312519986337622
+500,e08_knn_3_s2,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.14852323881892884
+500,e08_knn_3_s2,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5429743759318161
+500,e08_knn_3_s2,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.400915432597125
+500,e08_knn_3_s2,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.2675632546057744
+500,e08_knn_3_s2,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.13115815312573542
+500,e08_knn_3_s2,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4000594228956817
+500,e08_knn_3_s2,e08_surprise_s2,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.7331716426119496
+500,e08_knn_3_s2,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,-0.009570108461229227
+500,e08_knn_3_s2,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.4625632423834137
+500,e08_knn_3_s2,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.20223584756182791
+500,e08_knn_3_s2,h0111_bored_k3_s2,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.08637675671435388
+500,e08_knn_3_s2,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.33197642906619607
+500,e08_knn_3_s2,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.22310497296747142
+500,e08_knn_3_s2,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6382265665677544
+500,e08_knn_3_s2,h0111_bored_k8_s2,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.36498080311576864
+500,e08_knn_3_s2,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.27855449028422324
+500,e08_knn_3_s2,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7342232100852698
+500,e08_knn_3_s2,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5206439006308738
+500,e08_knn_3_s2,h0111_bored_s2,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.5772774313664444
+500,e08_knn_3_s2,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.20370786424468365
+500,e08_knn_3_s2,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.3173575967194295
+500,e08_knn_3_s2,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.08357316938480858
+500,e08_knn_3_s2,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.19157350449971766
+500,e08_knn_3_s2,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6543703050856798
+500,e08_knn_3_s2,h0111_null_s2,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.6338554059168227
+500,e08_knn_3_s2,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.660842822885326
+500,e08_knn_3_s2,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5945834052785931
+500,e08_knn_3_s2,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.37916496386959053
+500,e08_knn_3_s2,h0111_reference_k3_s2,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.6631028484989496
+500,e08_knn_3_s2,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.08249804608896678
+500,e08_knn_3_s2,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.4797092144822086
+500,e08_knn_3_s2,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.17544976620846148
+500,e08_knn_3_s2,h0111_reference_k8_s2,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.6631028484989496
+500,e08_knn_3_s2,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.28202075179074254
+500,e08_knn_3_s2,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.20044782729759827
+500,e08_knn_3_s2,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.2502226136340656
+500,e08_knn_3_s2,h0111_reference_s2,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.6631028484989496
+500,e08_knn_3_s2,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.15190149932810348
+500,e08_knn_3_s3,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6903907133169731
+500,e08_knn_3_s3,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6356945378714292
+500,e08_knn_3_s3,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.5823485999507995
+500,e08_knn_3_s3,e08_novelty_only_s3,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.6255886455602052
+500,e08_knn_3_s3,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,-0.11883534680059707
+500,e08_knn_3_s3,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.498998766430464
+500,e08_knn_3_s3,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.31098508005312947
+500,e08_knn_3_s3,e08_progress_only_s3,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.3552709152925955
+500,e08_knn_3_s3,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6567392208222804
+500,e08_knn_3_s3,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5235510446896176
+500,e08_knn_3_s3,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,-0.25912849234513546
+500,e08_knn_3_s3,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7911194104644297
+500,e08_knn_3_s3,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.08577808326272142
+500,e08_knn_3_s3,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.6940943108466341
+500,e08_knn_3_s3,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4837817050815465
+500,e08_knn_3_s3,e08_surprise_s3,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.29406266604354847
+500,e08_knn_3_s3,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.7243475426054828
+500,e08_knn_3_s3,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.007650975599945689
+500,e08_knn_3_s3,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5573625389976642
+500,e08_knn_3_s3,h0111_bored_k3_s3,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.7038384212798856
+500,e08_knn_3_s3,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.5877864393574238
+500,e08_knn_3_s3,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.06291026853859899
+500,e08_knn_3_s3,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.7341165422097006
+500,e08_knn_3_s3,h0111_bored_k8_s3,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.7582505935067264
+500,e08_knn_3_s3,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6217801579529012
+500,e08_knn_3_s3,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6966303395882931
+500,e08_knn_3_s3,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5612208049469005
+500,e08_knn_3_s3,h0111_bored_s3,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.6852533217598689
+500,e08_knn_3_s3,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.3347653495628506
+500,e08_knn_3_s3,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.5976932183009185
+500,e08_knn_3_s3,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6588650226924794
+500,e08_knn_3_s3,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5926273831103419
+500,e08_knn_3_s3,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6568285551680697
+500,e08_knn_3_s3,h0111_null_s3,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.47923587578437
+500,e08_knn_3_s3,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6473986705182658
+500,e08_knn_3_s3,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6485231277065584
+500,e08_knn_3_s3,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5551047356314482
+500,e08_knn_3_s3,h0111_reference_k3_s3,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.7020508454651375
+500,e08_knn_3_s3,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6745852008544986
+500,e08_knn_3_s3,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6664126637879674
+500,e08_knn_3_s3,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.5551047356314482
+500,e08_knn_3_s3,h0111_reference_k8_s3,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.6884004685386435
+500,e08_knn_3_s3,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.2915679711036725
+500,e08_knn_3_s3,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7148558794777452
+500,e08_knn_3_s3,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5551047356314482
+500,e08_knn_3_s3,h0111_reference_s3,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.6462759911278995
 500,e08_novelty_only_s0,e08_novelty_only_s1,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.9361126092762385
 500,e08_novelty_only_s0,e08_novelty_only_s2,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.9007966534731838
 500,e08_novelty_only_s0,e08_novelty_only_s3,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.5793578993895264
@@ -2069,6 +2755,349 @@ ckpt,a,b,group_a,group_b,kind,pair,rho
 500,h0111_reference_s1,h0111_reference_s2,Reference,Reference,"same setting, other seed",Reference / Reference,0.5013307928600969
 500,h0111_reference_s1,h0111_reference_s3,Reference,Reference,"same setting, other seed",Reference / Reference,0.7136598659229249
 500,h0111_reference_s2,h0111_reference_s3,Reference,Reference,"same setting, other seed",Reference / Reference,0.32037985319389173
+750,e08_knn_30_s0,e08_knn_30_s1,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.7286978141307824
+750,e08_knn_30_s0,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.5772720979726659
+750,e08_knn_30_s0,e08_knn_3_s0,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.30520012560142346
+750,e08_knn_30_s0,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.6645321980315777
+750,e08_knn_30_s0,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5190914385918596
+750,e08_knn_30_s0,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.6904938255966901
+750,e08_knn_30_s0,e08_novelty_only_s0,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.20851191869063404
+750,e08_knn_30_s0,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6416226050561906
+750,e08_knn_30_s0,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.3850819198173135
+750,e08_knn_30_s0,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6305367016381741
+750,e08_knn_30_s0,e08_progress_only_s0,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.28943416914280584
+750,e08_knn_30_s0,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.44667684011529907
+750,e08_knn_30_s0,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.2731055396405604
+750,e08_knn_30_s0,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,-0.19437709182926297
+750,e08_knn_30_s0,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6471337786272688
+750,e08_knn_30_s0,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.46261257627586444
+750,e08_knn_30_s0,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,-0.24605234414878924
+750,e08_knn_30_s0,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.7211426173941082
+750,e08_knn_30_s0,e08_surprise_s0,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.5626194874653024
+750,e08_knn_30_s0,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5630594924520256
+750,e08_knn_30_s0,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.32967951414560476
+750,e08_knn_30_s0,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.3078334887795395
+750,e08_knn_30_s0,h0111_bored_k3_s0,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.48912043225378776
+750,e08_knn_30_s0,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6226823904004245
+750,e08_knn_30_s0,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6729402933233243
+750,e08_knn_30_s0,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.7105567196428226
+750,e08_knn_30_s0,h0111_bored_k8_s0,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.6691935841939542
+750,e08_knn_30_s0,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.47915854157458226
+750,e08_knn_30_s0,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.4361167204339427
+750,e08_knn_30_s0,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.687087120320697
+750,e08_knn_30_s0,h0111_bored_s0,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.6763563320384298
+750,e08_knn_30_s0,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,-0.03559795899909088
+750,e08_knn_30_s0,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.5758925267819702
+750,e08_knn_30_s0,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7119011793244768
+750,e08_knn_30_s0,h0111_eye_double_s0,k_nn 30,width 2,"same seed, other setting",k_nn 30 / width 2,0.5105242303857221
+750,e08_knn_30_s0,h0111_eye_half_s0,k_nn 30,width 0.5,"same seed, other setting",k_nn 30 / width 0.5,0.28418210961946455
+750,e08_knn_30_s0,h0111_null_s0,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.5896469048871443
+750,e08_knn_30_s0,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.25541156133102844
+750,e08_knn_30_s0,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.4675597434548703
+750,e08_knn_30_s0,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.25906360272083084
+750,e08_knn_30_s0,h0111_reference_k3_s0,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.6168561021469354
+750,e08_knn_30_s0,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.5963416474275597
+750,e08_knn_30_s0,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.6506587074653513
+750,e08_knn_30_s0,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.6472977804859567
+750,e08_knn_30_s0,h0111_reference_k8_s0,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.5403027900982877
+750,e08_knn_30_s0,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5761471963348918
+750,e08_knn_30_s0,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.6506587074653513
+750,e08_knn_30_s0,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.7675844770685178
+750,e08_knn_30_s0,h0111_reference_s0,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.4176053995278613
+750,e08_knn_30_s0,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6451355337582715
+750,e08_knn_30_s0,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6506587074653513
+750,e08_knn_30_s0,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.8029199886487602
+750,e08_knn_30_s1,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.6613988291867308
+750,e08_knn_30_s1,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.2922319786290911
+750,e08_knn_30_s1,e08_knn_3_s1,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.5011716799457061
+750,e08_knn_30_s1,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.6349420848991845
+750,e08_knn_30_s1,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5844379569635123
+750,e08_knn_30_s1,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.3272821536421857
+750,e08_knn_30_s1,e08_novelty_only_s1,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.5876073262163638
+750,e08_knn_30_s1,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.5697062344484348
+750,e08_knn_30_s1,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6805803799109723
+750,e08_knn_30_s1,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.3562118148450127
+750,e08_knn_30_s1,e08_progress_only_s1,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.5089357679387033
+750,e08_knn_30_s1,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.36565414408029956
+750,e08_knn_30_s1,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.0111185704549096
+750,e08_knn_30_s1,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.632246498793653
+750,e08_knn_30_s1,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.42975309275727347
+750,e08_knn_30_s1,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,-0.22664501308792612
+750,e08_knn_30_s1,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5761863078892672
+750,e08_knn_30_s1,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.4960200660051925
+750,e08_knn_30_s1,e08_surprise_s1,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.5029428111296372
+750,e08_knn_30_s1,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.39286600803697996
+750,e08_knn_30_s1,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.32839061064914293
+750,e08_knn_30_s1,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.4294615338973842
+750,e08_knn_30_s1,h0111_bored_k3_s1,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.7155523318153161
+750,e08_knn_30_s1,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.7444264368329507
+750,e08_knn_30_s1,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.7230999729108041
+750,e08_knn_30_s1,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.6620188362134771
+750,e08_knn_30_s1,h0111_bored_k8_s1,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.3568860447085067
+750,e08_knn_30_s1,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.35459712987858305
+750,e08_knn_30_s1,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.7105651641829719
+750,e08_knn_30_s1,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.62310861745322
+750,e08_knn_30_s1,h0111_bored_s1,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.010992346802152646
+750,e08_knn_30_s1,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.43194822874659244
+750,e08_knn_30_s1,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7833353222447632
+750,e08_knn_30_s1,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.5202158957801521
+750,e08_knn_30_s1,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.37261066736534126
+750,e08_knn_30_s1,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.7304729453600474
+750,e08_knn_30_s1,h0111_null_s1,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.30293876663935526
+750,e08_knn_30_s1,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.48593150722374856
+750,e08_knn_30_s1,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.22966904736031452
+750,e08_knn_30_s1,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4825110240138277
+750,e08_knn_30_s1,h0111_reference_k3_s1,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.487573303608552
+750,e08_knn_30_s1,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.5661941946453171
+750,e08_knn_30_s1,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.7516980748004033
+750,e08_knn_30_s1,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5635510535786072
+750,e08_knn_30_s1,h0111_reference_k8_s1,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.4486328622835503
+750,e08_knn_30_s1,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5661941946453171
+750,e08_knn_30_s1,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.6996054844177123
+750,e08_knn_30_s1,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5408067958103525
+750,e08_knn_30_s1,h0111_reference_s1,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.5158665131538157
+750,e08_knn_30_s1,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5661941946453171
+750,e08_knn_30_s1,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6824892904341805
+750,e08_knn_30_s2,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.32906617386108156
+750,e08_knn_30_s2,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.4075061739588604
+750,e08_knn_30_s2,e08_knn_3_s2,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.6963916702167069
+750,e08_knn_30_s2,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5276177574456955
+750,e08_knn_30_s2,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.4193694195200879
+750,e08_knn_30_s2,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6857199937154843
+750,e08_knn_30_s2,e08_novelty_only_s2,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.6780056840644194
+750,e08_knn_30_s2,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.753642096832653
+750,e08_knn_30_s2,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.3578256109124792
+750,e08_knn_30_s2,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.4029705669997593
+750,e08_knn_30_s2,e08_progress_only_s2,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.5175380876538823
+750,e08_knn_30_s2,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,-0.05560885245588339
+750,e08_knn_30_s2,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5253119535354734
+750,e08_knn_30_s2,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.4361256094235735
+750,e08_knn_30_s2,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,-0.3545593516726523
+750,e08_knn_30_s2,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5059904012245472
+750,e08_knn_30_s2,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5492344468792869
+750,e08_knn_30_s2,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5575496522293919
+750,e08_knn_30_s2,e08_surprise_s2,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.4521746802019312
+750,e08_knn_30_s2,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.3394729584713071
+750,e08_knn_30_s2,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.3238381146097434
+750,e08_knn_30_s2,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6218943814696567
+750,e08_knn_30_s2,h0111_bored_k3_s2,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.7157870011415685
+750,e08_knn_30_s2,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6941965342273879
+750,e08_knn_30_s2,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.6611179371143984
+750,e08_knn_30_s2,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.3957553741164622
+750,e08_knn_30_s2,h0111_bored_k8_s2,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.2026065184294311
+750,e08_knn_30_s2,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.7139967586299312
+750,e08_knn_30_s2,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.5858655286982142
+750,e08_knn_30_s2,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,-0.09736399234746883
+750,e08_knn_30_s2,h0111_bored_s2,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.39911141215155993
+750,e08_knn_30_s2,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.7134069741679294
+750,e08_knn_30_s2,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.47935498824542233
+750,e08_knn_30_s2,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.2570449131756827
+750,e08_knn_30_s2,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.6747558694554093
+750,e08_knn_30_s2,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.3417072060150015
+750,e08_knn_30_s2,h0111_null_s2,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.5130047029421889
+750,e08_knn_30_s2,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.16646121989382545
+750,e08_knn_30_s2,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4442181455834277
+750,e08_knn_30_s2,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.5783943329135508
+750,e08_knn_30_s2,h0111_reference_k3_s2,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.538392546226635
+750,e08_knn_30_s2,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.6568463331473312
+750,e08_knn_30_s2,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5867793168322575
+750,e08_knn_30_s2,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.3672466065726523
+750,e08_knn_30_s2,h0111_reference_k8_s2,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.538392546226635
+750,e08_knn_30_s2,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.6537262977869305
+750,e08_knn_30_s2,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.4775674124306742
+750,e08_knn_30_s2,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.47324425232374856
+750,e08_knn_30_s2,h0111_reference_s2,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.538392546226635
+750,e08_knn_30_s2,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6391172433287577
+750,e08_knn_3_s0,e08_knn_3_s1,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.5097331103085835
+750,e08_knn_3_s0,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.31042196256002014
+750,e08_knn_3_s0,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.45890675649879586
+750,e08_knn_3_s0,e08_novelty_only_s0,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.22162717844135568
+750,e08_knn_3_s0,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6089124565633967
+750,e08_knn_3_s0,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.3394045132511502
+750,e08_knn_3_s0,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.38327923272019304
+750,e08_knn_3_s0,e08_progress_only_s0,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.2408616186539003
+750,e08_knn_3_s0,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3563380384977696
+750,e08_knn_3_s0,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3195829552734931
+750,e08_knn_3_s0,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.08508518652100279
+750,e08_knn_3_s0,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.0661703054856844
+750,e08_knn_3_s0,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6669051138135121
+750,e08_knn_3_s0,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.2848745619117017
+750,e08_knn_3_s0,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5793721217729356
+750,e08_knn_3_s0,e08_surprise_s0,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.5629657136114209
+750,e08_knn_3_s0,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.6479195653106291
+750,e08_knn_3_s0,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.31195931331666205
+750,e08_knn_3_s0,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.6388621293263546
+750,e08_knn_3_s0,h0111_bored_k3_s0,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.8048057877989284
+750,e08_knn_3_s0,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.36514213827756714
+750,e08_knn_3_s0,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.36623948404748585
+750,e08_knn_3_s0,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.4766518464987048
+750,e08_knn_3_s0,h0111_bored_k8_s0,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.6497849197846465
+750,e08_knn_3_s0,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.46627706225114995
+750,e08_knn_3_s0,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.496463626587768
+750,e08_knn_3_s0,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.4717273462432574
+750,e08_knn_3_s0,h0111_bored_s0,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.7052553262270306
+750,e08_knn_3_s0,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.3584318400052978
+750,e08_knn_3_s0,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.4932151453272026
+750,e08_knn_3_s0,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.4019670000704452
+750,e08_knn_3_s0,h0111_eye_double_s0,k_nn 3,width 2,"same seed, other setting",k_nn 3 / width 2,0.8335154465083937
+750,e08_knn_3_s0,h0111_eye_half_s0,k_nn 3,width 0.5,"same seed, other setting",k_nn 3 / width 0.5,-0.14174049528116875
+750,e08_knn_3_s0,h0111_null_s0,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.3717595466081949
+750,e08_knn_3_s0,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.7668324685457546
+750,e08_knn_3_s0,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.8243322313208439
+750,e08_knn_3_s0,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.7447651073378831
+750,e08_knn_3_s0,h0111_reference_k3_s0,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.7518229651047156
+750,e08_knn_3_s0,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.037305533907162056
+750,e08_knn_3_s0,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.4648877131718604
+750,e08_knn_3_s0,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.1689634704748876
+750,e08_knn_3_s0,h0111_reference_k8_s0,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.10846056255304226
+750,e08_knn_3_s0,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6210690387824396
+750,e08_knn_3_s0,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.4648877131718604
+750,e08_knn_3_s0,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.4154360416084716
+750,e08_knn_3_s0,h0111_reference_s0,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.4686526447299736
+750,e08_knn_3_s0,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4396229823938005
+750,e08_knn_3_s0,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4648877131718604
+750,e08_knn_3_s0,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5087717660800156
+750,e08_knn_3_s1,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.3390662871956993
+750,e08_knn_3_s1,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.6575667857569052
+750,e08_knn_3_s1,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.03415438708305361
+750,e08_knn_3_s1,e08_novelty_only_s1,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.5965109826800259
+750,e08_knn_3_s1,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.18297474038039097
+750,e08_knn_3_s1,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.4476195174656424
+750,e08_knn_3_s1,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.2035087508769544
+750,e08_knn_3_s1,e08_progress_only_s1,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.41077421099661354
+750,e08_knn_3_s1,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.20862036436412945
+750,e08_knn_3_s1,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,-0.14922502455027822
+750,e08_knn_3_s1,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.38448813530997794
+750,e08_knn_3_s1,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6726078451111335
+750,e08_knn_3_s1,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,-0.05199103367615944
+750,e08_knn_3_s1,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7997506193959087
+750,e08_knn_3_s1,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.6351247536360968
+750,e08_knn_3_s1,e08_surprise_s1,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.6736478568979337
+750,e08_knn_3_s1,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.37561603475950506
+750,e08_knn_3_s1,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5412316895147034
+750,e08_knn_3_s1,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.7182523624156629
+750,e08_knn_3_s1,h0111_bored_k3_s1,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.5158482907250727
+750,e08_knn_3_s1,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5898237957807966
+750,e08_knn_3_s1,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5852490772673201
+750,e08_knn_3_s1,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6018879325076796
+750,e08_knn_3_s1,h0111_bored_k8_s1,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.6252841976653514
+750,e08_knn_3_s1,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.5848699618595677
+750,e08_knn_3_s1,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.5564705288882162
+750,e08_knn_3_s1,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7091762595531639
+750,e08_knn_3_s1,h0111_bored_s1,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.27057262204527205
+750,e08_knn_3_s1,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6739136376878938
+750,e08_knn_3_s1,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5153998411982003
+750,e08_knn_3_s1,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.5825232685970441
+750,e08_knn_3_s1,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.18888947408070625
+750,e08_knn_3_s1,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.40472214240650284
+750,e08_knn_3_s1,h0111_null_s1,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.329584846406037
+750,e08_knn_3_s1,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5137767116916214
+750,e08_knn_3_s1,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.4045972521021905
+750,e08_knn_3_s1,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.7301018300429627
+750,e08_knn_3_s1,h0111_reference_k3_s1,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.4281455189825485
+750,e08_knn_3_s1,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6757029913005681
+750,e08_knn_3_s1,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.4380145197201124
+750,e08_knn_3_s1,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.22324853015000837
+750,e08_knn_3_s1,h0111_reference_k8_s1,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.7566492420247429
+750,e08_knn_3_s1,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6757029913005681
+750,e08_knn_3_s1,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6225508333538892
+750,e08_knn_3_s1,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.36502124801858865
+750,e08_knn_3_s1,h0111_reference_s1,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.6762207749465605
+750,e08_knn_3_s1,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6757029913005681
+750,e08_knn_3_s1,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7285524791503193
+750,e08_knn_3_s2,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.473814036559081
+750,e08_knn_3_s2,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.3682403956133725
+750,e08_knn_3_s2,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.5873997683084853
+750,e08_knn_3_s2,e08_novelty_only_s2,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.6509178215130883
+750,e08_knn_3_s2,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6757838811062081
+750,e08_knn_3_s2,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.39003886488491313
+750,e08_knn_3_s2,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4512151137712894
+750,e08_knn_3_s2,e08_progress_only_s2,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.4244490326445922
+750,e08_knn_3_s2,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,-0.016603521506577075
+750,e08_knn_3_s2,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5119180239598271
+750,e08_knn_3_s2,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.40037587092653715
+750,e08_knn_3_s2,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,-0.1568588888451847
+750,e08_knn_3_s2,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4534702504406161
+750,e08_knn_3_s2,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4716344563016159
+750,e08_knn_3_s2,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4336980263554098
+750,e08_knn_3_s2,e08_surprise_s2,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.40305812354762244
+750,e08_knn_3_s2,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.3993460814778123
+750,e08_knn_3_s2,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.31398644740195947
+750,e08_knn_3_s2,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.6258375372698668
+750,e08_knn_3_s2,h0111_bored_k3_s2,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.6312935991052343
+750,e08_knn_3_s2,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.6613930513434708
+750,e08_knn_3_s2,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6534462946135612
+750,e08_knn_3_s2,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.27834426567945547
+750,e08_knn_3_s2,h0111_bored_k8_s2,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.1961073336608926
+750,e08_knn_3_s2,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6661308828166719
+750,e08_knn_3_s2,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5351805098235558
+750,e08_knn_3_s2,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.036965974503266594
+750,e08_knn_3_s2,h0111_bored_s2,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.37233910873212117
+750,e08_knn_3_s2,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7022650701152391
+750,e08_knn_3_s2,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.46012010358339617
+750,e08_knn_3_s2,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.34307299927176954
+750,e08_knn_3_s2,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6743740873507678
+750,e08_knn_3_s2,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.3143544515726734
+750,e08_knn_3_s2,h0111_null_s2,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.5203323415443153
+750,e08_knn_3_s2,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.16154294193111968
+750,e08_knn_3_s2,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.40851462983247144
+750,e08_knn_3_s2,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.46601217036015297
+750,e08_knn_3_s2,h0111_reference_k3_s2,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.4205609885800928
+750,e08_knn_3_s2,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5889877863060226
+750,e08_knn_3_s2,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6288833495668507
+750,e08_knn_3_s2,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.2574151395938043
+750,e08_knn_3_s2,h0111_reference_k8_s2,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.4205609885800928
+750,e08_knn_3_s2,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6024706057779766
+750,e08_knn_3_s2,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.45390625538200546
+750,e08_knn_3_s2,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.3887326278586713
+750,e08_knn_3_s2,h0111_reference_s2,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.4205609885800928
+750,e08_knn_3_s2,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.595791418969415
+750,e08_knn_3_s3,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.225266775245675
+750,e08_knn_3_s3,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6365292139977586
+750,e08_knn_3_s3,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.3908695409659087
+750,e08_knn_3_s3,e08_novelty_only_s3,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.5456215170438599
+750,e08_knn_3_s3,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.2071123472732691
+750,e08_knn_3_s3,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4018323318775391
+750,e08_knn_3_s3,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.35226777014583943
+750,e08_knn_3_s3,e08_progress_only_s3,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,-0.17693022743146644
+750,e08_knn_3_s3,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4489008653209181
+750,e08_knn_3_s3,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5523833714559876
+750,e08_knn_3_s3,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,-0.11118726012228139
+750,e08_knn_3_s3,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6712416074048839
+750,e08_knn_3_s3,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.6102311381751215
+750,e08_knn_3_s3,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.6045915187038786
+750,e08_knn_3_s3,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.4089657460562331
+750,e08_knn_3_s3,e08_surprise_s3,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.5090566581976818
+750,e08_knn_3_s3,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5567451986678071
+750,e08_knn_3_s3,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5283466545954187
+750,e08_knn_3_s3,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5799379059629343
+750,e08_knn_3_s3,h0111_bored_k3_s3,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.608530674458755
+750,e08_knn_3_s3,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6529258442706796
+750,e08_knn_3_s3,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.47901676218997147
+750,e08_knn_3_s3,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.38575481633236286
+750,e08_knn_3_s3,h0111_bored_k8_s3,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.5842126210763722
+750,e08_knn_3_s3,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6354807576708091
+750,e08_knn_3_s3,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.1649554250503728
+750,e08_knn_3_s3,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6128925016705745
+750,e08_knn_3_s3,h0111_bored_s3,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.5996167956570174
+750,e08_knn_3_s3,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.5944767374030239
+750,e08_knn_3_s3,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.27551490027998093
+750,e08_knn_3_s3,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5318320274296442
+750,e08_knn_3_s3,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.36453946478060084
+750,e08_knn_3_s3,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.556282082308044
+750,e08_knn_3_s3,h0111_null_s3,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.3132126608546008
+750,e08_knn_3_s3,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5928527189974819
+750,e08_knn_3_s3,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.46582550157790675
+750,e08_knn_3_s3,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6352643107732999
+750,e08_knn_3_s3,h0111_reference_k3_s3,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.5605976867737834
+750,e08_knn_3_s3,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.36094431292443535
+750,e08_knn_3_s3,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.5541749473160695
+750,e08_knn_3_s3,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6352643107732999
+750,e08_knn_3_s3,h0111_reference_k8_s3,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.6498929210086604
+750,e08_knn_3_s3,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4602058823333331
+750,e08_knn_3_s3,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6022314919569088
+750,e08_knn_3_s3,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6352643107732999
+750,e08_knn_3_s3,h0111_reference_s3,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.7080846916265051
 750,e08_novelty_only_s0,e08_novelty_only_s1,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.4819296840919753
 750,e08_novelty_only_s0,e08_novelty_only_s2,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.7187190343712784
 750,e08_novelty_only_s0,e08_novelty_only_s3,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.5674190974164374
@@ -3104,6 +4133,349 @@ ckpt,a,b,group_a,group_b,kind,pair,rho
 750,h0111_reference_s1,h0111_reference_s2,Reference,Reference,"same setting, other seed",Reference / Reference,0.6505627063773389
 750,h0111_reference_s1,h0111_reference_s3,Reference,Reference,"same setting, other seed",Reference / Reference,0.7769681389722417
 750,h0111_reference_s2,h0111_reference_s3,Reference,Reference,"same setting, other seed",Reference / Reference,0.6564974403043234
+1000,e08_knn_30_s0,e08_knn_30_s1,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.734450323770336
+1000,e08_knn_30_s0,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.6350998644651306
+1000,e08_knn_30_s0,e08_knn_3_s0,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.6270317730267609
+1000,e08_knn_30_s0,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.4915017925758714
+1000,e08_knn_30_s0,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.747932254343327
+1000,e08_knn_30_s0,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5932558346772374
+1000,e08_knn_30_s0,e08_novelty_only_s0,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.4552787153809965
+1000,e08_knn_30_s0,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6978463533697826
+1000,e08_knn_30_s0,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6097795775018784
+1000,e08_knn_30_s0,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6028763881546213
+1000,e08_knn_30_s0,e08_progress_only_s0,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.5453619585466413
+1000,e08_knn_30_s0,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.43135533313822
+1000,e08_knn_30_s0,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,-0.1900343759451496
+1000,e08_knn_30_s0,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.37267155694431203
+1000,e08_knn_30_s0,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6907862733555424
+1000,e08_knn_30_s0,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6055404183469635
+1000,e08_knn_30_s0,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.548590884030019
+1000,e08_knn_30_s0,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5933247243468759
+1000,e08_knn_30_s0,e08_surprise_s0,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.6711838289722839
+1000,e08_knn_30_s0,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5307453484472824
+1000,e08_knn_30_s0,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.6245237446024389
+1000,e08_knn_30_s0,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.4696699895932154
+1000,e08_knn_30_s0,h0111_bored_k3_s0,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,-0.34239254711553396
+1000,e08_knn_30_s0,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6331558424328809
+1000,e08_knn_30_s0,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6477306742809752
+1000,e08_knn_30_s0,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.4775394121133373
+1000,e08_knn_30_s0,h0111_bored_k8_s0,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.5610194693317635
+1000,e08_knn_30_s0,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.5027188085909418
+1000,e08_knn_30_s0,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.36603770398286734
+1000,e08_knn_30_s0,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.734437879184853
+1000,e08_knn_30_s0,h0111_bored_s0,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.4261388295734018
+1000,e08_knn_30_s0,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,-0.2011176126662769
+1000,e08_knn_30_s0,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.558282549424449
+1000,e08_knn_30_s0,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.3975931727226242
+1000,e08_knn_30_s0,h0111_eye_double_s0,k_nn 30,width 2,"same seed, other setting",k_nn 30 / width 2,0.51099445793719
+1000,e08_knn_30_s0,h0111_eye_half_s0,k_nn 30,width 0.5,"same seed, other setting",k_nn 30 / width 0.5,0.015426619279462945
+1000,e08_knn_30_s0,h0111_null_s0,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.6756794354780465
+1000,e08_knn_30_s0,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.19811135637315
+1000,e08_knn_30_s0,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.6352860887978953
+1000,e08_knn_30_s0,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.1601904821587978
+1000,e08_knn_30_s0,h0111_reference_k3_s0,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.5444032810149626
+1000,e08_knn_30_s0,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.8243353424672146
+1000,e08_knn_30_s0,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.2619218573366054
+1000,e08_knn_30_s0,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.6362918779746171
+1000,e08_knn_30_s0,h0111_reference_k8_s0,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.6588672449398871
+1000,e08_knn_30_s0,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.7114545075955305
+1000,e08_knn_30_s0,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.2619218573366054
+1000,e08_knn_30_s0,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.4792078754670331
+1000,e08_knn_30_s0,h0111_reference_s0,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.6001172457732299
+1000,e08_knn_30_s0,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.4567245095444415
+1000,e08_knn_30_s0,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.2619218573366054
+1000,e08_knn_30_s0,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.349877520834125
+1000,e08_knn_30_s1,e08_knn_30_s2,k_nn 30,k_nn 30,"same setting, other seed",k_nn 30 / k_nn 30,0.6162494286046353
+1000,e08_knn_30_s1,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.5640923930471212
+1000,e08_knn_30_s1,e08_knn_3_s1,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.4671681834616348
+1000,e08_knn_30_s1,e08_knn_3_s2,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.657569008004313
+1000,e08_knn_30_s1,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.49810720077049764
+1000,e08_knn_30_s1,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.5001867798946166
+1000,e08_knn_30_s1,e08_novelty_only_s1,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.6047017421753003
+1000,e08_knn_30_s1,e08_novelty_only_s2,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6660282149864365
+1000,e08_knn_30_s1,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.6887262500086112
+1000,e08_knn_30_s1,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.4750158279571613
+1000,e08_knn_30_s1,e08_progress_only_s1,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,0.3968260529174886
+1000,e08_knn_30_s1,e08_progress_only_s2,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,-0.045245179445367045
+1000,e08_knn_30_s1,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.33777560590131134
+1000,e08_knn_30_s1,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.7670240262722977
+1000,e08_knn_30_s1,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5366160816489254
+1000,e08_knn_30_s1,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6136249544161501
+1000,e08_knn_30_s1,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6215441552782043
+1000,e08_knn_30_s1,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.6474635601425706
+1000,e08_knn_30_s1,e08_surprise_s1,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.4667375119140239
+1000,e08_knn_30_s1,e08_surprise_s2,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.60425684824428
+1000,e08_knn_30_s1,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.43743140200033376
+1000,e08_knn_30_s1,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,-0.2098412670899159
+1000,e08_knn_30_s1,h0111_bored_k3_s1,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.5840108410117537
+1000,e08_knn_30_s1,h0111_bored_k3_s2,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.5653337404490584
+1000,e08_knn_30_s1,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.48174568200661827
+1000,e08_knn_30_s1,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.4281957417739623
+1000,e08_knn_30_s1,h0111_bored_k8_s1,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.5972176573556722
+1000,e08_knn_30_s1,h0111_bored_k8_s2,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.2641289934619259
+1000,e08_knn_30_s1,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.6220099383348567
+1000,e08_knn_30_s1,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.3762471530232898
+1000,e08_knn_30_s1,h0111_bored_s1,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,-0.13153060179126475
+1000,e08_knn_30_s1,h0111_bored_s2,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.6880266865246695
+1000,e08_knn_30_s1,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.3942020231784849
+1000,e08_knn_30_s1,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.39823095772863204
+1000,e08_knn_30_s1,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.11907623841959097
+1000,e08_knn_30_s1,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.5906855833254999
+1000,e08_knn_30_s1,h0111_null_s1,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.1510854900799987
+1000,e08_knn_30_s1,h0111_null_s2,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.5159376250708619
+1000,e08_knn_30_s1,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.017710645165089647
+1000,e08_knn_30_s1,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.4874653023845381
+1000,e08_knn_30_s1,h0111_reference_k3_s1,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.79886127598335
+1000,e08_knn_30_s1,h0111_reference_k3_s2,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.11835089686572003
+1000,e08_knn_30_s1,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.7107344994354381
+1000,e08_knn_30_s1,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5574389843084888
+1000,e08_knn_30_s1,h0111_reference_k8_s1,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.6838004164047192
+1000,e08_knn_30_s1,h0111_reference_k8_s2,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.11835089686572003
+1000,e08_knn_30_s1,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.6552032034140831
+1000,e08_knn_30_s1,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5123162506952856
+1000,e08_knn_30_s1,h0111_reference_s1,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.3236767794479449
+1000,e08_knn_30_s1,h0111_reference_s2,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.11835089686572003
+1000,e08_knn_30_s1,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5111789044720284
+1000,e08_knn_30_s2,e08_knn_3_s0,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.6896302602540607
+1000,e08_knn_30_s2,e08_knn_3_s1,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.599594128733459
+1000,e08_knn_30_s2,e08_knn_3_s2,k_nn 30,k_nn 3,"same seed, other setting",k_nn 3 / k_nn 30,0.6298678051684585
+1000,e08_knn_30_s2,e08_knn_3_s3,k_nn 30,k_nn 3,"other setting, other seed",k_nn 3 / k_nn 30,0.4212956635730761
+1000,e08_knn_30_s2,e08_novelty_only_s0,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.38619615466753066
+1000,e08_knn_30_s2,e08_novelty_only_s1,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.662126837437491
+1000,e08_knn_30_s2,e08_novelty_only_s2,k_nn 30,novelty only,"same seed, other setting",k_nn 30 / novelty only,0.6031297243590983
+1000,e08_knn_30_s2,e08_novelty_only_s3,k_nn 30,novelty only,"other setting, other seed",k_nn 30 / novelty only,0.5947576294753563
+1000,e08_knn_30_s2,e08_progress_only_s0,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.39714205649886253
+1000,e08_knn_30_s2,e08_progress_only_s1,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.3939300200957833
+1000,e08_knn_30_s2,e08_progress_only_s2,k_nn 30,progress only,"same seed, other setting",k_nn 30 / progress only,-0.04484117486664849
+1000,e08_knn_30_s2,e08_progress_only_s3,k_nn 30,progress only,"other setting, other seed",k_nn 30 / progress only,0.33087330545301735
+1000,e08_knn_30_s2,e08_reference_s4,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.676238552925822
+1000,e08_knn_30_s2,e08_reference_s5,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5908882522890815
+1000,e08_knn_30_s2,e08_reference_s6,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.43252779087051874
+1000,e08_knn_30_s2,e08_reference_s7,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.6377345609916912
+1000,e08_knn_30_s2,e08_surprise_s0,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.6684086864095571
+1000,e08_knn_30_s2,e08_surprise_s1,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5630252698419471
+1000,e08_knn_30_s2,e08_surprise_s2,k_nn 30,surprise added,"same seed, other setting",k_nn 30 / surprise added,0.4755149447249291
+1000,e08_knn_30_s2,e08_surprise_s3,k_nn 30,surprise added,"other setting, other seed",k_nn 30 / surprise added,0.5043192711739622
+1000,e08_knn_30_s2,h0111_bored_k3_s0,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,-0.31353133113286397
+1000,e08_knn_30_s2,h0111_bored_k3_s1,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6429315087793217
+1000,e08_knn_30_s2,h0111_bored_k3_s2,k_nn 30,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 30,0.5675595434526036
+1000,e08_knn_30_s2,h0111_bored_k3_s3,k_nn 30,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 30,0.6535480735448335
+1000,e08_knn_30_s2,h0111_bored_k8_s0,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.5612070270129728
+1000,e08_knn_30_s2,h0111_bored_k8_s1,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.541193466859291
+1000,e08_knn_30_s2,h0111_bored_k8_s2,k_nn 30,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 30,0.4542591482703471
+1000,e08_knn_30_s2,h0111_bored_k8_s3,k_nn 30,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 30,0.6573796725251775
+1000,e08_knn_30_s2,h0111_bored_s0,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.48096745096444427
+1000,e08_knn_30_s2,h0111_bored_s1,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,-0.07785577125429644
+1000,e08_knn_30_s2,h0111_bored_s2,k_nn 30,Bored,"same seed, other setting",Bored / k_nn 30,0.6533587380656981
+1000,e08_knn_30_s2,h0111_bored_s3,k_nn 30,Bored,"other setting, other seed",Bored / k_nn 30,0.4330055740631727
+1000,e08_knn_30_s2,h0111_eye_double_s0,k_nn 30,width 2,"other setting, other seed",k_nn 30 / width 2,0.5373227563245717
+1000,e08_knn_30_s2,h0111_eye_half_s0,k_nn 30,width 0.5,"other setting, other seed",k_nn 30 / width 0.5,0.14256139347357047
+1000,e08_knn_30_s2,h0111_null_s0,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.560086569870014
+1000,e08_knn_30_s2,h0111_null_s1,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.36344434125808983
+1000,e08_knn_30_s2,h0111_null_s2,k_nn 30,Null,"same seed, other setting",Null / k_nn 30,0.5978452200236047
+1000,e08_knn_30_s2,h0111_null_s3,k_nn 30,Null,"other setting, other seed",Null / k_nn 30,0.25394710028935885
+1000,e08_knn_30_s2,h0111_reference_k3_s0,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.5523060372461999
+1000,e08_knn_30_s2,h0111_reference_k3_s1,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.7051539917452397
+1000,e08_knn_30_s2,h0111_reference_k3_s2,k_nn 30,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 30,0.2909186304111447
+1000,e08_knn_30_s2,h0111_reference_k3_s3,k_nn 30,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 30,0.5623217063126715
+1000,e08_knn_30_s2,h0111_reference_k8_s0,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.558732332299766
+1000,e08_knn_30_s2,h0111_reference_k8_s1,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.689594259846056
+1000,e08_knn_30_s2,h0111_reference_k8_s2,k_nn 30,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 30,0.2909186304111447
+1000,e08_knn_30_s2,h0111_reference_k8_s3,k_nn 30,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 30,0.5584687737572137
+1000,e08_knn_30_s2,h0111_reference_s0,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.4581338588504003
+1000,e08_knn_30_s2,h0111_reference_s1,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5079686458668754
+1000,e08_knn_30_s2,h0111_reference_s2,k_nn 30,Reference,"same seed, other setting",Reference / k_nn 30,0.2909186304111447
+1000,e08_knn_30_s2,h0111_reference_s3,k_nn 30,Reference,"other setting, other seed",Reference / k_nn 30,0.5786138909574309
+1000,e08_knn_3_s0,e08_knn_3_s1,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.7964021370019971
+1000,e08_knn_3_s0,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.5757494140489148
+1000,e08_knn_3_s0,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.6201721397286947
+1000,e08_knn_3_s0,e08_novelty_only_s0,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.14573120717590354
+1000,e08_knn_3_s0,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.754586996430404
+1000,e08_knn_3_s0,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.5321955871055427
+1000,e08_knn_3_s0,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.4896448826420033
+1000,e08_knn_3_s0,e08_progress_only_s0,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.35320155850655194
+1000,e08_knn_3_s0,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4556133858405951
+1000,e08_knn_3_s0,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,-0.12030514123604512
+1000,e08_knn_3_s0,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.4421012327028595
+1000,e08_knn_3_s0,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6029394999809998
+1000,e08_knn_3_s0,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7549754452772687
+1000,e08_knn_3_s0,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.3507393083788283
+1000,e08_knn_3_s0,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7506731742959754
+1000,e08_knn_3_s0,e08_surprise_s0,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.7748485593947843
+1000,e08_knn_3_s0,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.7797259480051885
+1000,e08_knn_3_s0,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5412134670859603
+1000,e08_knn_3_s0,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.7146900998211313
+1000,e08_knn_3_s0,h0111_bored_k3_s0,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,-0.20704656875000138
+1000,e08_knn_3_s0,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.6009208104358517
+1000,e08_knn_3_s0,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.7655204536762528
+1000,e08_knn_3_s0,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.8076315976025507
+1000,e08_knn_3_s0,h0111_bored_k8_s0,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.8011577464544598
+1000,e08_knn_3_s0,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.5752769642500393
+1000,e08_knn_3_s0,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.5351840654194081
+1000,e08_knn_3_s0,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.8147916787501369
+1000,e08_knn_3_s0,h0111_bored_s0,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.6682215731778294
+1000,e08_knn_3_s0,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.10711788066931426
+1000,e08_knn_3_s0,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6630130697036789
+1000,e08_knn_3_s0,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6797319258507152
+1000,e08_knn_3_s0,h0111_eye_double_s0,k_nn 3,width 2,"same seed, other setting",k_nn 3 / width 2,0.6531258465373718
+1000,e08_knn_3_s0,h0111_eye_half_s0,k_nn 3,width 0.5,"same seed, other setting",k_nn 3 / width 0.5,0.2682632625391977
+1000,e08_knn_3_s0,h0111_null_s0,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.7360498974543934
+1000,e08_knn_3_s0,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6494391380880095
+1000,e08_knn_3_s0,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6989779217497798
+1000,e08_knn_3_s0,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.4840168188572804
+1000,e08_knn_3_s0,h0111_reference_k3_s0,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.7766992470359109
+1000,e08_knn_3_s0,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.7046686529113997
+1000,e08_knn_3_s0,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5488131087707883
+1000,e08_knn_3_s0,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5478735425668158
+1000,e08_knn_3_s0,h0111_reference_k8_s0,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.5935816161472052
+1000,e08_knn_3_s0,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.8090849474071817
+1000,e08_knn_3_s0,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.5488131087707883
+1000,e08_knn_3_s0,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6748945376936494
+1000,e08_knn_3_s0,h0111_reference_s0,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.44539282556313414
+1000,e08_knn_3_s0,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.7643364402574341
+1000,e08_knn_3_s0,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5488131087707883
+1000,e08_knn_3_s0,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6786288022375365
+1000,e08_knn_3_s1,e08_knn_3_s2,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.48439193421969895
+1000,e08_knn_3_s1,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.4853670563821946
+1000,e08_knn_3_s1,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.20393453348026833
+1000,e08_knn_3_s1,e08_novelty_only_s1,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.6153698630806704
+1000,e08_knn_3_s1,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.36422612789611614
+1000,e08_knn_3_s1,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.40495903398016286
+1000,e08_knn_3_s1,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.21641511937135288
+1000,e08_knn_3_s1,e08_progress_only_s1,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.40346079477789637
+1000,e08_knn_3_s1,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.0075434188254133545
+1000,e08_knn_3_s1,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.30807171370164416
+1000,e08_knn_3_s1,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5168780801737975
+1000,e08_knn_3_s1,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.78582735048775
+1000,e08_knn_3_s1,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.14803834443457026
+1000,e08_knn_3_s1,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6978241308957057
+1000,e08_knn_3_s1,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.7570976915516153
+1000,e08_knn_3_s1,e08_surprise_s1,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.7794575005183392
+1000,e08_knn_3_s1,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.47668962470463555
+1000,e08_knn_3_s1,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.708256249126379
+1000,e08_knn_3_s1,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,-0.12723099750686062
+1000,e08_knn_3_s1,h0111_bored_k3_s1,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.4406252159746699
+1000,e08_knn_3_s1,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.7305276126462766
+1000,e08_knn_3_s1,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.7330574190951942
+1000,e08_knn_3_s1,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.7880251531739582
+1000,e08_knn_3_s1,h0111_bored_k8_s1,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.5546513971602789
+1000,e08_knn_3_s1,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6272322197429349
+1000,e08_knn_3_s1,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6217299351614873
+1000,e08_knn_3_s1,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.7486158176459333
+1000,e08_knn_3_s1,h0111_bored_s1,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.3225736558347661
+1000,e08_knn_3_s1,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5115206861233316
+1000,e08_knn_3_s1,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.6584090175244208
+1000,e08_knn_3_s1,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.47982743804429784
+1000,e08_knn_3_s1,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.21110083692059622
+1000,e08_knn_3_s1,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5377334276455134
+1000,e08_knn_3_s1,h0111_null_s1,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.5849610740032831
+1000,e08_knn_3_s1,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.522300363848568
+1000,e08_knn_3_s1,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.4154684864206239
+1000,e08_knn_3_s1,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6160192037731983
+1000,e08_knn_3_s1,h0111_reference_k3_s1,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.6066893202567407
+1000,e08_knn_3_s1,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.45051021689356924
+1000,e08_knn_3_s1,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.3925691157833122
+1000,e08_knn_3_s1,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.37169554588285336
+1000,e08_knn_3_s1,h0111_reference_k8_s1,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.6930631880494645
+1000,e08_knn_3_s1,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.45051021689356924
+1000,e08_knn_3_s1,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6054048612550942
+1000,e08_knn_3_s1,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.2471848014277495
+1000,e08_knn_3_s1,h0111_reference_s1,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.7797321702979301
+1000,e08_knn_3_s1,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.45051021689356924
+1000,e08_knn_3_s1,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6903111568597777
+1000,e08_knn_3_s2,e08_knn_3_s3,k_nn 3,k_nn 3,"same setting, other seed",k_nn 3 / k_nn 3,0.5280137619337464
+1000,e08_knn_3_s2,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.5501451238669594
+1000,e08_knn_3_s2,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.7096731540735239
+1000,e08_knn_3_s2,e08_novelty_only_s2,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.7152954400149868
+1000,e08_knn_3_s2,e08_novelty_only_s3,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6751674296753141
+1000,e08_knn_3_s2,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3176162663176849
+1000,e08_knn_3_s2,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3097957332405323
+1000,e08_knn_3_s2,e08_progress_only_s2,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,-0.1763995547505094
+1000,e08_knn_3_s2,e08_progress_only_s3,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3632181164719867
+1000,e08_knn_3_s2,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.6173965527164863
+1000,e08_knn_3_s2,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5691337835162131
+1000,e08_knn_3_s2,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4962031791915864
+1000,e08_knn_3_s2,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5491628905127591
+1000,e08_knn_3_s2,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.6558454329149064
+1000,e08_knn_3_s2,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5337080486912185
+1000,e08_knn_3_s2,e08_surprise_s2,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.6602694830541412
+1000,e08_knn_3_s2,e08_surprise_s3,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.48173368187061677
+1000,e08_knn_3_s2,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,-0.30166097437993183
+1000,e08_knn_3_s2,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5857646386659049
+1000,e08_knn_3_s2,h0111_bored_k3_s2,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.5699591262034303
+1000,e08_knn_3_s2,h0111_bored_k3_s3,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.43267490364890804
+1000,e08_knn_3_s2,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.43975987283411433
+1000,e08_knn_3_s2,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.5687702238403146
+1000,e08_knn_3_s2,h0111_bored_k8_s2,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.4653414960925113
+1000,e08_knn_3_s2,h0111_bored_k8_s3,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.6334616236761794
+1000,e08_knn_3_s2,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.3156429106196537
+1000,e08_knn_3_s2,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,-0.12719544154833753
+1000,e08_knn_3_s2,h0111_bored_s2,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.6049981899794864
+1000,e08_knn_3_s2,h0111_bored_s3,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.369542188144799
+1000,e08_knn_3_s2,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.4227947916743056
+1000,e08_knn_3_s2,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.06151114157071558
+1000,e08_knn_3_s2,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.5582105486084398
+1000,e08_knn_3_s2,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.14267206139447358
+1000,e08_knn_3_s2,h0111_null_s2,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.5910171426387277
+1000,e08_knn_3_s2,h0111_null_s3,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.058882222887414945
+1000,e08_knn_3_s2,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.4871804102668719
+1000,e08_knn_3_s2,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.7352116657322116
+1000,e08_knn_3_s2,h0111_reference_k3_s2,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.2724970883003341
+1000,e08_knn_3_s2,h0111_reference_k3_s3,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.6439239644715974
+1000,e08_knn_3_s2,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6383745682451067
+1000,e08_knn_3_s2,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.6075342187211455
+1000,e08_knn_3_s2,h0111_reference_k8_s2,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.2724970883003341
+1000,e08_knn_3_s2,h0111_reference_k8_s3,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.4337104709408929
+1000,e08_knn_3_s2,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5637168332352211
+1000,e08_knn_3_s2,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.32815238572703825
+1000,e08_knn_3_s2,h0111_reference_s2,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.2724970883003341
+1000,e08_knn_3_s2,h0111_reference_s3,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.3858503729708937
+1000,e08_knn_3_s3,e08_novelty_only_s0,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.2415749600717697
+1000,e08_knn_3_s3,e08_novelty_only_s1,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.6351065312073537
+1000,e08_knn_3_s3,e08_novelty_only_s2,k_nn 3,novelty only,"other setting, other seed",k_nn 3 / novelty only,0.43455048046100075
+1000,e08_knn_3_s3,e08_novelty_only_s3,k_nn 3,novelty only,"same seed, other setting",k_nn 3 / novelty only,0.3876126151651941
+1000,e08_knn_3_s3,e08_progress_only_s0,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.3486397290280401
+1000,e08_knn_3_s3,e08_progress_only_s1,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,0.2154164413863357
+1000,e08_knn_3_s3,e08_progress_only_s2,k_nn 3,progress only,"other setting, other seed",k_nn 3 / progress only,-0.19263796100800254
+1000,e08_knn_3_s3,e08_progress_only_s3,k_nn 3,progress only,"same seed, other setting",k_nn 3 / progress only,0.2903972911692999
+1000,e08_knn_3_s3,e08_reference_s4,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4583814172116173
+1000,e08_knn_3_s3,e08_reference_s5,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5123704735320334
+1000,e08_knn_3_s3,e08_reference_s6,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.3927491178233353
+1000,e08_knn_3_s3,e08_reference_s7,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.5477393188233911
+1000,e08_knn_3_s3,e08_surprise_s0,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5291639971919682
+1000,e08_knn_3_s3,e08_surprise_s1,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.47121445154156194
+1000,e08_knn_3_s3,e08_surprise_s2,k_nn 3,surprise added,"other setting, other seed",k_nn 3 / surprise added,0.5230888172288175
+1000,e08_knn_3_s3,e08_surprise_s3,k_nn 3,surprise added,"same seed, other setting",k_nn 3 / surprise added,0.6016030403900133
+1000,e08_knn_3_s3,h0111_bored_k3_s0,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,-0.3207767465809057
+1000,e08_knn_3_s3,h0111_bored_k3_s1,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.36916307273704657
+1000,e08_knn_3_s3,h0111_bored_k3_s2,k_nn 3,Bored k=3,"other setting, other seed",Bored k=3 / k_nn 3,0.5982265576787648
+1000,e08_knn_3_s3,h0111_bored_k3_s3,k_nn 3,Bored k=3,"same seed, other setting",Bored k=3 / k_nn 3,0.5011654576529645
+1000,e08_knn_3_s3,h0111_bored_k8_s0,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.49355648252902423
+1000,e08_knn_3_s3,h0111_bored_k8_s1,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.4601765486675516
+1000,e08_knn_3_s3,h0111_bored_k8_s2,k_nn 3,Bored k=8,"other setting, other seed",Bored k=8 / k_nn 3,0.3573007160747822
+1000,e08_knn_3_s3,h0111_bored_k8_s3,k_nn 3,Bored k=8,"same seed, other setting",Bored k=8 / k_nn 3,0.5564411952224347
+1000,e08_knn_3_s3,h0111_bored_s0,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.5253128424344364
+1000,e08_knn_3_s3,h0111_bored_s1,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.04279048495882953
+1000,e08_knn_3_s3,h0111_bored_s2,k_nn 3,Bored,"other setting, other seed",Bored / k_nn 3,0.4005874288797495
+1000,e08_knn_3_s3,h0111_bored_s3,k_nn 3,Bored,"same seed, other setting",Bored / k_nn 3,0.5769649833809227
+1000,e08_knn_3_s3,h0111_eye_double_s0,k_nn 3,width 2,"other setting, other seed",k_nn 3 / width 2,0.47334558680553934
+1000,e08_knn_3_s3,h0111_eye_half_s0,k_nn 3,width 0.5,"other setting, other seed",k_nn 3 / width 0.5,0.11016502631474268
+1000,e08_knn_3_s3,h0111_null_s0,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6768270040393791
+1000,e08_knn_3_s3,h0111_null_s1,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.3541344579683014
+1000,e08_knn_3_s3,h0111_null_s2,k_nn 3,Null,"other setting, other seed",Null / k_nn 3,0.6061208693698529
+1000,e08_knn_3_s3,h0111_null_s3,k_nn 3,Null,"same seed, other setting",Null / k_nn 3,0.3372324886348712
+1000,e08_knn_3_s3,h0111_reference_k3_s0,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.47984254932667014
+1000,e08_knn_3_s3,h0111_reference_k3_s1,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.5920300430071541
+1000,e08_knn_3_s3,h0111_reference_k3_s2,k_nn 3,Reference k=3,"other setting, other seed",Reference k=3 / k_nn 3,0.4507737754361216
+1000,e08_knn_3_s3,h0111_reference_k3_s3,k_nn 3,Reference k=3,"same seed, other setting",Reference k=3 / k_nn 3,0.4894657695009432
+1000,e08_knn_3_s3,h0111_reference_k8_s0,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.5027494756051679
+1000,e08_knn_3_s3,h0111_reference_k8_s1,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.5781241076287753
+1000,e08_knn_3_s3,h0111_reference_k8_s2,k_nn 3,Reference k=8,"other setting, other seed",Reference k=8 / k_nn 3,0.4507737754361216
+1000,e08_knn_3_s3,h0111_reference_k8_s3,k_nn 3,Reference k=8,"same seed, other setting",Reference k=8 / k_nn 3,0.5310591297812486
+1000,e08_knn_3_s3,h0111_reference_s0,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.537361867878947
+1000,e08_knn_3_s3,h0111_reference_s1,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.47996210623720403
+1000,e08_knn_3_s3,h0111_reference_s2,k_nn 3,Reference,"other setting, other seed",Reference / k_nn 3,0.4507737754361216
+1000,e08_knn_3_s3,h0111_reference_s3,k_nn 3,Reference,"same seed, other setting",Reference / k_nn 3,0.32238832040096455
 1000,e08_novelty_only_s0,e08_novelty_only_s1,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.4034945729384933
 1000,e08_novelty_only_s0,e08_novelty_only_s2,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.5862899779530835
 1000,e08_novelty_only_s0,e08_novelty_only_s3,novelty only,novelty only,"same setting, other seed",novelty only / novelty only,0.6175143318290941
