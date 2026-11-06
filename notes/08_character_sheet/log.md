@@ -157,3 +157,12 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 - Radius 25 walks are slow (38–65 min against 15–20): many tile fetches per step, 3–5 s each.
 
 **To continue:** as at the 13:27 pause: `scripts/hikes_e08.sh start`, then panel scoring after the batch, then readouts, summarise, matrix and the report.
+
+## 2026-11-06 17:38: Stage 1 walked
+
+- All 98 walks done (the last five 16:35–17:38), none failed except `e08_radius_25_s3` stopped by request at 15:58 and walked again. 43 GB free.
+- **Dropped candidates** (30 s fetch timeout), 98 walks: 158 in all, median 0 per walk; most 0–11, radius 25 the exception (s0 40, s3 23: many tiles per step, slow fetches).
+- `readouts.py` and `matrix.py` rerun on all 98 walks. Eye readouts still only up to `e08_knn_30_s2` plus the Reference s4–s7 and the h0111 eye walks: panel scoring (1–1.5 h, not next to walks) is next.
+- **Tier 3, first reading** (walk readouts only; leads of 14 comparable, chance about 1.2): buffer 512 and 8192 0 each, width 2 0, width 0.5 1 (snow, ice, cloud more avoided), radius 25 1 (revisits beyond blind 0.25 against 0.18), no backstep 1 (straight-backs beyond blind 0.00, by construction), return cost 0.5 5 (shorter stays, median 26 steps against 103; teleports 6.75 against 3.5; revisits and straight-backs halved).
+
+**Next:** `OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 nohup .venv/bin/python analysis/e08/panel.py score >> data/sheet/score.log 2>&1 &`, then `readouts.py`, `panel.py summarise`, `matrix.py`, and the Stage 1 report.
