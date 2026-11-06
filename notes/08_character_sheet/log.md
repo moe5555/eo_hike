@@ -144,3 +144,7 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 1. `scripts/hikes_e08.sh start`, on AC power (for a closed lid, `sudo pmset -a disablesleep 1` first, `0` afterwards).
 2. After the batch: `OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 nohup .venv/bin/python analysis/e08/panel.py score >> data/sheet/score.log 2>&1 &` (resumable; not alongside walks, because of memory), then `readouts.py`, `panel.py summarise`, `matrix.py`.
 3. The Stage 1 report in `observations.md`, then stop for review before seeds 4–7 of the leads.
+
+## 2026-11-06 14:31: Stage 1 resumed
+
+- `scripts/hikes_e08.sh start`; 17 walks left; 50 GB free. The three partial no-backstep walks were moved to `runs/e08_partial/` and walked again. Panel scoring starts by itself once the batch reports "all done".
