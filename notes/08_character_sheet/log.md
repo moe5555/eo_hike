@@ -148,3 +148,12 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 ## 2026-11-06 14:31: Stage 1 resumed
 
 - `scripts/hikes_e08.sh start`; 17 walks left; 50 GB free. The three partial no-backstep walks were moved to `runs/e08_partial/` and walked again. Panel scoring starts by itself once the batch reports "all done".
+
+## Paused 2026-11-06 16:08: where Stage 1 stands and how to continue
+
+- **Correction:** the queue holds 98 walks, not 102 (Reference s4–s7: 4; tier 1: 11 × 4; tier 2: 6 × 4; tier 3: 5 × 4 + 2 × 3). The counts "of 102" above and "17 left" at 14:31 were wrong; 13 were left then.
+- **Paused without losing finished work:** at 15:56 the queue was frozen (`kill -STOP` on its `xargs`) so that no new walk started; `e08_radius_25_s3` (step 300 of 1,000, about 45 min left) was stopped by request at 15:58 and is logged as FAILED for that reason; the batch was stopped at 16:08 once the other two walks had finished.
+- **Done:** 93 of 98. **Left:** radius 25 s3 (partial folder, moved aside on restart), width 0.5 s3, width 2 s1–s3; about 1½–2 h. 44 GB free.
+- Radius 25 walks are slow (38–65 min against 15–20): many tile fetches per step, 3–5 s each.
+
+**To continue:** as at the 13:27 pause: `scripts/hikes_e08.sh start`, then panel scoring after the batch, then readouts, summarise, matrix and the report.
