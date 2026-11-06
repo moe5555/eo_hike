@@ -132,3 +132,15 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 - **Tier 1 walked, 09:37** (48 walks, none failed). Walk readouts in the matrix for every tier 1 setting; panel (Eye) readouts only up to `e08_knn_30_s2`, so the crop settings' eye readouts are still missing. First reading: `k_nn` 3 removes returns entirely (revisits and straight-backs beyond blind −0.02, below a blind walker); temperature acts on choice and returns as predicted (0.2: top tile 0.62 beyond chance; 1.0: 0.28); leads per setting 0–2 for k_nn, ema, temperature and crop, against about 1.5 by chance. Full reading in the Stage 1 report.
 - **Disk.** 24 GB free at 09:38 (32 at 07:53). The data volume grew by about 16 GB since yesterday afternoon, of which the project is about 4 GB (cache overshoot 4.7 GB at 34.7 GB, `runs/` 2.4 GB). The rest is outside the project, most likely Time Machine local snapshots (four, the newest 09:04) holding the tiles the cache evicts. At this rate the watchdog (10 GB) would stop the batch before the remaining 54 walks are done.
 - **Tier 2 walked, 12:17** (72 walks, none failed). 55 GB free: the local snapshots of the morning are gone (thinned or deleted), as expected. First reading: Null at patience 0.3 teleports 7 times per walk against Null's 0.5, so the boredom rule fires without the scorer choosing (prediction 30); far jumps 0.2 gives 40 places of median 16 steps; 12 update steps lowers held-out error at step 1,000 in all four seeds and cuts returns; patience 0.8 only removes teleports; 1 update step shows nothing on held-out error.
+
+## Paused 2026-11-06 13:27: where Stage 1 stands and how to continue
+
+- **Done:** 85 of 102 walks, all of tiers 1 and 2; from tier 3, buffer 512, buffer 8192 and return cost 0.5 (s0–s3 each) and no backstep s0. None failed. 46 GB free.
+- **Stopped by request** with `scripts/hikes_e08.sh stop`: `e08_nobackstep_s1`, `s2` and `s3` were 2–8 minutes in and are lost. On restart the batch script moves their folders to `runs/e08_partial/` and walks them again.
+- **Left:** 17 walks: no backstep s1–s3, radius 25 s0–s3, width 0.5 s1–s3, width 2 s1–s3 (the slowest; about 2 h of the remaining 3).
+
+**To continue**
+
+1. `scripts/hikes_e08.sh start`, on AC power (for a closed lid, `sudo pmset -a disablesleep 1` first, `0` afterwards).
+2. After the batch: `OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 nohup .venv/bin/python analysis/e08/panel.py score >> data/sheet/score.log 2>&1 &` (resumable; not alongside walks, because of memory), then `readouts.py`, `panel.py summarise`, `matrix.py`.
+3. The Stage 1 report in `observations.md`, then stop for review before seeds 4–7 of the leads.
