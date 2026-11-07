@@ -166,3 +166,11 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 - **Tier 3, first reading** (walk readouts only; leads of 14 comparable, chance about 1.2): buffer 512 and 8192 0 each, width 2 0, width 0.5 1 (snow, ice, cloud more avoided), radius 25 1 (revisits beyond blind 0.25 against 0.18), no backstep 1 (straight-backs beyond blind 0.00, by construction), return cost 0.5 5 (shorter stays, median 26 steps against 103; teleports 6.75 against 3.5; revisits and straight-backs halved).
 
 **Next:** `OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 nohup .venv/bin/python analysis/e08/panel.py score >> data/sheet/score.log 2>&1 &`, then `readouts.py`, `panel.py summarise`, `matrix.py`, and the Stage 1 report.
+
+## 2026-11-08: Stage 1 reported
+
+- Panel scoring of the remaining 75 walks 2026-11-07 23:15 to 11-08 00:32 (about 1 min per walk, alone on the machine), no errors. Then `panel.py summarise` and `matrix.py`.
+- Report: `observations.md`, section "Stage 1", with the matrix, the walk readouts, the check of the Reference's seeds, findings 1–10 and the table against predictions 19–35 (1 right, 3 mostly right, 8 partly, 5 wrong).
+- Found while writing: on seven readouts (snow/ice/cloud, brightness, median stay, the three eye readouts, held-out error) 17–22 of 23 settings differ from the Reference's seeds 0–3 in the same direction, and the Reference's seeds 4–7 lie on the settings' side. Most taste and eye leads of the round are this offset (finding 8).
+- `e08_null_patience_03_s3` is identical to `h0111_null_s3`: the boredom rule never fired at either patience. Not an error; kept.
+- **Stopped for review** before seeds 4–7 of the leads: 18 settings (72 walks, about 9 h) as the brief says, or the 10 with strong or several leads (40 walks, about 5 h).

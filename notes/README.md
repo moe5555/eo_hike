@@ -17,7 +17,7 @@ One folder per experiment, numbered in the order they were run. Each one has a b
 | 05 | `05_attention_films/` | 2026-10-29 | Where does a walker look inside a tile it found novel, and in what order? Rendered as a Ken Burns film | first films | attention films / – |
 | 06 | `06_characters/` | 2026-10-29 | Do Bored, Globalist, Localist and Fast learner settings give walks that differ by more than the seed-to-seed spread? | done (part 1: 1,000 steps from Milan; part 2: 5,000 steps from Paris) | hikes 29.10 / `h2910_` |
 | 07 | `07_film_arc/` | 2026-11-01 | Emergent or designed arc for the film? Is "interesting" the same as "hard to draw", and what does the scorer really do? | done (the recommended 5,000-step walk not run) | round h0111 / `h0111_` |
-| 08 | `08_character_sheet/` | 2026-11-03 | Which settings are responsible for what, in what the walker sees and how it moves? A character sheet backed by paired walks | Stage 0 done; Stage 1 walked (98 walks); panel scoring and report next | round h0311 / `e08_` |
+| 08 | `08_character_sheet/` | 2026-11-03 | Which settings are responsible for what, in what the walker sees and how it moves? A character sheet backed by paired walks | Stage 0 done; Stage 1 reported (98 walks); waiting for review before seeds 4–7 | round h0311 / `e08_` |
 
 Not an experiment: `agents_paper/`, the write-up of the agent design (Typst source, figures built by `build_figures.py`, PDF).
 
