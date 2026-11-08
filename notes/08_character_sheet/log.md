@@ -174,3 +174,23 @@ Report: `observations.md`. It stops here for review before any Stage 1 walk, as 
 - Found while writing: on seven readouts (snow/ice/cloud, brightness, median stay, the three eye readouts, held-out error) 17–22 of 23 settings differ from the Reference's seeds 0–3 in the same direction, and the Reference's seeds 4–7 lie on the settings' side. Most taste and eye leads of the round are this offset (finding 8).
 - `e08_null_patience_03_s3` is identical to `h0111_null_s3`: the boredom rule never fired at either patience. Not an error; kept.
 - **Stopped for review** before seeds 4–7 of the leads: 18 settings (72 walks, about 9 h) as the brief says, or the 10 with strong or several leads (40 walks, about 5 h).
+
+2026-11-08: Stage 2 and 3 replaced by the new navigation
+Decision. Stage 2 (interactions) and Stage 3 (long walks) are not run on this walker. The next step is a new navigation: no long jumps and no teleports, and at each step eight compass offers at one radius, which the smoothed drive sets (close when curious, far when bored). Both stages would describe rhythm machinery that this replaces. Round e08 ends with seeds 4–7 of the scorer settings (below).
+Why. What Stage 1 settled is on the scorer's side. Novelty and k_nn set the returns, and temperature sets the choice (Stage 1, findings 1 and 2). Null at patience 0.3 shows that the boredom rule makes the walker restless without the scorer (finding 6), so in this walker the rhythm is mostly the rule and the offer stream, not the drive. The rhythm readouts (places, teleports, rejected landings, far tiles taken) depend on how jumps work (brief, "Long jumps and teleports stay blind") and lose their meaning under the new navigation.
+Where each question goes.
+Brief	Question	Goes to
+Stage 2: patience × ema_alpha	two clocks that both decide when boredom fires	The new navigation's calibration. Patience as a threshold goes away, and ema_alpha becomes the smoothing of the drive that sets the radius. The question becomes: the mapping from drive to radius × ema_alpha, against a control that keeps each walker's own radius sequence shuffled in time.
+Stage 2: crop_px × w_e	does the eye change what "hard to draw" means?	On hold. The eye did not move with crop (finding 7), and the panel was cut at each walker's own crop_px. Rescore every walker on the same 64 px panel first. Drop the pair if crop still moves nothing.
+Stage 2: temperature × k_nn	decisiveness against habituation, both acting on returns	The new walker's first characterisation, once the drive-to-radius loop is stable. Returns depend on how the neighbours are laid out (radius_km 25: more revisits), so the interaction may differ when the radius moves.
+Stage 3: long walks	do walks end by settling?	The new walker, before the death condition is set. If surprise flattens with age, a death conditioned on surprise gets rarer late in the walk.
+Seeds 4–7. Walked for seven settings only, not for every lead as the brief says. The list and the reasons are now in the brief (Stage 1, amended 2026-11-08). The walks run while the navigation is being written.
+What the sheet stands for. The scorer of this walker, at 1,000 steps from Paris.
+Eye: the same for every setting tested (surprise ~ texture 0.53–0.77). This looks like a property of the architecture and the planet, not of one character, pending the 64 px rescore.
+Taste: not measurable by selection differentials from one start with four or eight seeds (the Reference's SD on snow, ice and cloud is 0.46, against effects of 0.1–0.4). Several starting places, or a design that reads each place separately, would be needed.
+No measurable effect at 1,000 steps: buffer_size 512 and 8,192, ae_width 2, ema_alpha 0.08, novelty only. These are fixed at their defaults from here on.
+Carried forward to the new walker.
+The panel (analysis/e08/panel.csv), which does not depend on how the walker moves. It is the fixed probe for the new walker and for each GAN generation's wanderer.
+Eight Reference seeds from the start. Four were an unlucky baseline (Stage 1, finding 8).
+Fetch cost. Far offers will miss the tile cache. At radius_km 25, walks took 38–65 min and dropped up to 40 candidates on the 30 s timeout. Bound the far radius or prefetch, and decide which before the first batch.
+The death condition, set relative to the walker's own surprise history (for example, z-scored against its running distribution) and blocked in the young phase (steps 0–149). A plain threshold would mostly select the brightest tiles (surprise +0.7 on the panel), so cloud, snow and ice, and the death would be fixed by terrain from step 0.

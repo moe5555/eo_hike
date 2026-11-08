@@ -1,5 +1,7 @@
 # Brief: round h0311, towards a character sheet
 
+Superseded (added 2026-11-08). Stage 1, with its seeds 4–7, is the last stage run on this walker. Stages 2 and 3 are replaced by the new navigation (compass offers at a radius set by the drive, no long jumps). Where each of their questions went is in log.md, 2026-11-08. The character sheet stands for this walker's scorer at 1,000 steps from Paris.
+
 > **Naming (added 2026-11-04).** Written before the naming convention in `notes/README.md`. This round is experiment 08: run and config names start with `e08_` where the brief says `h0311_` (e.g. `e08_knn_3_s0`, configs in `configs/08_character_sheet/`), `analysis/sheet/` is `analysis/e08/`, its CSVs and figures go to `notes/08_character_sheet/results/`, and `notes/observations_h0311.md`, `notes/log_h0311.md` are `notes/08_character_sheet/observations.md`, `log.md`. The rest of the brief is as written.
 
 Context first, then the design, then the walks in the order to run them. Report after Stage 0 and after Stage 1 before going further.
@@ -173,6 +175,24 @@ All seeds 0–3 unless stated, each paired with the h0111 Reference of the same 
 26 walks (about 3.5 hours because of width 2 and radius 25).
 
 **Report here**, with the knob-to-effect matrix (below) filled in for Stage 1. Then run seeds 4–7 for every lead, before Stage 2.
+
+Amended 2026-11-08: seeds 4–7 for seven settings, not every lead. Stage 2 is not run (see the note at the top), so seeds 4–7 now serve only to confirm what carries over to the new navigation. Walk the settings whose effect does not depend on how jumps work:
+
+Setting	Change from Reference	Why
+progress only	w_n: 0	novelty carries the returns (Stage 1, finding 1)
+surprise added	w_e: 1	texture and contrast in choice, against the Reference offset (findings 3, 8)
+habituation	k_nn: 3, 30	habituation sets the returns (finding 1)
+decisiveness	temperature: 0.2, 1.0	the cleanest knob on choice (finding 2)
+learning speed	update_steps: 12	held-out error and returns only; its rhythm effects are not carried over (finding 5)
+
+Seeds 4–7 each: 28 walks, about 3–3.5 h with three side by side. Each is judged by the result rule against the Reference's seeds 0–7: at least 7 of 8 paired differences with the same sign, and the mean difference larger than half the Reference's range over the eight seeds.
+
+Not walked:
+
+far jumps 0.2 and 0, and ema_alpha 0.005: their leads are on rhythm, which the new navigation replaces;
+crop_px 32 and 128: their leads follow the Reference's seeds 0–3 offset (finding 8);
+return_cost 0.5, no_backstep and radius_km 25: to be retested if the new walker keeps them;
+the single small leads of the other settings.
 
 ## Stage 2: interactions (about 32 walks)
 
