@@ -199,3 +199,9 @@ The death condition, set relative to the walker's own surprise history (for exam
 
 - `scripts/hikes_e08_s47.sh start` (a copy of `hikes_e08.sh` with the amended queue; log `runs/hikes_e08_s47.log`): progress only, surprise added, `k_nn` 3 and 30, temperature 0.2 and 1.0, update steps 12, seeds 4–7 each, 28 walks, three side by side. On AC power, 52 GB free.
 - Panel scoring starts by itself when the batch reports "all done" (about 30 min); then `readouts.py`, `panel.py summarise`, `matrix.py`. The matrix gives the result rule (at least 7 of 8, mean difference beyond half the Reference's eight-seed range) for these seven.
+
+## 2026-11-08 14:17: seeds 4–7 walked and reported
+
+- 28 walks, none failed (10:57–14:17). Panel scoring 14:18–14:46. Then `readouts.py`, `panel.py summarise`, `matrix.py`.
+- Report: `observations.md`, section "Seeds 4–7 for seven settings", with the results, the four-seed leads that did not hold, and the sheet (brief, Deliverable 2). 17 results in six settings (about 1.5 expected by chance in 119 tests). Every choice and returns lead held. The taste and eye leads along the Reference's offset fell. `update_steps` 12 has no result.
+- Round e08 ends here (decision above, 2026-11-08).

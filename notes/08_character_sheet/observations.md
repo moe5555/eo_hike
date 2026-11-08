@@ -359,3 +359,104 @@ What I got wrong, in kind:
    This would drop the single taste leads that point along the offset (crop 32, crop 128) and the single small leads. Your call.
 3. **Taste needs its own design** (finding 9). At an eight-seed SD of 0.46 on snow, ice and cloud, eight seeds help, but the taste effects in this round are 0.1–0.4. Starting places other than Paris, or a readout per place rather than per walk, would serve taste better than more seeds from Paris.
 4. **The eye readout at other crops** (finding 7). The panel is cropped at each walker's own `crop_px`. Scoring every walker on the same 64 px panel would separate "the walker sees differently" from "the panel is cut differently".
+
+# Seeds 4–7 for seven settings (brief, amended 2026-11-08)
+
+**The walks.** 28 walks, made 2026-11-08 between 10:57 and 14:17: seeds 4–7 of progress only, surprise added, `k_nn` 3 and 30, `temperature` 0.2 and 1.0, and `update_steps` 12. They use the same configs as Stage 1. All finished, and the panel scored them.
+
+**How they are judged.** Each setting is paired with the Reference over seeds 0–7 and judged by the **result rule**: at least 7 of 8 paired differences with the same sign, and the mean difference larger than half the Reference's range over the eight seeds. By chance, the rule fires on about 1.3 % of readouts (Stage 0), so about 1.5 false results are expected among these 119 tests.
+
+**The other settings.** They keep their four-seed leads, unchanged. Their numbers in the matrix still pair against the Reference's seeds 0–3.
+
+**The short version.**
+- 17 results across six settings, all on choice, returns and the taste for texture.
+- Every four-seed lead on choice and returns held, and three new results appeared at eight seeds.
+- The taste and eye leads that followed the Reference's offset (Stage 1, finding 8) all fell away.
+- `update_steps` 12 has none of its four leads left.
+
+## Results (setting − Reference over seeds 0–7)
+
+| Setting | Readout | Reference (8 seeds) | Setting (8 seeds) | Seed SDs | Same sign | At 4 seeds |
+|---|---|---|---|---|---|---|
+| progress only (`w_n` 0) | top tile beyond chance | 0.42 | 0.20 | −8.8 | 8/8 | lead |
+| | revisits beyond blind | 0.18 | 0.06 | −3.9 | 8/8 | lead |
+| | straight-backs beyond blind | 0.12 | 0.04 | −3.6 | 8/8 | lead |
+| | rejected landings | 0.75 | 7.1 | +2.1 | 8/8 | lead |
+| | places | 9.0 | 14.5 | +1.2 | 7/8 | new |
+| surprise added (`w_e` 1) | top tile beyond chance | 0.42 | 0.49 | +2.8 | 8/8 | lead |
+| | straight-backs beyond blind | 0.12 | 0.18 | +2.7 | 8/8 | lead |
+| | contrast (settled) | 0.18 | 0.57 | +2.7 | 8/8 | lead |
+| | texture (settled) | 0.14 | 0.51 | +2.1 | 8/8 | lead |
+| `k_nn` 3 | revisits beyond blind | 0.18 | −0.02 | −6.2 | 8/8 | lead |
+| | straight-backs beyond blind | 0.12 | −0.02 | −6.2 | 8/8 | lead |
+| | far tiles taken ÷ chance | 1.49 | 2.62 | +1.9 | 7/8 | new |
+| `k_nn` 30 | straight-backs beyond blind | 0.12 | 0.19 | +2.9 | 8/8 | lead |
+| `temperature` 0.2 | top tile beyond chance | 0.42 | 0.61 | +7.5 | 8/8 | lead |
+| | straight-backs beyond blind | 0.12 | 0.19 | +2.8 | 8/8 | lead |
+| `temperature` 1.0 | top tile beyond chance | 0.42 | 0.28 | −5.8 | 8/8 | lead |
+| | revisits beyond blind | 0.18 | 0.11 | −2.3 | 7/8 | new |
+| | straight-backs beyond blind | 0.12 | 0.08 | −2.1 | 7/8 | new |
+
+## Four-seed leads that did not hold
+
+| Setting | Readout | Eight seeds | Why it fell |
+|---|---|---|---|
+| progress only | snow, ice, cloud | +0.16, 7/8 | Mean under half the Reference's range (1.52, seed 6). The Reference's offset (finding 8) |
+| progress only | novelty ~ texture | +0.07, 7/8 | Mean under half the range. The offset |
+| progress only | median steps per place | −69, 8/8 | Mean under half the range (144) |
+| `k_nn` 30 | rejected landings | 6/8 | Sign not consistent |
+| `update_steps` 12 | median steps per place | −49, 8/8 | Mean under half the range (144) |
+| `update_steps` 12 | revisits, straight-backs | 6/8 each | Sign not consistent |
+| `update_steps` 12 | novelty ~ texture | +0.13, 7/8 | Mean just under half the range (0.15). The offset |
+
+Two shorter-stay effects fell on the size test alone. In progress only (stays of 20 steps against the Reference's 89) and `update_steps` 12 (40), every seed shortens its stays. They fail only because the Reference's own median stay ranges from 40 to 183 over its eight seeds. Both effects are real in direction. They are not results under this rule, and the new navigation replaces stays in any case.
+
+`update_steps` 12 also lowers held-out error in 6 of 8 seeds (0.0030 against 0.0049). That is not a result either.
+
+## The sheet: the scorer of this walker at 1,000 steps from Paris
+
+Brief, Deliverable 2, in the form it gives. Every line is a result on eight seeds unless marked. **Eye** is the same for every setting tested (Stage 1, finding 7), and **Over time** was not read for these settings, so neither line is repeated below.
+
+```
+Character: Indifferent to progress (progress only)
+Settings:  w_n 0 (novelty removed; interest is learning progress alone)
+Taste:     no result
+Rhythm:    restless: more places (14.5 against 9) and many more rejected landings (7.1 against 0.75)
+Returns:   almost none: revisits 0.06 and straight-backs 0.04 beyond blind (Reference 0.18, 0.12)
+Choice:    takes the top tile half as often beyond chance (0.20 against 0.42)
+Evidence:  results on 8 seeds (places 7/8, the rest 8/8)
+
+Character: Drawn to the hard to draw (surprise added)
+Settings:  w_e 1
+Taste:     prefers textured (0.51) and high-contrast (0.57) neighbours, against 0.14 and 0.18; still avoids snow, ice and cloud (no result)
+Rhythm:    no result
+Returns:   steps straight back more (0.18 against 0.12)
+Choice:    firmer (top tile 0.49 against 0.42)
+Evidence:  results on 8 seeds, all 8/8
+
+Character: Quick to forget (k_nn 3)
+Settings:  k_nn 3
+Taste:     no result
+Rhythm:    takes far tiles more often (2.6 times chance against 1.5)
+Returns:   none at all: revisits and straight-backs below a blind walker (−0.02)
+Evidence:  results on 8 seeds (far tiles 7/8, the rest 8/8)
+
+Character: Slow to forget (k_nn 30)
+Settings:  k_nn 30
+Returns:   steps straight back more (0.19 against 0.12)
+Evidence:  result on 8 seeds, 8/8
+
+Character: Decisive (temperature 0.2)
+Settings:  temperature 0.2
+Choice:    takes the top tile 0.61 beyond chance (Reference 0.42)
+Returns:   steps straight back more (0.19 against 0.12)
+Evidence:  results on 8 seeds, 8/8
+
+Character: Hesitant (temperature 1.0)
+Settings:  temperature 1.0
+Choice:    takes the top tile 0.28 beyond chance
+Returns:   fewer: revisits 0.11, straight-backs 0.08
+Evidence:  results on 8 seeds (top tile 8/8, returns 7/8)
+```
+
+Without a result on any core readout: novelty only, `update_steps` 12, `update_steps` 1, `ema_alpha` 0.08, `patience` 0.8, both buffer sizes and `ae_width` 2. Of these, only `update_steps` 12 was walked on eight seeds; the others rest on four. Four-seed leads only, not walked further (brief, amended): far jumps 0 and 0.2, `ema_alpha` 0.005, `crop_px` 32 and 128, `return_cost` 0.5, `no_backstep`, `radius_km` 25, `ae_width` 0.5.
