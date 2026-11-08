@@ -194,3 +194,8 @@ The panel (analysis/e08/panel.csv), which does not depend on how the walker move
 Eight Reference seeds from the start. Four were an unlucky baseline (Stage 1, finding 8).
 Fetch cost. Far offers will miss the tile cache. At radius_km 25, walks took 38–65 min and dropped up to 40 candidates on the 30 s timeout. Bound the far radius or prefetch, and decide which before the first batch.
 The death condition, set relative to the walker's own surprise history (for example, z-scored against its running distribution) and blocked in the young phase (steps 0–149). A plain threshold would mostly select the brightest tiles (surprise +0.7 on the panel), so cloud, snow and ice, and the death would be fixed by terrain from step 0.
+
+## 2026-11-08 10:57: seeds 4–7 for seven settings started
+
+- `scripts/hikes_e08_s47.sh start` (a copy of `hikes_e08.sh` with the amended queue; log `runs/hikes_e08_s47.log`): progress only, surprise added, `k_nn` 3 and 30, temperature 0.2 and 1.0, update steps 12, seeds 4–7 each, 28 walks, three side by side. On AC power, 52 GB free.
+- Panel scoring starts by itself when the batch reports "all done" (about 30 min); then `readouts.py`, `panel.py summarise`, `matrix.py`. The matrix gives the result rule (at least 7 of 8, mean difference beyond half the Reference's eight-seed range) for these seven.
