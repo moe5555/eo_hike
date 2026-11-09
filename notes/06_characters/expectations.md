@@ -114,3 +114,22 @@ Written after the eight `e09_ref` walks (above) and before any Stage 2 walk. Wal
 66. **Cost.** 48 of 48 walks finish; 15–35 min per walk three side by side; Stage 2 in under 7 h; fewer than 20 fetches dropped per walk.
 
 Scored 2026-11-09 in `notes/09_compass/observations.md`, Stage 2: 4 right (60, 62, 63, 65), 4 mostly right (57, 59, 61, 66), 2 partly (58, 64), none wrong. The far offers' low novelty is the rule's selection, not the world's: with the radius decoupled from d (shifted, shuffled), far and near offers are about level (58). Going far does not raise the drive (`recovery_at_d` 0.025 in the shuffled walks), so the Reference's raw recovery is regression to the mean. Tamanrasset does not send the walker far sooner; once far it stays far longer (64). Not foreseen: three schedule walks lost their eye for 100–425 steps.
+
+## Experiment 09, Stage 3a: the larger eye (added 2026-11-09, before any Stage 3a walk; brief: `notes/09_compass/brief_e09_compass.md`, Stage 3, amendments of 2026-11-09)
+
+Walks: the compass Reference with `crop_px` 128 (~5.3 km) and 192 (~8.0 km), Paris, seeds 0–3, each with a shifted and a shuffled radius control replayed from its own walk, with the warm-up held at r_min (24 walks). Compared with `e09_ref` seeds 0–3 (the 2.7 km eye) and with Stage 2's controls. Lead as in e08 D10 (four seeds of one sign, |mean| above half the Reference's range). Held-out error compares only within one `crop_px`. The world-view readouts are read offline from checkpoints every 100 steps.
+
+Already measured before these predictions (offline, Stage 2 walks, `results/worldview.csv`; not predictions):
+- At the 2.7 km eye the land-cover probe does not beat colour and texture: balanced accuracy at step 1,000 is 0.37 (Reference) and 0.35 (Null), against 0.50 for colour and texture, and 0.40 for the untrained encoder. Below colour in 16 of 16 walks. R² of the class fractions is level with colour (0.28 and 0.26 against 0.25).
+- The embedding is ordered at continental scale. Cosine distance rises from about 0.40 at 25–100 km to about 0.88 beyond 7,700 km. Tobler ρ is 0.17 (colour 0.04), and there is no plateau before 7,700–12,400 km (colour's plateau is at 3,000 km).
+- Reference against the compass Null: no lead on any world-view readout.
+- The baselines barely change with the eye. Colour and texture: 0.49 at 128 and 192. Untrained encoder: 0.43 and 0.41.
+
+67. **The probe at the larger eyes.** Balanced accuracy at step 1,000 is still below colour and texture (0.49) in at least 7 of the 8 eye walks (`e09_crop128`, `e09_crop192`), between 0.33 and 0.45. It is higher at 192 than at the 2.7 km eye (same seed) in at least 3 of 4 seeds. Reason: a 192 px crop area-resized to 32×32 is closer to a colour summary of the tile, which is what the probe reads best.
+68. **Geography with eye size.** Tobler ρ at step 1,000: 0.12–0.25 at both eyes, and no lead against the 2.7 km eye in either direction. The plateau distance stays at 7,700 km or more at every eye. At 2.7 km it is already at the top of what 5,000 probe cells can show, so "does the plateau grow" will read as no.
+69. **The loop stays open.** In the shifted controls, `offer_n_gap` is within ±0.03 of 0 (seed mean) at both eyes. In the shuffled controls, `recovery_at_d` is under 0.1 in all four seeds at both eyes. Going far does not pay at 5 or 8 km either: the embedding already separates far from near at 2.7 km, and the gap is still 0 there, so a larger eye is not what is missing.
+70. **The walk at the larger eyes.** At least 3 of 4 seeds reach r_max at each eye. Far episodes per 1,000 steps and the period lie within the 2.7 km Reference's seed range (0–10.5; 43–321), with no lead. Revisits, straight-backs and top tile: no lead against the 2.7 km eye.
+71. **Controls at the larger eyes, as in Stage 2.** Shifted: no lead on range, places, returns or top tile against its own eye. Shuffled: period under 20 steps in all 4 seeds, at least 3 times as many places.
+72. **No collapse.** None of the 24 walks is flagged collapsed, since the schedules no longer go far during the warm-up. If one is, it is a control.
+73. **Reference against the Null, again.** Not walked at the larger eyes. At 2.7 km it is answered above (no lead), and I expect no lead at 128 or 192 either, but that is not tested here.
+74. **Cost.** 24 of 24 walks finish, 15–35 min each three side by side, Stage 3a in under 3.5 h; at most 1 GB of new checkpoints in all; the offline world-view pass under 20 min.
