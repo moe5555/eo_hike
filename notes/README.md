@@ -18,6 +18,7 @@ One folder per experiment, numbered in the order they were run. Each one has a b
 | 06 | `06_characters/` | 2026-10-29 | Do Bored, Globalist, Localist and Fast learner settings give walks that differ by more than the seed-to-seed spread? | done (part 1: 1,000 steps from Milan; part 2: 5,000 steps from Paris) | hikes 29.10 / `h2910_` |
 | 07 | `07_film_arc/` | 2026-11-01 | Emergent or designed arc for the film? Is "interesting" the same as "hard to draw", and what does the scorer really do? | done (the recommended 5,000-step walk not run) | round h0111 / `h0111_` |
 | 08 | `08_character_sheet/` | 2026-11-03 | Which settings are responsible for what, in what the walker sees and how it moves? A character sheet backed by paired walks | Stage 0 done; Done: Stages 0 and 1, seeds 4–7 for seven settings (17 results); Stages 2–3 replaced by the new navigation | round h0311 / `e08_` |
+| 09 | `09_compass/` | 2026-11-08 | Can one drive set how far the walker looks (eight offers at one radius, close when curious, far when bored), and is the rhythm that comes out the walker's or the mapping's? | Stage 2 walked (48 walks): the radius follows the drive and a rhythm comes out, but the loop is open (going far does not restore the drive) and the rhythm is the drive's filter, shared with the Null; character against the Null (preference, clusters) comes from the choice. For review; Stage 3 (larger eye) prepared | `e09_` |
 
 Not an experiment: `agents_paper/`, the write-up of the agent design (Typst source, figures built by `build_figures.py`, PDF).
 
@@ -133,3 +134,16 @@ All documents in `notes/08_character_sheet/`:
 - Results: `results/` (readouts, paired differences, calibration, taste panel summaries and figures)
 - Code: `analysis/e08/` (`sheet.py` shared, `readouts.py` Stage 0.1 and 0.3, `panel.py` Stage 0.2, `matrix.py` the knob-to-effect matrix on the core readouts), the panel's tile list `analysis/e08/panel.csv` (fixed, never changed); per-tile statistics and raw panel scores are cached in `data/sheet/` (git-ignored)
 - Configs and runs: `configs/08_character_sheet/e08_*.yaml`, `runs/e08_*` (Stage 1 on), batch `scripts/hikes_e08.sh`
+
+## 09. Compass walker
+
+All documents in `notes/09_compass/`:
+
+- Brief: `brief_e09_compass.md`
+- Log (code, checks, deviations): `log.md`
+- Observations, Stage 0 (the drive on the e08 logs, Δ, r_max, geometry, fetch cost, decisions D1–D7): `observations.md`
+- Results: `results/` (`mapping*.csv`, `mapping.png`, `geometry_offers.*`, `fetchcost*.csv`; later the readouts and figures)
+- Code: `agent/compass.py` (drive, radius rule, offers), `nav: compass` in `agent/walk.py` (default `classic` = every earlier walker, checked bit-identical); `analysis/e09/` (`mapping.py` 0.3, `geometry.py` and `geographiclib_check.py` 0.2, `fetchcost.py` 0.4, `readouts.py` and `schedules.py` 0.5, `stage1_diag.py` Stage 1; shared `e09_common.py`)
+- Configs: `configs/09_compass/e09_*.yaml`, radius schedules for the controls in `configs/09_compass/schedules/`
+- Script: `scripts/hikes_e09.sh start <stage> | stop` (with the disk and `.git` watchdog)
+- Runs: `runs/e09_*`; Stage 0 checks `e09_check_classic_s0`, `e09_test_fetch_s0`, `e09_smoke_s0`; Stage 1 `e09_reference_s0–3`, `e09_delta_0175_s0–3`, `e09_delta_07_s0–3`; Stage 1 round 2 `e09_avg20_d025_s0–3`, `e09_avg20_d035_s0–3`, `e09_avg20_d05_s0–3`; checks `e09_check_r1_s0_s0`, `e09_smoke_avg20_s0_s0`
