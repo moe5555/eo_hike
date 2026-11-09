@@ -489,3 +489,196 @@ For the aim, "as little set by hand as possible", the rhythm is the weak part. I
 2. **Keep the warm-up out of the schedules** (finding 39). `schedules.py` would hold steps 0–49 at r_min, as the rule does, and shift or shuffle only steps 50–999. Used for the larger eye's shifted controls. I would not re-walk Stage 2's shifted and shuffled walks (16 walks, about 2 h), since no verdict changes without the collapsed walks. If you want the cleaner instrument for Stage 2 as well, that is the cost.
 3. **A collapse readout**: per walk, the longest run of chosen novelty under 0.005, and whether held-out error froze. Flagged in every table from now on.
 4. **Readout definitions** (cosmetic): loop readouts as NaN where r_max = r_min (local only), and places as NaN at a fixed radius above 2 r_min.
+
+# Stage 3a: the larger eye (2026-11-09)
+
+24 walks from Paris, 1,000 steps, seeds 0–3: the compass Reference with `crop_px` 128 (eye about 5.3 km) and 192 (about 8.0 km). Each eye walk has a shifted and a shuffled radius control, replayed from that walk with the warm-up held at r_min (brief amendment B1). They are compared with `e09_ref` seeds 0–3 (the 2.7 km eye) and with Stage 2's controls. Predictions 67–74 and the readouts were fixed before the walks (log, 2026-11-09).
+
+The world-view readouts (amendment A) are read offline from checkpoints taken every 100 steps.
+
+A lead is four seeds of one sign with |mean| above half the compared group's range over those seeds (e08 D10). With four seeds, nothing here can be a result.
+
+Files: `results/readouts.csv`, `paired.csv`, `paired_clean.csv`, `worldview.csv`, `worldview.png`.
+
+**The short version.**
+- **Does the larger eye open the loop? No.**
+  - With the radius decoupled from d (shifted control), far offers are still less novel than near ones: −0.06 at 5.3 km (3 of 3 seeds that go far) and −0.05 at 8 km (2 of 3). The same holds on land only. At 2.7 km the same control gave +0.02.
+  - Going far still does not raise the drive. In the shuffled walks, `recovery_at_d` is 0.05 at both eyes (0.02–0.05 in the seeds that go far), against 0.025 at 2.7 km and a raw recovery of 0.26.
+- **Does the plateau grow with eye size? No.**
+  - The Tobler curves of the three eyes lie inside each other's seed ranges. The plateau is at 7,700–12,400 km at every eye, and Tobler ρ is 0.15–0.17 at every eye.
+  - No eye beats colour and texture on land cover (0 of 24 walks, 0 of 44 in all). The 8 km eye is not better than the 2.7 km eye.
+- **The walk is the same.** No lead on any loop, range or return readout against the 2.7 km eye. Two differences:
+  - At 8 km the walker chooses more contrast (lead, settled).
+  - Both larger eyes leave for r_max late (steps 678–871, against 208–608).
+- **The controls behave as in Stage 2**, now without collapse. None of the 24 walks lost its eye, and none of the 16 controls left r_min during the warm-up.
+
+## The tables
+
+### 16. The larger eye and its controls (seeds 0–3; mean, with the range over seeds; whole walk)
+
+| | 2.7 km (`e09_ref` s0–3) | 5.3 km | 5.3 km shifted | 5.3 km shuffled | 8 km | 8 km shifted | 8 km shuffled |
+|---|---|---|---|---|---|---|---|
+| collapsed | 0 of 4 | 0 of 4 | 0 of 4 | 0 of 4 | 0 of 4 | 0 of 4 | 0 of 4 |
+| seeds reaching r_max | 4 of 4 | 3 of 4 | 3 of 4 | 3 of 4 | 3 of 4 | 3 of 4 | 3 of 4 |
+| first r_max (step) | 208, 418, 602, 608 | 778, 805, 871 | 94, 273, 562 | 51, 54, 187 | 678, 783, 795 | 329, 567, 813 | 55, 56, 113 |
+| steps at r_min | 0.77 (0.62–0.90) | 0.75 (0.62–0.90) | same | same | 0.77 (0.62–0.93) | same | same |
+| steps at r_max | 0.076 (0.001–0.175) | 0.046 (0–0.095) | same | same | 0.094 (0–0.189) | same | same |
+| r_max episodes per 1,000 | 5.8 (1.1–10.5) | 5.3 (0–8.4) | 5.3 | **43** (0–86) | 5.3 (0–13.7) | 5.3 | **78** (0–159) |
+| longest run at r_max | 1, 3, 81, 127 | 15, 26, 38 | 15, 26, 38 | 2 | 2, 72, 168 | 2, 72, 168 | 1–3 |
+| r_max followed by r_min | 0 | 0 | 0.006 | **0.66** | 0 | 0.002 | **0.75** |
+| period (steps) | 128 (43–218) | 170 (23–294), 3 seeds | 88 (23–152), 2 seeds | **5** (3–9) | 170 (19–351), 3 seeds | 170 (19–352), 3 seeds | **4** (2–7) |
+| places | 16.5 (11–24) | 20.8 (17–28) | 21.3 (17–28) | **132** (56–196) | 17.5 (12–21) | 17.8 (12–21) | **126** (32–211) |
+| median dwell (steps) | 42 (22–76) | 20 (15–27) | 20 (13–27) | **5** (2–11) | 15 (3–36) | 17 (3–44) | 10 (2–26) |
+| recovery, raw | 0.27 (0.08–0.60) | 0.10 (0.04–0.20) | 0.02 (−0.04 to 0.06) | 0.05 (0.01–0.10) | 0.14 (0.04–0.32) | 0.17 (0.00–0.49) | 0.00 (−0.03 to 0.03) |
+| `recovery_at_d` | — | — | 0.16 (−0.02 to 0.46) | 0.053 (0.037–0.073) | — | 0.16 (−0.03 to 0.43) | 0.056 (0.004–0.161) |
+| offered novelty far; near | 0.20; 0.32 | 0.22; 0.32 | 0.21; 0.26 | 0.23; 0.26 | 0.33; 0.42 | 0.33; 0.37 | 0.28; 0.32 |
+| far − near | −0.11 (−0.17 to −0.06) | −0.11 (−0.25 to −0.03) | **−0.061** (−0.075 to −0.049) | −0.040 (−0.049 to −0.036) | −0.11 (−0.15 to −0.06) | **−0.054** (−0.106 to +0.033) | −0.010 (−0.061 to +0.082) |
+| far − near, land offers only | −0.11 | −0.11 | −0.049 (3 of 3 < 0) | −0.027 | −0.16 | −0.055 (2 of 3 < 0) | +0.009 |
+| radius of gyration (km) | 4,326 (1,541–5,864) | 2,310 (813–3,903) | 2,866 | 3,214 | 2,458 (561–4,948) | 3,166 | 3,715 |
+| continents | 4.0 (1–6) | 4.0 (2–5) | 3.5 | 4.0 | 4.5 (1–7) | 4.3 | 4.0 |
+| unique cells | 603 (557–672) | 585 (537–630) | 572 | **736** | 584 (470–693) | 604 | **718** |
+| steps outside Europe | 0.38 | 0.12 | **0.52** | **0.55** | 0.12 | 0.33 | 0.59 |
+
+How to read it:
+- The controls replay their own eye's radii, so their shares, episodes (shifted) and seeds reaching r_max match it by construction.
+- Novelty is on each eye's own scale: it compares within an eye, not across eyes.
+- In the shifted and shuffled rows, far − near is over the seeds that go far (3 per group).
+- `recovery_at_d` is noisy where a seed has almost no far steps, as in Stage 2:
+  - The high shifted values (0.46 and 0.43) come from seeds at r_max on 0 % and 0.5 % of steps.
+  - In the four shifted seeds at r_max on 6–19 % of steps it is −0.03 to 0.21.
+  - In shuffled, the 0.161 (8 km) and 0.073 (5.3 km) come from the seed that never reaches r_max. Without that seed: 0.020 (0.004–0.034) at 8 km and 0.046 (0.037–0.059) at 5.3 km.
+- Stage 2's shuffled walks, seeds 0–3: −0.005, 0.022 (collapsed s1), 0.025, 0.029.
+
+### 17. Returns, choice, taste (seeds 0–3; returns and choice over the whole walk, taste settled; mean, with the range)
+
+| | 2.7 km | 5.3 km | 5.3 km shifted | 5.3 km shuffled | 8 km | 8 km shifted | 8 km shuffled |
+|---|---|---|---|---|---|---|---|
+| revisits beyond blind | 0.16 (0.13–0.18) | 0.16 (0.13–0.17) | 0.14 | 0.10 (0.07–0.17) | 0.15 (0.09–0.25) | 0.13 | 0.11 (0.06–0.18) |
+| straight-backs beyond blind | 0.09 | 0.09 | 0.07 | 0.07 | 0.09 | 0.08 | 0.07 |
+| top tile beyond chance | 0.45 | 0.45 | 0.44 | 0.46 | 0.47 | 0.46 | 0.45 |
+| texture of the choice | 0.09 (0.02–0.27) | 0.09 (−0.14–0.43) | **0.38** | 0.12 | 0.37 (0.15–0.86) | 0.35 | 0.26 |
+| contrast | 0.19 (0.08–0.31) | 0.20 (−0.05–0.45) | 0.43 | 0.25 | **0.52** (0.28–1.00) | 0.50 | 0.38 |
+| ocean | −0.14 (−0.26 to −0.03) | −0.06 (−0.36–0.32) | −0.19 | −0.29 | +0.02 (−0.27–0.38) | −0.30 | **−0.34** |
+| held-out error at 1,000 (own eye only) | 0.002–0.027 | 0.002–0.007 | 0.003–0.015 | 0.003 | 0.003–0.015 | 0.004–0.006 | 0.003–0.004 |
+| longest run of chosen novelty < 0.005 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| lowest probe spread after step 0 | 0.65 (0.52–0.76) | 0.54 (0.27–0.65) | 0.60 | 0.71 | 0.54 (0.29–0.78) | 0.61 | 0.75 |
+| leads | — | none (against 2.7 km) | texture +0.30 (settled), outside Europe +0.40 (against its eye) | places +112, dwell −15, unique cells +151, outside Europe +0.43 (against its eye) | contrast +0.33, dwell −21 (settled, against 2.7 km); contrast +0.31 against 5.3 km | dwell against fall ρ −0.48 (against its eye) | places +109, unique cells +134, ocean −0.36 (settled; against its eye) |
+
+Near misses (4 of 4 of one sign, under half the range):
+- 5.3 km against 2.7 km: places +4, median dwell −22, macro-F1 −0.018, R² −0.038.
+- 8 km against 2.7 km: median dwell −27 (whole walk), dwell against fall +0.42.
+- 8 km against 5.3 km: texture +0.25.
+- 8 km shifted against its eye: near offers −0.049.
+
+Without collapsed walks: none of the 24 is collapsed, and the 2.7 km Reference has none, so every verdict in tables 16–18 is the same with and without. The exception is comparing with Stage 2's controls, whose seeds 0–3 include the collapsed `e09_shuffled_s1`. There, two leads hold only with it in:
+- 5.3 km shuffled `recovery_at_d` +0.035 (4 of 4);
+- shuffled ocean avoidance, −0.26 and −0.35.
+
+Without it they rest on 3 seeds.
+
+### 18. The world-view at step 1,000 (5,006 probe cells; seeds 0–3; mean, with the range)
+
+| | 2.7 km | 5.3 km | 5.3 km shifted | 5.3 km shuffled | 8 km | 8 km shifted | 8 km shuffled |
+|---|---|---|---|---|---|---|---|
+| land cover, balanced accuracy | 0.37 (0.34–0.39) | 0.37 (0.34–0.40) | 0.37 | 0.39 (0.38–0.40) | 0.35 (0.30–0.40) | 0.34 | 0.38 |
+| colour and texture; untrained | 0.50; 0.40 | 0.49; 0.41 | | | 0.49; 0.40 | | |
+| macro-F1 | 0.31 | 0.29 | 0.29 | 0.32 | 0.27 | 0.27 | 0.30 |
+| class fractions, R² (colour 0.25; untrained 0.29–0.31) | 0.29 | 0.25 | 0.26 | **0.30** | 0.23 | 0.23 | 0.28 |
+| Tobler ρ (colour 0.04; untrained 0.06) | 0.17 (0.12–0.21) | 0.15 (0.10–0.20) | 0.14 | 0.15 | 0.16 (0.14–0.18) | 0.16 | **0.12** |
+| cosine distance at 25 km; 450 km; 3,000 km; 7,700 km | 0.39; 0.66; 0.69; 0.85 | 0.41; 0.64; 0.71; 0.86 | 0.35; 0.57; 0.67; 0.79 | 0.41; 0.56; 0.78; 0.92 | 0.36; 0.63; 0.62; 0.74 | 0.40; 0.64; 0.69; 0.82 | 0.45; 0.56; 0.82; 0.94 |
+| plateau (km) | 7,700–12,400 | 7,700–12,400 (one seed none) | 7,700–12,400 | 7,700 | 7,700–12,400 | 7,700–12,400 | 7,700 |
+| neighbours within 500 km beyond chance (colour 0.034–0.038) | 0.023 | 0.021 | 0.022 | 0.023 | 0.019 | 0.018 | 0.022 |
+| probe spread | 0.77 | 0.79 | 0.72 | 0.84 | 0.68 | 0.76 | 0.87 |
+
+Over the walk (seed means, Reference seeds 0–7, eyes seeds 0–3):
+- Balanced accuracy falls from about 0.41 at step 0 to 0.25 at step 100 at the larger eyes. The 2.7 km Reference reaches 0.30 at step 250, its first checkpoint. It climbs back to 0.35–0.37 by step 1,000.
+- It ends below the untrained encoder in 38 of 44 walks.
+- Tobler ρ ends above the untrained encoder in 43 of 44.
+
+The plateau can only fall on a bin edge: 7,700 or 12,400 km (the criterion is in the log). As a check I also read the curve's half-rise distance. It varies from 300 to 5,000 km within one group, so it cannot tell the eyes apart either, and it is not reported.
+
+## Findings
+
+41. **The larger eye walks like the small one (tables 16, 17).** At neither eye is there a lead on any loop, range or return readout against the 2.7 km walks of the same seeds:
+    - share at r_max, episodes, period, places, gyration, unique cells, revisits, straight-backs and top tile are all unchanged.
+    - One seed at each eye never goes far, which no 2.7 km seed in 0–3 did.
+    - Those that go far leave late: steps 778–871 at 5.3 km and 678–795 at 8 km, against 208–608 for the same seeds at 2.7 km. The Reference's eight seeds range 208–816. A larger eye keeps the near ground paying for longer.
+    - Places last shorter in 4 of 4 seeds at both eyes (near misses at 5.3 km, a lead at 8 km settled).
+42. **The larger eye does not open the loop (table 16).**
+    - With the radius decoupled from d, the larger eye's far offers are less novel than its near offers: −0.061 at 5.3 km (3 of 3) and −0.054 at 8 km (2 of 3).
+    - At 2.7 km the same control gave +0.02 (Stage 2, 6 seeds, −0.09 to +0.13), so the larger eye, if anything, moves the gap the wrong way. Three seeds per eye cannot settle that.
+    - It is not the ocean: on land offers alone the gap is −0.049 and −0.055.
+    - Going far still does not raise the drive. In the shuffled walks, `recovery_at_d` among seeds that go far is 0.046 (5.3 km) and 0.020 (8 km), against 0.025 at 2.7 km. All are a fifth or less of the Reference's raw recovery (0.27).
+    - So at no eye tested does a far offer pay. The world-view (finding 46) shows why the eye's scale is not the cause: the embedding separates far tiles from near ones at every eye. Novelty is measured against the archive of visited tiles, though, not against the current one (log, offline pass). A world-view ordered by distance does not make far tiles new to the archive.
+43. **Shifted, at the larger eye: timing still doesn't matter.** No lead on gyration, continents, unique cells, places, revisits, straight-backs or top tile against its own eye walk, as in Stage 2 (finding 32).
+    - The shifts move the far bouts earlier, so the 5.3 km shifted walks spend more of the walk outside Europe (+0.40, lead).
+    - The 5.3 km shifted walks choose more texture (+0.30, lead, settled), and the 8 km shifted walks lose the eye walk's link between dwell and fall (ρ −0.48, lead). Neither has a counterpart in Stage 2's shifted walks.
+44. **Shuffled, at the larger eye: bouts matter, as in Stage 2 (finding 33).**
+    - The shuffled walks have 132 and 126 places, a period of 2–9 steps, and 0.66–0.75 of far steps followed straight by r_min. They stand on 151 and 134 more cells (leads).
+    - Unlike Stage 2, the top tile is not taken less often (0.46 and 0.45 against 0.45 and 0.47).
+    - Revisits are lower in the mean (0.10 and 0.11 against 0.16 and 0.15), but not in all four seeds.
+    - At 8 km the shuffled walks avoid ocean more (−0.36, lead, settled).
+45. **The 8 km eye chooses contrast (table 17).** Settled, the contrast of the chosen cell is 0.52 at 8 km, against 0.19 at 2.7 km (+0.33, lead) and 0.20 at 5.3 km (+0.31, lead). Texture rises the same way (near miss against 5.3 km).
+    - A 192 px crop holds more structure per patch, and the choice follows it.
+    - Preference (top tile 0.47) and clusters (revisits 0.15) are kept.
+    - It is the one place where the eye changes the walker's style.
+46. **The larger eye does not see the Earth as more regional (table 18).**
+    - The Tobler curves of the three eyes overlap within the seed ranges at every distance.
+    - Tobler ρ is 0.15–0.17 at every eye, with no lead.
+    - The plateau stays at 7,700–12,400 km.
+    - No walk at any eye beats colour and texture on land cover (0 of 24 here, 0 of 44 in all). The 8 km eye is not better than the 2.7 km eye (higher in 1 of 4 seeds). Its R² is lower (−0.058, 4 of 4 seeds, under the size rule's 0.059).
+    - Training first wipes out the untrained network's land-cover reading (0.41 → 0.25 by step 100 at the larger eyes), then rebuilds most of it. Meanwhile the embedding becomes ordered by distance on the ground (ρ 0.06 → 0.15, above the untrained net in 43 of 44 walks; colour 0.04).
+    - So what the walker comes to know is where things are alike, at continental scale, more than what kind of ground they are. The eye's size does not change that.
+47. **The most varied walks know land cover slightly better.**
+    - At 5.3 km, the shuffled walks reach R² 0.30 against 0.25 (+0.05, lead) and balanced accuracy 0.39 against 0.37 (4 of 4 seeds, under the size rule). At 8 km the shuffled walks are +0.035 on balanced accuracy (3 of 4).
+    - At 8 km they are less ordered by distance (ρ −0.04, lead).
+    - Stage 2's shuffled walks showed the same high probe (0.40, two walks read).
+    - Stepping between many more places gives the encoder more varied ground. That buys a little land cover and costs a little geography. Two eyes and four seeds make this a hint, not a result.
+48. **No collapse.**
+    - In all 24 walks, chosen novelty never stays under 0.005 for more than one step, held-out error never freezes, and probe spread stays at 0.27 or more (flag: below 0.2).
+    - None of the 16 controls stepped beyond 30 km before step 50, against 13 of 16 in Stage 2.
+    - This fits finding 39: the two early Stage 2 collapses followed far steps in the warm-up. Sixteen walks without collapse do not prove it.
+49. **Cost.**
+    - 24 of 24 walks finished, 16–28 min each, three side by side. 3 h 31 min in all, 20:00:41 to 23:31:42.
+    - Checkpoints: 12 MB per walk, 290 MB in all.
+    - The offline world-view pass took 9 min for 24 walks × 11 checkpoints.
+    - 5 fetches were dropped in one walk (`e09_crop192_shifted_s3`), none in the others.
+
+## Against the predictions (67–74, written 2026-11-09)
+
+| # | Setting | Predicted | Found | Verdict |
+|---|---|---|---|---|
+| 67 | the probe at the larger eyes | below colour (0.49) in ≥ 7 of 8; 0.33–0.45; 192 above 2.7 km (same seed) in ≥ 3 of 4 | 8 of 8; 6 of 8 in range (8 km s0 0.316, s2 0.298); 1 of 4 | partly |
+| 68 | geography with eye size | ρ 0.12–0.25 at both eyes, no lead against 2.7 km; plateau ≥ 7,700 km at every eye, so "does it grow" reads no | 0.10–0.20 and 0.14–0.18 (one 5.3 km seed at 0.103); no lead; 7,700–12,400 km (one seed none); no | mostly right |
+| 69 | the loop stays open | shifted `offer_n_gap` within ±0.03 of 0 at both eyes; shuffled `recovery_at_d` < 0.1 in all 4 seeds at both eyes; a larger eye is not what is missing | −0.061 and −0.054 (far below near); 4 of 4 and 3 of 4 (0.161 in the seed that never goes far); the loop stays open | partly (conclusion right, the gap's size wrong) |
+| 70 | the walk at the larger eyes | ≥ 3 of 4 reach r_max at each eye; episodes 0–10.5 and period 43–321; no lead on revisits, straight-backs, top tile | 3 of 4 each; episodes 0–8.4 and 0–13.7, periods 19–351; no lead on any | mostly right |
+| 71 | controls at the larger eyes | shifted: no lead on range, places, returns or top tile against its eye; shuffled: period < 20 in all 4, ≥ 3× the places | none on gyration, continents, unique cells, places, returns, top tile (but outside Europe +0.40 at 5.3 km); period 2–9 in 8 of 8; ≥ 3× in 7 of 8 (8 km s1: 2.7×) | mostly right |
+| 72 | no collapse | none of the 24 flagged; if one, a control | none | right |
+| 73 | Reference against the Null, again | not walked at the larger eyes | not tested | — |
+| 74 | cost | 24 of 24; 15–35 min each; under 3.5 h; ≤ 1 GB of checkpoints; offline pass under 20 min | 24; 16–28 min; 3 h 31; 0.29 GB; 9 min | mostly right |
+
+Tally: 1 right (72), 4 mostly right (68, 70, 71, 74), 2 partly (67, 69), 1 not tested (73), none wrong.
+
+What I got wrong, in kind:
+- I expected the 8 km eye's probe to read better, because a larger crop resized to 32 px is closer to a colour summary. It isn't: the encoder's reading does not follow the crop's information.
+- I expected the decoupled gap to stay at 0. At the larger eyes far offers are duller than near ones even without selection. The direction of the conclusion held: going far does not pay.
+
+## For review
+
+The brief's questions:
+- **Does the larger eye open the loop?** No. At 5.3 and 8 km the eye's own far-near gap is negative (−0.06 and −0.05), and going far does not raise the drive (`recovery_at_d` 0.02–0.05 in seeds that go far).
+- **Does the plateau grow with eye size?** No. The embedding is ordered at continental scale at every eye, with the same curve.
+- **Does the probe beat colour?** No, at no eye.
+- **Reference against the Null:** no world-view difference at 2.7 km (Stage 2 offline pass). Not walked at the larger eyes.
+
+What this means for the aim:
+- The eye's scale is not what keeps the loop open. The open loop is in how novelty is measured: against an archive that soon holds look-alikes for every far tile, whatever the eye.
+- The rhythm stays the drive filter's.
+- The larger eye changes one part of the style: the 8 km walker picks high-contrast ground.
+
+Recommended:
+1. **Stage 3's transfer settings at the 2.7 km eye.** The brief says "at the eye this test favours". Neither larger eye opens the loop or reads the world better, and every Stage 1–2 calibration was done at 2.7 km. The walks cost the same at all three eyes.
+2. **Of the settings, `drive_signal` first** (D2: novelty or progress). If anything can make far pay, it is a signal that is not measured against the archive. Learning progress at a new region can be high where novelty against the archive is not. The `k_nn` settings come second: they change how quickly the archive makes things look familiar.
+3. **No new instrument needed.** The collapse readout and world-view readout ran on every walk at a cost of 9 min per 24 walks offline. I would keep checkpoints every 100 steps in Stage 3.
+
+Stopped for review before the rest of Stage 3.

@@ -196,3 +196,19 @@ Question from the review: why is novelty higher close by than far away? Offline,
 - **B2, probe spread: deviation.** Relative to step 0 the spread does not work: the untrained network maps every tile to almost one direction (spread 0.001–0.020), so healthy walks sit at 23–1,400 times step 0. **The flag uses the absolute spread instead (mean pairwise cosine distance), below 0.2 after step 0.** Collapsed checkpoints: shuffled s1 at step 250, 0.000; shifted s6 at step 1,000, 0.054. Every healthy checkpoint: 0.46 or more. Shuffled s4's collapse (steps 16–121) ended before its first checkpoint (250). At Stage 3a's 100-step cadence it would have been caught.
 - **readouts.csv** now has `low_n_run`, `heldout_frozen`, `spread_min`, `collapsed` and `collapse_window`, and the final-step world-view readouts with their baselines. It flags exactly `e09_shuffled_s1` (16–460), `e09_shuffled_s4` (16–121) and `e09_shifted_s6` (750–1,000). `paired_clean.csv` is `paired.csv` without them. The result rule needs eight seeds, so a group missing a collapsed walk can reach at most a lead there; reports give both.
 - **Predictions 67–74** for Stage 3a are in `expectations.md`, written before any Stage 3a walk.
+
+## 2026-11-09 20:00: Stage 3a started
+
+- Space freed by the user: 53 GB free. `scripts/hikes_e09.sh start 3a` at commit `1bf8471`: eight eye walks (`e09_crop128`, `e09_crop192`, seeds 0–3), then their schedules (warm-up held at r_min), then 16 controls (shifted and shuffled). The world-view pass and the readouts run after the batch, not alongside it.
+- 23:31: the batch finished. 24 of 24 walks, none failed, 43 GB free. Each walk has 11 checkpoints (0, 100, …, 1,000), 12 MB per walk.
+
+## 2026-11-10: Stage 3a read
+
+- **World-view pass:** `worldview.py run` on the six 3a groups (24 walks × 11 checkpoints), 9 min on MPS, run after the batch. The rows for the Stage 2 walks in `worldview.csv` are kept unchanged.
+- **Readouts:** `readouts.py` on all 112 `e09_` walks. Collapsed: only the three Stage 2 walks. In the 24 new walks, the low-novelty run is 1 step at most, held-out error is never frozen, and the lowest probe spread is 0.268 (`e09_crop128_s1`), above the 0.2 flag. Warm-up check: no shifted or shuffled 3a walk stepped beyond 30 km before step 50.
+- **Comparisons made, beyond `paired.csv`** (which is against the 2.7 km Reference): each control against its own eye walk, 8 km against 5.3 km, and each 3a control against the Stage 2 control of the same seeds. Same rule as `paired()`: the spread is the compared group's range over the seeds compared. Computed ad hoc for the report, not saved as a file.
+- **Two post-hoc checks, not readouts:**
+  - The far − near offer gap on land offers only (`index.parquet` cover ≠ ocean), to see whether the ocean makes far offers dull. It doesn't: −0.049 and −0.055 against −0.061 and −0.054 overall.
+  - The Tobler curve's half-rise distance, as a finer scale than the plateau's two bin edges. It varies from 300 to 5,000 km within one group, so it is not reported.
+- `recovery_at_d` rests on middle radii in seeds that never reach r_max (5.3 km and 8 km shuffled, one seed each). In the report it is given with and without them.
+- Report: `observations.md`, Stage 3a (tables 16–18, findings 41–49). Predictions 67–74 scored there: 1 right, 4 mostly right, 2 partly, 1 not tested.
