@@ -24,7 +24,7 @@ replay_batch: 48      # replay patches mixed into each update (16 new + 48 repla
 reembed_every: 100
 ema_alpha: 0.02       # running z-score rate (~50-step memory)
 heldout_every: 25
-ckpt_every: 250
+ckpt_every: 100       # world-view readout (brief amendment 2026-11-09, A3): every 100 steps
 # dreams v3 world
 world: global         # long jumps and bored teleports draw from the whole filtered global index (blind)
 heldout: global       # the 200 held-out tiles are drawn from the global index (same set for the confined walker)
@@ -64,3 +64,4 @@ snap_tol: 0.25                # an offer may sit at most max(snap_tol * r, snap_
 snap_floor_km: 7.5            # half the diagonal of a 10 km grid cell (Stage 0.2)
 offer_stay: false             # the classic walker never offers its own cell (World.neighbours drops it)
 radius_schedule: null         # CSV with a radius_km column, one row per step: replayed instead of the rule (controls)
+ckpt_init: true               # world-view readout: the network at step 0 (saving draws no random numbers)

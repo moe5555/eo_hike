@@ -41,6 +41,17 @@ The loop (compass runs only; brief, "New: the loop"):
   control the radius does not depend on d, so its gap is the eye's and the world's. The test of the larger eye (Stage 3).
 - range: radius of gyration (km, about the walk's 3-D centroid), continents reached (rough boxes, fetchcost.continent), unique cells,
   ocean share of the cells stood on.
+
+Added 2026-11-09 (brief amendment, before Stage 3a):
+- World-view (A3): the final checkpoint's probe_bacc, probe_f1, probe_r2, tobler_rho, plateau_km, knn_geo_excess from
+  results/worldview.csv (analysis/e09/worldview.py), where the walk has been read; NaN otherwise.
+- Collapse (B2): low_n_run, the longest run of steps with chosen novelty under 0.005 (and its window); heldout_frozen, held-out error
+  the same to six significant digits (FROZEN_RTOL) at three or more consecutive checkpoints (and the window; the brief's four decimals
+  also flag healthy walks whose error sits steady near 0.005); spread_min, the smallest probe spread (mean pairwise cosine distance)
+  over the checkpoints after step 0. collapsed: low_n_run >= LOW_N_RUN, or held-out frozen, or spread_min < SPREAD_MIN;
+  collapse_window the union of the windows. paired_clean.csv repeats paired.csv without collapsed walks.
+- Definitions (B3): the loop readouts are NaN where r_max = r_min (local only: every step would count as "at r_max"); places, median
+  dwell and dwell_fall_rho are NaN where every step is beyond 2 r_min (a fixed radius above 30 km never stands near).
 """
 
 from __future__ import annotations
@@ -58,6 +69,19 @@ TASTE = {"texture": "grad", "contrast": "grey_std", "brightness": "grey_mean", "
 EYE_CKPTS = (500, 750, 1000)
 EYE_CACHE = ROOT / "data" / "sheet" / "e09_panel_eye.parquet"
 REFERENCE = "compass Reference"
+WORLDVIEW = OUT / "worldview.csv"
+NOT_PAIRED = ["nav", "collapse_window", "collapsed", "heldout_frozen", "probe_overlap"]
+
+
+def not_paired(R: pd.DataFrame) -> list[str]:
+    """Labels, flags, and the world-view baselines (constants per crop_px and seed, not readouts of the walk)."""
+    return [c for c in R.columns if c in NOT_PAIRED or c.startswith(("colour_", "init_"))]
+WV_KEYS = ("probe_bacc", "probe_f1", "probe_r2", "tobler_rho", "plateau_km", "knn_geo_excess")
+FROZEN_RTOL = 1e-6  # held-out error "frozen": three or more consecutive checkpoints equal to this relative tolerance
+LOW_N, LOW_N_RUN = 0.005, 50  # Stage 2: the three collapsed walks 106-445 steps, every other walk at most 23 (log 2026-11-09)
+SPREAD_MIN = 0.2  # probe spread (absolute mean cosine distance) after step 0; collapsed checkpoints 0.000 and 0.054, healthy ones 0.46 and more (log 2026-11-09)
+LOOP_KEYS = ("share_rmax", "rmax_episodes_per_1000", "rmax_episode_median", "rmax_to_rmin", "share_mid", "period", "recovery",
+             "recovery_after_rmax", "recovery_after_rmin", "n_rmax_steps", "recovery_at_d", "offer_n_far", "offer_n_near", "offer_n_gap")
 # label -> stems tried in order per seed (configs/09_compass/). Classic Reference: the e08 walks (seeds 0-3 are h0111's).
 GROUPS = {
     "compass Reference": "e09_ref",  # Δ 0.25, drive averages 20 / 200 steps, drive from step 50 (Stage 1, two rounds)
@@ -72,6 +96,8 @@ GROUPS = {
     "eye 5 km, shifted": "e09_crop128_shifted",
     "eye 8 km (crop 192)": "e09_crop192",
     "eye 8 km, shifted": "e09_crop192_shifted",
+    "eye 5 km, shuffled": "e09_crop128_shuffled",  # brief amendment 2026-11-09: shuffled controls for the larger eye too
+    "eye 8 km, shuffled": "e09_crop192_shuffled",
     "classic Reference": ("h0111_reference", "e08_reference"),
     "round 1, delta 0.35": "e09_reference",  # Stage 1 round 1: drive averages 50 / 500 steps
     "round 1, delta 0.175": "e09_delta_0175",
@@ -322,8 +348,49 @@ def readouts(group: str, seed: int, run: str, ts: pd.DataFrame, eye: pd.DataFram
         if phase == "all":
             row.update(heldout_1000=float(h.get(1000, np.nan)), panel_e_rho_texture=float(ey.rho_texture.mean()) if len(ey) == len(EYE_CKPTS) else np.nan,
                        seconds=float(s.sec.sum()), fetch_sec=float(s.fetch_sec.sum()), **loop)
+        if compass and r_max <= r_min:  # B3: local only
+            row.update({k: np.nan for k in LOOP_KEYS if k in row})
+        if compass and np.all(s.r_km.to_numpy() > 2 * r_min + 1e-9):  # B3: a fixed radius that never stands near
+            row.update(places=np.nan, median_dwell=np.nan, dwell_fall_rho=np.nan)
+        row.update(collapse(s, h, run))
         rows.append(row)
     return rows, pl
+
+
+def collapse(s: pd.DataFrame, h: pd.Series, run: str) -> dict:
+    """B2: the walk's eye collapsed (every patch mapped to about one point). Three signals; see the docstring."""
+    low = (s.n.to_numpy() < LOW_N).astype(int)
+    m = np.r_[0, low, 0]
+    st, en = np.flatnonzero(np.diff(m) == 1), np.flatnonzero(np.diff(m) == -1)
+    k = int(np.argmax(en - st)) if len(st) else -1
+    run_len = int(en[k] - st[k]) if k >= 0 else 0
+    win = []
+    if run_len >= LOW_N_RUN:
+        win.append((int(s.step.iloc[st[k]]), int(s.step.iloc[en[k] - 1])))
+    hv = h  # equal to six significant digits, not four decimals: at errors of ~0.005 four decimals flag 37 of 86 healthy walks (log 2026-11-09)
+    same = np.isclose(hv.to_numpy()[1:], hv.to_numpy()[:-1], rtol=FROZEN_RTOL, atol=0).astype(int)
+    mm = np.r_[0, same, 0]
+    a, b = np.flatnonzero(np.diff(mm) == 1), np.flatnonzero(np.diff(mm) == -1)
+    frozen = [(int(hv.index[i]), int(hv.index[j])) for i, j in zip(a, b) if j - i >= 2]  # j - i equal neighbours = j - i + 1 checkpoints
+    win += frozen
+    spread = np.nan
+    if WORLDVIEW.exists():
+        w = pd.read_csv(WORLDVIEW)
+        w = w[(w.run == run) & (w.step > 0)]
+        if len(w):
+            spread = float(w.probe_spread.min())
+            if spread < SPREAD_MIN:
+                win.append((int(w.step[w.probe_spread < SPREAD_MIN].min()), int(w.step[w.probe_spread < SPREAD_MIN].max())))
+    wv = {}
+    if WORLDVIEW.exists():
+        w = pd.read_csv(WORLDVIEW)
+        w = w[w.run == run]
+        if len(w):
+            last = w[w.step == w.step.max()].iloc[0]
+            wv = {k: float(last[k]) for k in WV_KEYS} | {f"colour_{k}": float(last[f"colour_{k}"]) for k in WV_KEYS} | \
+                 {f"init_{k}": float(last[f"init_{k}"]) for k in WV_KEYS} | {"probe_overlap": int(last.probe_overlap)}
+    return {"low_n_run": run_len, "heldout_frozen": bool(frozen), "spread_min": spread, "collapsed": bool(win),
+            "collapse_window": f"{min(a for a, _ in win)}-{max(b for _, b in win)}" if win else "", **wv}
 
 
 def rmax_episodes(r: np.ndarray, r_min: float, r_max: float) -> dict:
@@ -415,7 +482,10 @@ def main() -> None:
     R.to_csv(OUT / f"readouts{tag}.csv", index=False)
     pd.concat(places, ignore_index=True).to_csv(OUT / f"places{tag}.csv", index=False)
     if not a.runs and (R.group == REFERENCE).any():
-        E08.paired(R.drop(columns=["nav"]), against=REFERENCE).to_csv(OUT / "paired.csv", index=False)
+        E08.paired(R.drop(columns=not_paired(R)), against=REFERENCE).to_csv(OUT / "paired.csv", index=False)
+        bad = set(R.run[R.collapsed.astype(bool)])
+        print(f"[readouts] collapsed walks: {sorted(bad)}", flush=True)
+        E08.paired(R[~R.run.isin(bad)].drop(columns=not_paired(R)), against=REFERENCE).to_csv(OUT / "paired_clean.csv", index=False)
     if not a.runs:
         figures(R, rl)
     pd.set_option("display.width", 250)

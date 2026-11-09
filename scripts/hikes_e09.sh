@@ -3,7 +3,8 @@
 # The queue is one stage at a time: `start 1` walks Stage 1 (calibration of radius_delta, 12 walks); `start 1b` walks it again with the
 # drive's averages at 20 / 200 steps (Stage 1 report, finding 17); `start 1c` walks the compass Reference (e09_ref) on seeds 0-7;
 # `start 2` writes the control schedules from it and walks Stage 2 (48 walks); `start 3a` walks the larger eye (crop_px 128 and 192, seeds
-# 0-3), writes their shifted schedules, then walks those controls (16 walks in all).
+# 0-3), writes their schedules (warm-up held at r_min, brief amendment 2026-11-09 B1), then walks their shifted and shuffled controls
+# (24 walks in all).
 #
 #     scripts/hikes_e09.sh start 1  # Stage 1, detached, keeps the Mac awake, log in runs/hikes_e09.log, one log per walk in runs/e09_logs/
 #     scripts/hikes_e09.sh stop     # stops the batch and every walk it started
@@ -91,8 +92,8 @@ queue() {
       for s in 4 5 6 7; do for c in e09_null e09_shifted e09_shuffled e09_fixed e09_local; do echo "$c $s"; done; done ;;
     3a)  # Stage 3, the larger eye: crop_px 128 and 192 on seeds 0-3, seed first
       for s in 0 1 2 3; do for c in e09_crop128 e09_crop192; do echo "$c $s"; done; done ;;
-    3a_shifted)  # their shifted controls, from the schedules written between the two queues
-      for s in 0 1 2 3; do for c in e09_crop128_shifted e09_crop192_shifted; do echo "$c $s"; done; done ;;
+    3a_controls)  # their shifted and shuffled controls, from the schedules written between the two queues
+      for s in 0 1 2 3; do for c in e09_crop128_shifted e09_crop192_shifted e09_crop128_shuffled e09_crop192_shuffled; do echo "$c $s"; done; done ;;
   esac
 }
 queue "$2" | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
@@ -100,7 +101,7 @@ if [ "$2" = 3a ] && [ -f "$PIDFILE" ]; then
   for px in 128 192; do
     .venv/bin/python analysis/e09/schedules.py controls --reference "e09_crop${px}" --seeds 0-3 --prefix "crop${px}_" >> "$LOG" 2>&1 || { stop_batch "schedules failed"; exit 1; }
   done
-  queue 3a_shifted | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
+  queue 3a_controls | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
 fi
 kill "$watchdog" 2>/dev/null
 rm -f "$PIDFILE"

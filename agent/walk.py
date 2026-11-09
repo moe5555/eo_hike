@@ -261,6 +261,8 @@ def run(cfg: dict, name: str) -> Path:
     if not random_policy:
         model = ConvAE(tuple(int(c * ae_width) for c in CH), int(LATENT * ae_width)).to(dev)
         opt = torch.optim.Adam(model.parameters(), lr=float(cfg["lr"]))
+        if cfg.get("ckpt_init", False):  # e09 world-view readout: the network at step 0; saving draws no random numbers
+            torch.save({"model": model.state_dict(), "step": 0}, out / "ckpt_0000.pt")
         # fixed held-out set: same 200 tiles and crop positions for every run of this crop_px
         hrng = np.random.default_rng(HELDOUT_SEED)
         held_ids = np.sort(hrng.choice(T.heldout_pool, HELDOUT_N, replace=False)).tolist()
