@@ -4,7 +4,8 @@
 # drive's averages at 20 / 200 steps (Stage 1 report, finding 17); `start 1c` walks the compass Reference (e09_ref) on seeds 0-7;
 # `start 2` writes the control schedules from it and walks Stage 2 (48 walks); `start 3a` walks the larger eye (crop_px 128 and 192, seeds
 # 0-3), writes their schedules (warm-up held at r_min, brief amendment 2026-11-09 B1), then walks their shifted and shuffled controls
-# (24 walks in all).
+# (24 walks in all). `start 3p` walks the progress test (e09_progress, drive_signal progress_z, seeds 0-3), writes its schedules the same
+# way, then walks its shifted and shuffled controls (12 walks). `start long` walks the frozen walker v1 alone for 15,000 steps (one seed).
 #
 #     scripts/hikes_e09.sh start 1  # Stage 1, detached, keeps the Mac awake, log in runs/hikes_e09.log, one log per walk in runs/e09_logs/
 #     scripts/hikes_e09.sh stop     # stops the batch and every walk it started
@@ -33,7 +34,7 @@ case "${1:-}" in
     [ -f "$PIDFILE" ] && { echo "already running, group $(cat "$PIDFILE")"; exit 1; }
     mkdir -p runs/e09_logs
     # a session of its own, so that closing the editor doesn't end the walks and the stop command reaches all of them
-    case "${2:-}" in 1|1b|1c|2|3a) ;; *) echo "usage: $0 start 1|1b|1c|2|3a"; exit 2 ;; esac
+    case "${2:-}" in 1|1b|1c|2|3a|3p|long) ;; *) echo "usage: $0 start 1|1b|1c|2|3a|3p|long"; exit 2 ;; esac
     nohup .venv/bin/python -c 'import os, sys; os.setsid(); os.execvp(sys.argv[1], sys.argv[1:])' caffeinate -i "$0" run "$2" >> "$LOG" 2>&1 < /dev/null &
     echo "started; stop with: scripts/hikes_e09.sh stop"
     exit 0 ;;
@@ -94,6 +95,12 @@ queue() {
       for s in 0 1 2 3; do for c in e09_crop128 e09_crop192; do echo "$c $s"; done; done ;;
     3a_controls)  # their shifted and shuffled controls, from the schedules written between the two queues
       for s in 0 1 2 3; do for c in e09_crop128_shifted e09_crop192_shifted e09_crop128_shuffled e09_crop192_shuffled; do echo "$c $s"; done; done ;;
+    3p)  # the progress test (log 2026-11-10): the drive on progress_z, seeds 0-3
+      for s in 0 1 2 3; do echo "e09_progress $s"; done ;;
+    3p_controls)  # its shifted and shuffled controls, from the schedules written between the two queues
+      for s in 0 1 2 3; do for c in e09_progress_shifted e09_progress_shuffled; do echo "$c $s"; done; done ;;
+    long)  # walker v1, frozen after the progress test: one walk of 15,000 steps, alone
+      echo "e09_v1_long 0" ;;
   esac
 }
 queue "$2" | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
@@ -102,6 +109,10 @@ if [ "$2" = 3a ] && [ -f "$PIDFILE" ]; then
     .venv/bin/python analysis/e09/schedules.py controls --reference "e09_crop${px}" --seeds 0-3 --prefix "crop${px}_" >> "$LOG" 2>&1 || { stop_batch "schedules failed"; exit 1; }
   done
   queue 3a_controls | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
+fi
+if [ "$2" = 3p ] && [ -f "$PIDFILE" ]; then
+  .venv/bin/python analysis/e09/schedules.py controls --reference e09_progress --seeds 0-3 --prefix progress_ >> "$LOG" 2>&1 || { stop_batch "schedules failed"; exit 1; }
+  queue 3p_controls | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
 fi
 kill "$watchdog" 2>/dev/null
 rm -f "$PIDFILE"

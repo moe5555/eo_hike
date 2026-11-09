@@ -135,3 +135,45 @@ Already measured before these predictions (offline, Stage 2 walks, `results/worl
 74. **Cost.** 24 of 24 walks finish, 15–35 min each three side by side, Stage 3a in under 3.5 h; at most 1 GB of new checkpoints in all; the offline world-view pass under 20 min.
 
 Scored 2026-11-10 in `notes/09_compass/observations.md`, Stage 3a: 1 right (72), 4 mostly right (68, 70, 71, 74), 2 partly (67, 69), 1 not tested (73), none wrong. The larger eye does not open the loop: in the shifted controls, far offers are less novel than near ones even with the radius decoupled from d (−0.061 at 5.3 km, −0.054 at 8 km, the same on land only), not level as predicted (69). Shuffled `recovery_at_d` stays at 0.02–0.05 in seeds that go far. The plateau does not grow, and no eye beats colour. The 8 km probe is not better than the 2.7 km one (67: higher in 1 of 4 seeds). Not foreseen: the 8 km walker chooses high contrast (+0.33, lead), the larger eyes leave for r_max late (steps 678–871), and the shuffled walks read land cover slightly better.
+
+## Experiment 09, the progress test and the long walk (added 2026-11-10, before any of their walks; log 2026-11-10)
+
+Walks:
+- `e09_progress`: the compass Reference with `drive_signal: progress_z`, the walker's own z-score of learning progress at the chosen cell, instead of interest on the long yardstick. The choice is unchanged. Paris, 2.7 km eye, seeds 0–3.
+- Its shifted and shuffled controls, replayed from it with the warm-up held at r_min.
+- Then walker v1, frozen by the rule in the log, alone for 15,000 steps (seed 0, checkpoints every 500 steps).
+
+Lead as in e08 D10: four seeds of one sign, |mean| above half the compared group's range over those seeds.
+
+Compared with, on seeds 0–3:
+- The Reference: 5.8 r_max episodes per 1,000 steps (1.1–10.5), period 128 (43–218), 16.5 places, top tile 0.45, revisits 0.16, straight-backs 0.09, settled contrast 0.19.
+- The compass Null: top tile 0.01, revisits −0.00, straight-backs −0.01, settled contrast −0.01. World-view at step 1,000: balanced accuracy 0.35, R² 0.24, Tobler ρ 0.11.
+
+Offline previews (`analysis/e09/progress_offline.py`; log 2026-11-10; open-loop, not predictions):
+- The progress drive replayed on the eight Reference walks goes far in 8 of 8: 4.0 episodes per 1,000 steps (1–8), first r_max at steps 377–877.
+- In a schedule walk the drive steers nothing. So on Stage 2's shuffled walks, a progress d replayed is the d a progress drive would have had. Its `recovery_at_d` is 0.005 (−0.047 to +0.030), and the far − near gap in offered progress z is −0.006.
+
+75. **The progress drive goes far.** At least 3 of 4 seeds reach r_max, and in at least 3 of those the first r_max is after step 300. Episodes per 1,000 steps are 1–10 and the share at r_max 0.02–0.15. No lead against the Reference on share at r_max, episodes, period, places or radius of gyration.
+76. **Far does not pay in novelty.** In the shifted controls, `offer_n_gap` is between −0.10 and +0.03 (seed mean), and it is not above 0 in every seed that goes far.
+77. **Far does not pay in progress either.** In the shuffled controls, `recovery_at_d` (now on the progress drive) is within ±0.05 in all 4 seeds. `offer_gz_gap` is within ±0.15 of 0 (seed mean) in the shifted and in the shuffled controls. The progress walk's raw recovery is above 0 in at least 3 of the seeds that go far (regression to the mean, as in Stage 2).
+78. **Selection in the progress walk.** In the progress walk itself, near offers carry more progress than far ones: `offer_gz_gap` < 0 in at least 3 of the seeds that go far. Near is sampled while near progress pays. Low confidence: under the Reference this gap was +0.11 (−0.23 to +0.50).
+79. **Character against the Null holds.** Against the compass Null: leads on top tile, revisits, straight-backs and settled contrast. Against the Reference: no lead on any of the four. Rhythm: no lead against the Null on episodes or period.
+80. **World-view.** No lead against the Reference on balanced accuracy, R², Tobler ρ or neighbours within 500 km. Below colour and texture in 4 of 4, plateau 7,700 km or beyond. No lead against the Null on balanced accuracy or Tobler ρ.
+81. **Controls.**
+    - Shifted: no lead against the progress walk on gyration, unique cells, places, revisits, straight-backs or top tile.
+    - Shuffled: period under 20 steps in all 4 seeds, and at least 3 times the places in at least 3 of 4.
+82. **No collapse** in any of the 12 walks.
+83. **Cost.** 12 of 12 finish, 15–30 min each, the batch in under 2 h. The world-view pass takes under 10 min.
+84. **v1 is the compass Reference.** By the rule in the log, the progress drive does not make far pay. So v1 keeps `interest_long`, unchanged from `e09_ref`.
+
+The long walk (predictions written for v1 = `e09_ref`; if the rule picks the progress drive, 85 does not apply and the rest stand):
+
+85. **It starts as `e09_ref_s0`.** The first 1,000 steps choose the same tiles as `e09_ref_s0`, step for step. Checkpoints draw no random numbers, and the step count changes nothing before step 1,000. The exception would be a fetch dropped in one walk and not in the other.
+86. **The rhythm lasts.** There are r_max episodes in at least 12 of the 15 blocks of 1,000 steps, and 3–10 per 1,000 steps over the walk. The share at r_max in steps 10,000–15,000 is within a factor of 2 of steps 1,000–5,000. The drive is relative, so age does not make it go far more often.
+87. **Novelty wears down, the drive doesn't.** The median chosen novelty in the last block is below 0.7 times that of block 2, as the archive fills with look-alikes. Held-out error at step 15,000 is at or below its value at step 1,000.
+88. **Returns, choice and range.** Over the whole walk:
+    - revisits beyond blind 0.10–0.25, top tile beyond chance 0.40–0.50;
+    - radius of gyration 4,000–8,000 km, at least 5 continents;
+    - 5,000–9,000 unique cells. That is the number of distinct tiles on the path, the material for a GAN.
+89. **World-view with age.** At step 15,000, balanced accuracy is 0.33–0.48, still below colour and texture (0.50), and 0.00–0.08 above its value at step 1,000. Tobler ρ is 0.12–0.30. The plateau is 7,700 km or beyond.
+90. **No collapse, and the cost.** No collapse flag over 15,000 steps. The walk takes 4–8 h alone, without a crash. Fewer than 100 fetches are dropped. The run folder is under 300 MB.

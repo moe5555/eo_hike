@@ -212,3 +212,23 @@ Question from the review: why is novelty higher close by than far away? Offline,
   - The Tobler curve's half-rise distance, as a finer scale than the plateau's two bin edges. It varies from 300 to 5,000 km within one group, so it is not reported.
 - `recovery_at_d` rests on middle radii in seeds that never reach r_max (5.3 km and 8 km shuffled, one seed each). In the report it is given with and without them.
 - Report: `observations.md`, Stage 3a (tables 16–18, findings 41–49). Predictions 67–74 scored there: 1 right, 4 mostly right, 2 partly, 1 not tested.
+
+## 2026-11-10: Stage 3a accepted; the progress test and walker v1
+
+- **Review:** Stage 3a accepted, and the 2.7 km eye stays. The `k_nn` settings are not walked. Before freezing the walker, one last test: `drive_signal: progress_z` at 2.7 km, seeds 0–3, with shifted and shuffled controls (warm-up held at r_min). Then freeze walker v1 and walk it once for 15,000 steps (one seed, checkpoints every 500 steps, no death mechanism; the compass walker has none) to see how it behaves over a path long enough to train a GAN.
+- **Configs:** `e09_progress.yaml` is `e09_ref.yaml` with `drive_signal: progress_z`, checkpoints every 100 steps and `ckpt_init`. `e09_progress_shifted.yaml` and `_shuffled.yaml` replay `schedules/progress_{shifted,shuffled}_s{seed}.csv`, written by `schedules.py --prefix progress_` from `e09_progress` between the two queues (`scripts/hikes_e09.sh start 3p`, 12 walks).
+  - In the controls the drive steers nothing, but it is still computed from `progress_z` and logged. So `recovery_at_d` there is on the progress drive.
+  - `progress_z` is the walker's own z-score of progress over the candidates (ema_alpha 0.02, about 50 steps). It goes through the same drive (averages 20 / 200 steps, Δ 0.25, from step 50).
+- **New secondary readout** (`readouts.py`, before the walks): `offer_gz_far`, `offer_gz_near`, `offer_gz_gap`, the median progress z of the offers at r_max and at r_min from step 150. These are the progress drive's counterpart of `offer_n_*`. Checked on `e09_shuffled_s0`: +0.018.
+- **Offline preview** (`analysis/e09/progress_offline.py`):
+  - Replaying the logged `drive_x` reproduces the logged `drive_d` and radius exactly, in all 16 Reference and Null walks.
+  - With `progress_z` instead, on the eight Reference walks: 8 of 8 reach r_max, 4.0 episodes per 1,000 steps (1–8), share at r_max 0.069 (0.016–0.122), first r_max at 377–877. Stage 0 (table 1) expected "rarely far" from this signal; that was with the old averages of 50 / 500 steps.
+  - On Stage 2's shuffled walks, the replayed progress d gives `recovery_at_d` 0.005 (−0.047 to +0.030), and the far − near gap in offered progress z is −0.006 (−0.14 to +0.20). In a schedule walk the drive steers nothing, so this is close to what the progress test's shuffled controls will show. Only their radii differ.
+- **Rule for freezing v1, set before the walks.** v1 takes the progress drive only if both of these hold:
+  - (a) far pays: in the shifted controls, `offer_n_gap` or `offer_gz_gap` is above 0 in every seed that goes far (at least 3), and in the shuffled controls, `recovery_at_d` is above 0 in 4 of 4 seeds with a mean of at least 0.1 (four times the novelty drive's 0.025);
+  - (b) the character against the compass Null holds: leads on top tile, revisits, straight-backs and settled contrast (seeds 0–3).
+
+  Otherwise v1 is `e09_ref` unchanged (`interest_long`), the walker every Stage 1–3 calibration was done on. If (a) holds and (b) fails, I stop and report.
+- **Walker v1** is then written as `configs/09_compass/walker_v1.yaml` (the 1,000-step form) and tagged `walker-v1` in git. The long walk `e09_v1_long_s0` is that config with `steps: 15000`, `ckpt_every: 500` and `ckpt_init`, walked alone (`start long`) for speed.
+  - Re-embedding the archive every 100 steps reads every visited tile from the cache, so visited tiles stay recent in the LRU cache and are not evicted. The cost grows with the archive.
+- Predictions 75–90 are in `expectations.md`, written before any of these walks.

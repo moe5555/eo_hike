@@ -52,6 +52,10 @@ Added 2026-11-09 (brief amendment, before Stage 3a):
   collapse_window the union of the windows. paired_clean.csv repeats paired.csv without collapsed walks.
 - Definitions (B3): the loop readouts are NaN where r_max = r_min (local only: every step would count as "at r_max"); places, median
   dwell and dwell_fall_rho are NaN where every step is beyond 2 r_min (a fixed radius above 30 km never stands near).
+
+Added 2026-11-10 (the progress test, before its walks):
+- offer_gz_far, offer_gz_near, offer_gz_gap (secondary): as offer_n_*, on the offers' progress z-score g_z (the signal the progress
+  drive reads, z-scored by the walker over the candidates at ema_alpha). Raw progress is too small and skewed to compare by medians.
 """
 
 from __future__ import annotations
@@ -81,7 +85,8 @@ FROZEN_RTOL = 1e-6  # held-out error "frozen": three or more consecutive checkpo
 LOW_N, LOW_N_RUN = 0.005, 50  # Stage 2: the three collapsed walks 106-445 steps, every other walk at most 23 (log 2026-11-09)
 SPREAD_MIN = 0.2  # probe spread (absolute mean cosine distance) after step 0; collapsed checkpoints 0.000 and 0.054, healthy ones 0.46 and more (log 2026-11-09)
 LOOP_KEYS = ("share_rmax", "rmax_episodes_per_1000", "rmax_episode_median", "rmax_to_rmin", "share_mid", "period", "recovery",
-             "recovery_after_rmax", "recovery_after_rmin", "n_rmax_steps", "recovery_at_d", "offer_n_far", "offer_n_near", "offer_n_gap")
+             "recovery_after_rmax", "recovery_after_rmin", "n_rmax_steps", "recovery_at_d", "offer_n_far", "offer_n_near", "offer_n_gap",
+             "offer_gz_far", "offer_gz_near", "offer_gz_gap")
 # label -> stems tried in order per seed (configs/09_compass/). Classic Reference: the e08 walks (seeds 0-3 are h0111's).
 GROUPS = {
     "compass Reference": "e09_ref",  # Δ 0.25, drive averages 20 / 200 steps, drive from step 50 (Stage 1, two rounds)
@@ -98,6 +103,9 @@ GROUPS = {
     "eye 8 km, shifted": "e09_crop192_shifted",
     "eye 5 km, shuffled": "e09_crop128_shuffled",  # brief amendment 2026-11-09: shuffled controls for the larger eye too
     "eye 8 km, shuffled": "e09_crop192_shuffled",
+    "progress drive": "e09_progress",  # the progress test (log 2026-11-10): drive_signal progress_z, everything else as e09_ref
+    "progress, shifted": "e09_progress_shifted",
+    "progress, shuffled": "e09_progress_shuffled",
     "classic Reference": ("h0111_reference", "e08_reference"),
     "round 1, delta 0.35": "e09_reference",  # Stage 1 round 1: drive averages 50 / 500 steps
     "round 1, delta 0.175": "e09_delta_0175",
@@ -312,11 +320,14 @@ def readouts(group: str, seed: int, run: str, ts: pd.DataFrame, eye: pd.DataFram
         pl = place_table(s, r_min).assign(group=group, seed=seed, run=run)
         live = s.step.to_numpy() > warm
         r = s.r_km.to_numpy()
-        cr = c[["step", "n"]].merge(s[["step", "r_km"]], on="step")
+        cr = c[["step", "n", "g_z"]].merge(s[["step", "r_km"]], on="step")
         cr = cr[cr.step >= YOUNG]
         nfar, nnear = cr.n[np.isclose(cr.r_km, r_max)], cr.n[np.isclose(cr.r_km, r_min)]
+        gfar, gnear = cr.g_z[np.isclose(cr.r_km, r_max)], cr.g_z[np.isclose(cr.r_km, r_min)]
         loop = {"offer_n_far": float(nfar.median()) if len(nfar) else np.nan, "offer_n_near": float(nnear.median()) if len(nnear) else np.nan,
                 "offer_n_gap": float(nfar.median() - nnear.median()) if len(nfar) and len(nnear) else np.nan,
+                "offer_gz_far": float(gfar.median()) if len(gfar) else np.nan, "offer_gz_near": float(gnear.median()) if len(gnear) else np.nan,
+                "offer_gz_gap": float(gfar.median() - gnear.median()) if len(gfar) and len(gnear) else np.nan,
                 "period": period(np.log(r[live])), **recovery(s.drive_d.to_numpy(), r, r_min, r_max),
                 "recovery_at_d": recovery_at_d(s.drive_d.to_numpy(), r, r_min, r_max, warm + 1) if cfg.get("radius_schedule") else np.nan,
                 **steplength_fit(s.dist_km.to_numpy()[1:]),
