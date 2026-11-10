@@ -842,3 +842,170 @@ What this means for the aim:
 - It does not open the loop, and it reads the world no better, so by the rule it does not become v1.
 
 Next, as agreed: freeze v1 (`configs/09_compass/walker_v1.yaml`, tag `walker-v1`) and walk it alone for 15,000 steps (`e09_v1_long_s0`).
+
+# Walker v1, the long walk (2026-11-10)
+
+`e09_v1_long_s0`: walker v1 (`configs/09_compass/walker_v1.yaml`, tag `walker-v1`, the compass Reference unchanged) from Paris, seed 0, for 15,000 steps. Checkpoints every 500 steps and at step 0. Walked alone, 02:06–10:03. There is no death mechanism: the compass walker has no boredom, teleports or reset. Predictions 85–90 were written before the walk (expectations, 2026-11-10).
+
+One walk: nothing here is a lead or a result. It is a description of one walker over age, set against its own first 1,000 steps and against `e09_ref_s0`. The two walks are the same walk up to step 1,000.
+
+Files: `results/long_walk_blocks.csv`, `long_walk.png` (`analysis/e09/long_walk.py`); its rows in `readouts.csv` and `worldview.csv`. Taste and top tile per block (table 21) come from an offline pass with `readouts.py`'s definitions, not in `results/`. The viewer is `runs/e09_v1_long_s0/viewer/index.html` (`analysis/e09/walk_viewer.py`; outside git, 171 MB with its tiles).
+
+**The short version.**
+- **The walk keeps its rhythm and its character for 15,000 steps.**
+  - It goes far in all 15 blocks of 1,000 steps, at 19 % of steps.
+  - It makes 10,002 distinct cells, about 650 new ones in every block, and none of the collapse readouts trips.
+  - Preference and clusters hold or strengthen: top tile 0.51, revisits 0.15.
+- **With age it develops a taste.**
+  - The chosen cell's texture rises from +0.22 SD in the first 1,000 steps to +0.7–0.9 from step 6,000. Contrast rises from +0.26 to +0.73–0.95, and snow and ice ("bright") from −0.38 to +0.67–0.94 from step 7,000.
+  - The walker settles into the high north. From step 5,000, 78 % of its steps are north of 50° N (median |latitude| 51–74°), mostly in northern Asia and northern Canada. It spends 26 steps in South America and 3 % of the walk in Africa.
+- **Novelty does not wear down.** The median chosen novelty rises from 0.41 to 0.55–0.61. Held-out error keeps falling (0.0027 at step 1,000 → 0.0015 at 15,000).
+- **The world-view loses its geography.**
+  - Land cover stays at 0.36–0.39, below colour (0.50).
+  - Tobler ρ falls from 0.16 (step 500) to 0 by step 4,000–5,000, then −0.02 to −0.03. The plateau is gone from step 1,500.
+  - Tiles a few hundred km apart look more alike than ever. But tiles 12,000 km apart look as alike as tiles 1,000 km apart: the embedding orders ground by kind (snow, desert, ocean), not by distance.
+
+## The tables
+
+### 21. The long walk in blocks of 1,000 steps (steps 0–999, …, 14,000–14,999)
+
+| block from | at r_max | bouts | median bout | longest | places | median dwell | chosen novelty | onto a visited cell | new cells | gyration so far (km) | held-out at end | top tile beyond chance | texture | contrast | bright | land cover | Tobler ρ |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | 0.17 | 7 | 3 | 127 | 18 | 29 | 0.41 | 0.33 | 672 | 5,864 | 0.0027 | 0.46 | 0.22 | 0.26 | −0.38 | 0.39 | 0.12 |
+| 1,000 | 0.17 | 2 | 83 | 163 | 16 | 24 | 0.39 | 0.37 | 632 | 5,527 | 0.0026 | 0.52 | 0.37 | 0.49 | −0.13 | 0.38 | 0.08 |
+| 2,000 | 0.18 | 5 | 7 | 154 | 16 | 20 | 0.51 | 0.34 | 657 | 4,892 | 0.0020 | 0.52 | 0.42 | 0.47 | 0.20 | 0.39 | 0.05 |
+| 3,000 | 0.25 | 6 | 11 | 126 | 28 | 8 | 0.58 | 0.25 | 750 | 4,777 | 0.0018 | 0.48 | 0.39 | 0.47 | 0.22 | 0.38 | 0.01 |
+| 4,000 | 0.19 | 10 | 6 | 84 | 25 | 14 | 0.48 | 0.30 | 703 | 4,581 | 0.0018 | 0.51 | 0.54 | 0.60 | 0.46 | 0.37 | −0.01 |
+| 5,000 | 0.25 | 11 | 4 | 95 | 17 | 8 | 0.49 | 0.29 | 705 | 4,488 | 0.0023 | 0.46 | 0.48 | 0.60 | 0.52 | 0.38 | 0.01 |
+| 6,000 | 0.12 | 10 | 3 | 66 | 35 | 7 | 0.49 | 0.30 | 698 | 4,504 | 0.0022 | 0.49 | 0.72 | 0.83 | 0.38 | 0.38 | 0.00 |
+| 7,000 | 0.15 | 7 | 10 | 110 | 20 | 23 | 0.53 | 0.37 | 629 | 4,344 | 0.0017 | 0.54 | 0.71 | 0.79 | 0.67 | 0.37 | −0.02 |
+| 8,000 | 0.19 | 10 | 11 | 70 | 25 | 16 | 0.55 | 0.36 | 641 | 4,773 | 0.0016 | 0.56 | 0.85 | 0.91 | 0.93 | 0.36 | −0.00 |
+| 9,000 | 0.32 | 17 | 2 | 138 | 23 | 8 | 0.56 | 0.28 | 725 | 4,913 | 0.0016 | 0.51 | 0.70 | 0.73 | 0.79 | 0.37 | −0.03 |
+| 10,000 | 0.15 | 13 | 5 | 55 | 27 | 21 | 0.51 | 0.35 | 653 | 4,919 | 0.0015 | 0.52 | 0.78 | 0.90 | 0.67 | 0.37 | −0.02 |
+| 11,000 | 0.10 | 7 | 8 | 62 | 16 | 20 | 0.61 | 0.43 | 566 | 4,898 | 0.0021 | 0.52 | 0.87 | 0.90 | 0.88 | 0.37 | −0.01 |
+| 12,000 | 0.22 | 19 | 3 | 70 | 23 | 9 | 0.59 | 0.33 | 670 | 4,943 | 0.0017 | 0.53 | 0.88 | 0.95 | 0.94 | 0.38 | −0.02 |
+| 13,000 | 0.16 | 18 | 3 | 40 | 27 | 11 | 0.61 | 0.34 | 661 | 4,840 | 0.0014 | 0.52 | 0.79 | 0.81 | 0.74 | 0.37 | −0.03 |
+| 14,000 | 0.30 | 8 | 18 | 120 | 24 | 8 | 0.55 | 0.36 | 640 | 4,773 | 0.0015 | 0.50 | 0.74 | 0.76 | 0.71 | 0.37 | −0.02 |
+
+How to read it:
+- Taste (texture, contrast, bright) is the chosen offer's property minus the mean of the step's offers, in SDs of the offers: as `selz_` in table 12, but per block and over all steps of the block.
+- "Onto a visited cell" counts any earlier visit, however long ago. It is not the revisit readout, which subtracts what a blind walker would do.
+- Land cover and Tobler ρ are read at the block's end, from the checkpoint at its last step (1,000, 2,000, …, 15,000).
+
+### 22. The whole walk, against its first 1,000 steps (`e09_ref_s0`)
+
+| | `e09_ref_s0` (steps 0–999) | `e09_v1_long_s0` (steps 0–14,999) |
+|---|---|---|
+| steps at r_min; at r_max; between | 0.62; 0.17; 0.21 | 0.59; 0.19; 0.22 |
+| r_max episodes per 1,000; median length | 7.4; 3 | 10.0; 4 |
+| r_max followed by r_min | 0 | 0 (one step in 15,000) |
+| period (steps) | 218 | 443 |
+| places; median dwell | 18; 29 | 340; 14 |
+| revisits beyond blind; straight-backs | 0.13; 0.05 | 0.15; 0.07 |
+| top tile beyond chance | 0.46 | 0.51 |
+| texture; contrast; bright; ocean (settled, from step 300) | 0.27; 0.31; −0.38; −0.26 | 0.64; 0.70; 0.59; −0.13 |
+| offered novelty far − near | −0.13 | −0.16 |
+| raw recovery | 0.08 | 0.09 |
+| radius of gyration (km) | 5,864 | 4,773 |
+| continents | 5 | 7 (South America first at step 1,040; 26 steps in all) |
+| unique cells (distinct tiles) | 672 | 10,002 |
+| steps on tiles with cloud cover > 10 % | 0.21 | 0.06 (from step 4,000: 0.02–0.05 per block) |
+| ocean among distinct tiles | 0.42 | 0.22 |
+| steps outside Europe | 0.47 | 0.90 |
+| step lengths: power-law exponent; against lognormal | 1.40; R −13 | 1.41; R −167 (lognormal far better) |
+| collapse: longest run of novelty < 0.005; held-out frozen; lowest probe spread | 1; no; 0.73 | 1; no; 0.67 |
+| fetches dropped | 0 | 0 |
+| held-out error at 1,000; at 15,000 | 0.0027; — | 0.0027; 0.0015 (lowest 0.0013 at step 7,200) |
+
+Where the walker is, by block (share of steps):
+- **Asia:** 0.30 in steps 0–999, 0.51–0.87 in steps 1,000–8,000, then 0.11–0.61.
+- **North America:** 0.02–0.10 up to step 6,000, then 0.41 (steps 6,000–6,999), 0.79 (8,000–8,999), and 0.26–0.71 after.
+- **Europe:** 0.54 in steps 0–999, then 0.00–0.21.
+- **Africa:** 0–0.17 per block, 3 % in all. Oceania: 0.15 in steps 0–999, 1 % after.
+- **Median |latitude|:** 49° in steps 0–999, 31–37° in steps 1,000–5,000, 51–74° from step 5,000.
+- **North of 50° N:** 59 % of the walk and 78 % from step 5,000, almost all of it in North America (44 %), Asia (42 %) and Europe (15 %).
+
+### 23. The Tobler curve with age (mean cosine distance between probe cells, by ground distance)
+
+| ground distance (km) | 10 | 25 | 107 | 278 | 447 | 1,156 | 2,990 | 4,809 | 7,733 | 12,436 | ρ |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| step 500 | 0.62 | 0.44 | 0.57 | 0.66 | 0.74 | 0.64 | 0.75 | 0.77 | 0.93 | 0.99 | 0.16 |
+| step 1,000 | 0.48 | 0.39 | 0.48 | 0.46 | 0.43 | 0.53 | 0.71 | 0.73 | 0.83 | 0.79 | 0.12 |
+| step 5,000 | 0.39 | 0.45 | 0.46 | 0.29 | 0.24 | 0.49 | 0.76 | 0.86 | 0.82 | 0.61 | −0.01 |
+| step 15,000 | 0.36 | 0.47 | 0.46 | 0.26 | 0.22 | 0.48 | 0.73 | 0.84 | 0.78 | 0.57 | −0.02 |
+
+The bins under about 200 km hold only the ground-neighbour pairs, and those around 300–700 km are filled mostly by neighbours in sparse regions (ocean, desert, ice). So the dip at 278–447 km may come from which ground those pairs are on. The fall beyond 4,800 km is on random pairs alone.
+
+## Findings
+
+58. **The same walk as `e09_ref_s0` for 1,000 steps.** Every tile from step 0 to 999 is the same. At step 1,000 the world-view readouts equal `e09_ref_s0`'s to the last digit (land cover 0.391, ρ 0.118). Checkpoints and the step count change nothing.
+59. **The rhythm lasts, and quickens a little (table 21).**
+    - There are r_max bouts in all 15 blocks, at 10 per 1,000 steps over the walk. The share at r_max is 0.195 in steps 1,000–5,000 and 0.184 in steps 10,000–15,000.
+    - Bouts become more frequent and shorter. Steps 1,000–4,000 have 2–6 bouts per block, with medians of 7–83 steps. Steps 10,000–15,000 have 7–19, with medians of 3–18. The longest bout per block falls from 126–163 steps to 40–120.
+    - Places get shorter too: median dwell 20–29 steps in steps 0–3,000, 7–23 later.
+    - The drive is relative, so age does not push the walker far more often. It does make it change place more often.
+60. **Novelty does not wear down (table 21).**
+    - The median chosen novelty rises from 0.41 to 0.55–0.61 by the last blocks.
+    - The archive holds 15,000 visits. Yet every block finds about 650 cells new to the walk (566–750), and only 25–43 % of steps land on a cell visited before.
+    - My reading, not tested: novelty is a distance in an embedding that keeps changing, and as the encoder sharpens on what it walks, ground that looks alike still sits apart in its latent space. Either way, the prediction that the archive would fill with look-alikes was wrong.
+61. **A taste emerges with age (table 21).**
+    - Texture, contrast and brightness all rise together: texture from +0.22 to +0.70–0.88 SD from step 6,000, contrast from +0.26 to +0.73–0.95, bright from −0.38 to +0.67–0.94 from step 7,000.
+    - Saturation falls: +0.61 in steps 1,000–1,999, then +0.06 to −0.49. Ocean is avoided early (−0.2 to −0.5), neither sought nor avoided late.
+    - It is not cloud: the share of tiles with cloud cover > 10 % falls from 0.21 in block 1 to 0.02–0.05. It is ground: snow, ice, rock and tundra.
+    - The walker follows that taste north. From step 5,000, 78 % of its steps are north of 50° N (median |latitude| 51–74°, against 31–37° in steps 1,000–5,000), mostly in northern Asia and northern Canada. It ends up living in a climate band.
+    - At 1,000 steps taste was the walk's weakest character readout (Stage 2). Over 15,000 steps it becomes its strongest.
+62. **Preference and clusters hold (table 22).** Top tile 0.51 (0.46–0.56 per block), revisits 0.15, straight-backs 0.07. Choice is as decided at step 15,000 as at step 1,000, and returns to known ground persist.
+63. **The world-view keeps what kind of ground, and loses where (tables 21, 23).**
+    - Land cover stays at 0.36–0.39 at every checkpoint, below colour (0.50) and below the untrained encoder (0.40). It falls 0.02 from step 1,000.
+    - R² falls from 0.31 to 0.22.
+    - Tobler ρ falls steadily, from 0.16 at step 500 to −0.02 at step 15,000. Distance in the embedding still rises from 450 to 4,800 km, then falls: at 12,400 km it is 0.57, as close as tiles 1,000 km apart.
+    - Neighbours within 500 km beyond chance stay at 0.021–0.028.
+    - So the walker learns to see ground as like or unlike by its kind. Far-apart ground of one kind lies together, perhaps as the Arctic of Siberia and of Canada (not checked per region). "Ordered by distance" was a phase of the young walker, while it had seen few regions.
+64. **No collapse; cost.**
+    - Chosen novelty never stays under 0.005 for more than one step, held-out error never freezes, and probe spread stays at 0.67 or more.
+    - 7 h 57 min alone, without a crash, and no fetch dropped.
+    - Walking got slower with age: 23 min for the first 1,000 steps, 39 min for the last. Most of that is re-embedding the growing archive every 100 steps; step time itself stays at 1,200–1,500 s per block.
+    - The run folder is 52 MB (31 checkpoints). The tile cache stayed at 33 GB.
+    - Disk free fell from 53 GB to 30 GB during the night and came back to 54 GB by the end: macOS swap and Time Machine local snapshots, not the walk.
+    - The world-view pass over 31 checkpoints took 47 s.
+
+## Against the predictions (85–90, written 2026-11-10)
+
+| # | Setting | Predicted | Found | Verdict |
+|---|---|---|---|---|
+| 85 | starts as `e09_ref_s0` | same tiles for 1,000 steps | identical; world-view at 1,000 identical | right |
+| 86 | the rhythm lasts | bouts in ≥ 12 of 15 blocks; 3–10 per 1,000; share at r_max 10k–15k within ×2 of 1k–5k | 15 of 15; 10.0; 0.184 against 0.195 | right |
+| 87 | novelty wears down, the drive doesn't | last block's median novelty < 0.7 × block 2's; held-out at 15,000 ≤ at 1,000 | 0.55 against 0.39 (it rose); 0.0015 ≤ 0.0027 | partly (the novelty half wrong) |
+| 88 | returns, choice, range | revisits 0.10–0.25; top tile 0.40–0.50; gyration 4,000–8,000 km; ≥ 5 continents; 5,000–9,000 cells | 0.15; 0.51; 4,773; 7; 10,002 | mostly right (two just outside) |
+| 89 | world-view with age | balanced accuracy 0.33–0.48 at 15,000, below colour, +0.00–0.08 over step 1,000; ρ 0.12–0.30; plateau ≥ 7,700 km | 0.368, below; −0.023; ρ −0.024; no plateau from step 1,500 | wrong |
+| 90 | no collapse, cost | no flag; 4–8 h without a crash; < 100 fetches dropped; folder < 300 MB | none; 7 h 57; 0; 52 MB | right |
+
+Tally: 3 right (85, 86, 90), 1 mostly right (88), 1 partly (87), 1 wrong (89).
+
+What I got wrong, in kind:
+- I expected the archive to make the world familiar. Instead the encoder keeps changing, and novelty is measured in its current latent space.
+- I expected geography to grow or hold. It dissolves: the young walker's continental ordering came from having seen few regions. Once the walker knows many, it groups them by kind.
+- I did not foresee a taste that keeps growing for 6,000 steps, nor that it would take the walker into a climate band.
+
+## For review
+
+The user's question: how does the walker behave over a path long enough to train a GAN?
+- **It does not run down.**
+  - 15,000 steps, 10,002 distinct tiles, about 650 new ones per 1,000 steps at the end as at the start.
+  - No collapse, no dropped fetch, a rhythm that lasts.
+  - Nothing ends the walk; it could go on.
+- **It has a character that sharpens with age.** Preference (top tile 0.51), clusters (revisits 0.15) and above all taste: texture, contrast and snow, rising for 6,000 steps and then holding.
+  - This is emergent. Nothing in v1 rewards texture or latitude. The choice is novelty plus progress in the walker's own latent space, and taste is what that space comes to favour.
+- **As a GAN's training set, the path is biased by that taste.**
+  - 59 % of its steps are north of 50° N (78 % from step 5,000), mostly in northern Asia and northern Canada.
+  - 22 % of its distinct tiles are ocean; 6 % of its steps are on tiles with cloud cover over 10 %. It spends 26 steps in South America, 3 % of the walk in Africa and 1 % in Oceania after step 1,000.
+  - Within its band it is varied: 10,002 distinct cells, with revisits taking 25–43 % of steps.
+  - A GAN trained on it would learn the walker's world, not the Earth's. That is arguably the point (a dataset with a character), but it should be a choice.
+- **The world-view loses its geography with age.** Read at 1,000 steps, "ordered at continental scale" (Stage 3a) was a young walker's view.
+
+Open questions, if they matter for what comes next:
+1. **Is the northward drift this seed's or the walker's?** One walk cannot say. Four seeds at 15,000 steps would cost about 8 h side by side, three at a time, plus one more walk.
+2. **For a GAN set, should the tiles be the distinct cells (10,002) or the visits (15,000, with returns weighted)?** And should ocean and cloudy tiles be kept?
+3. **The Tobler readout:** the ρ on random pairs is dominated by long separations. A readout split into within-region and between-region distances would say more about what the older walker knows. I have not built one.
+
+The viewer (`runs/e09_v1_long_s0/viewer/index.html`) shows all of the above step by step: the compass offers, the path by radius, the timeline and the blocks.

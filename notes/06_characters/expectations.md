@@ -179,3 +179,5 @@ The long walk (predictions written for v1 = `e09_ref`; if the rule picks the pro
     - 5,000–9,000 unique cells. That is the number of distinct tiles on the path, the material for a GAN.
 89. **World-view with age.** At step 15,000, balanced accuracy is 0.33–0.48, still below colour and texture (0.50), and 0.00–0.08 above its value at step 1,000. Tobler ρ is 0.12–0.30. The plateau is 7,700 km or beyond.
 90. **No collapse, and the cost.** No collapse flag over 15,000 steps. The walk takes 4–8 h alone, without a crash. Fewer than 100 fetches are dropped. The run folder is under 300 MB.
+
+Scored 2026-11-10 in `notes/09_compass/observations.md`, the long walk: 3 right (85, 86, 90), 1 mostly right (88: top tile 0.51 and 10,002 cells, just above), 1 partly (87: held-out falls, but novelty rises, 0.41 → 0.55), 1 wrong (89: Tobler ρ falls to −0.02 and the plateau is gone from step 1,500; land cover −0.02 from step 1,000). Not foreseen: a taste for texture, contrast and snow that grows for 6,000 steps, and a drift into the high north (78 % of steps north of 50° N from step 5,000).

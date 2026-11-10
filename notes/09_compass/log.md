@@ -249,3 +249,16 @@ Report: observations, "Stage 3, the progress test" (tables 19–20, findings 50�
   - Threads stay at 3 (`OMP_NUM_THREADS` in the script), as in every earlier walk, so the numerics match `e09_ref_s0`. Alone, the walk could use more, but more threads could change the floating-point order.
 - No death mechanism: the compass walker has none (no boredom, no teleports, no reset).
 - Added `analysis/e09/long_walk.py`, which reads the long walk in blocks of 1,000 steps, and the readouts group "walker v1, 15,000 steps".
+- 02:06: committed fa3aeb2, tagged `walker-v1`; `start long` at 53 GB free.
+- 10:03: the long walk finished. 7 h 57 min, 10,002 distinct cells, no FAILED, no fetch dropped, 54 GB free.
+  - Disk free fell to 30 GB at 07:47. The cause was macOS swap (14 GB) and Time Machine local snapshots, not the walk or the cache (33 GB, steady). It recovered by the end, and the watchdog (10 GB) never came near.
+- 10:05: `worldview.py run --runs e09_v1_long_s0` (31 checkpoints, 47 s), `readouts.py`, `long_walk.py`.
+  - Taste and top tile per block came from an offline pass with `readouts.py`'s definitions; they are in the report, not in `results/`.
+
+## 2026-11-10: the long walk read; a viewer
+
+Report: observations, "Walker v1, the long walk" (tables 21–23, findings 58–64, predictions 85–90 scored).
+- Added `analysis/e09/walk_viewer.py`, a step-by-step viewer for compass walks, asked for by the user. It writes `runs/<run>/viewer/index.html` with the tiles as JPEG files beside it (`runs/` is git-ignored).
+  - The old `analysis/hike_viewer.py` reads classic-walk columns (boredom, teleports) and embeds every tile. For 10,000 tiles that would be one page of 150+ MB.
+  - Tested on `e09_ref_s0`, with output to the scratchpad only, and checked in headless Chrome screenshots before building it for the long walk.
+  - For the long walk: a 7 MB page and 152 MB of tiles, built in 14 s.
