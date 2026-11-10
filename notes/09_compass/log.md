@@ -232,3 +232,20 @@ Question from the review: why is novelty higher close by than far away? Offline,
 - **Walker v1** is then written as `configs/09_compass/walker_v1.yaml` (the 1,000-step form) and tagged `walker-v1` in git. The long walk `e09_v1_long_s0` is that config with `steps: 15000`, `ckpt_every: 500` and `ckpt_init`, walked alone (`start long`) for speed.
   - Re-embedding the archive every 100 steps reads every visited tile from the cache, so visited tiles stay recent in the LRU cache and are not evicted. The cost grows with the archive.
 - Predictions 75–90 are in `expectations.md`, written before any of these walks.
+- 00:03: `start 3p` at commit 6af51e2, 43 GB free.
+- 01:53: the batch finished. 12 of 12 walks, no FAILED, no fetches dropped, 52 GB free. The world-view pass (`worldview.py run --groups "progress drive" "progress, shifted" "progress, shuffled"`) took 3 min 27 s, then `readouts.py`.
+- Comparisons against the Null and against the progress walk are not in `paired.csv` (its `against` is the Reference). I ran them offline with the same `E08.paired` on seeds 0–3; they are in the report, not in `results/`.
+
+## 2026-11-10: the progress test read; walker v1 frozen
+
+Report: observations, "Stage 3, the progress test" (tables 19–20, findings 50–57, predictions 75–84 scored).
+- The rule for v1, applied:
+  - (a) fails on both parts. Shifted s0 goes far, for one step, and its `offer_n_gap` and `offer_gz_gap` are both negative (−0.026, −0.20). Without s0, only two seeds go far, fewer than the 3 required. Shuffled `recovery_at_d` is above 0 in 2 of 4, mean 0.014, against the required 4 of 4 with mean ≥ 0.1.
+  - (b) holds: all four character leads against the Null hold.
+  - So **walker v1 = `e09_ref` unchanged**.
+- Decided: "seeds that go far" means seeds that reach r_max at least once, as in Stage 3a. Under that reading s0 counts. Under the other reading the verdict is the same.
+- Written `configs/09_compass/walker_v1.yaml` (`e09_ref.yaml` with a new header; checked: the parsed settings are identical) and `configs/09_compass/e09_v1_long.yaml` (v1 with `steps: 15000`, `ckpt_every: 500`, `ckpt_init: true`).
+  - The walker reads `steps` only for the loop bound, the final checkpoint and the schedule check, so the first 1,000 steps should match `e09_ref_s0` (prediction 85).
+  - Threads stay at 3 (`OMP_NUM_THREADS` in the script), as in every earlier walk, so the numerics match `e09_ref_s0`. Alone, the walk could use more, but more threads could change the floating-point order.
+- No death mechanism: the compass walker has none (no boredom, no teleports, no reset).
+- Added `analysis/e09/long_walk.py`, which reads the long walk in blocks of 1,000 steps, and the readouts group "walker v1, 15,000 steps".

@@ -106,6 +106,7 @@ GROUPS = {
     "progress drive": "e09_progress",  # the progress test (log 2026-11-10): drive_signal progress_z, everything else as e09_ref
     "progress, shifted": "e09_progress_shifted",
     "progress, shuffled": "e09_progress_shuffled",
+    "walker v1, 15,000 steps": "e09_v1_long",  # the long walk of the frozen walker (log 2026-11-10); analysis/e09/long_walk.py for its blocks
     "classic Reference": ("h0111_reference", "e08_reference"),
     "round 1, delta 0.35": "e09_reference",  # Stage 1 round 1: drive averages 50 / 500 steps
     "round 1, delta 0.175": "e09_delta_0175",

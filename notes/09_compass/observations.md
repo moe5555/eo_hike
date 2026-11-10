@@ -682,3 +682,163 @@ Recommended:
 3. **No new instrument needed.** The collapse readout and world-view readout ran on every walk at a cost of 9 min per 24 walks offline. I would keep checkpoints every 100 steps in Stage 3.
 
 Stopped for review before the rest of Stage 3.
+
+# Stage 3, the progress test (2026-11-10)
+
+12 walks from Paris, 1,000 steps, seeds 0–3, at the 2.7 km eye:
+- `e09_progress`: the compass Reference with `drive_signal: progress_z`. The drive runs on the walker's own z-score of learning progress at the chosen cell, instead of interest on the long yardstick. The choice (I = n_z + g_z) is unchanged.
+- Its shifted and shuffled radius controls, replayed from it with the warm-up held at r_min.
+
+They are compared with `e09_ref` and `e09_null`, seeds 0–3. Predictions 75–84 and the rule for walker v1 were fixed before the walks (log, 2026-11-10). In the controls the drive steers nothing but is still computed, so `recovery_at_d` there is on the progress drive.
+
+A lead is four seeds of one sign with |mean| above half the compared group's range over those seeds (e08 D10). With four seeds, nothing here can be a result. None of the 12 walks collapsed, nor did the Reference or the Null seeds 0–3, so every verdict below is the same with and without collapsed walks.
+
+Files: `results/readouts.csv`, `paired.csv`, `paired_clean.csv` (against the Reference), `worldview.csv`. The comparisons against the Null and against the progress walk used the same `paired` function, offline.
+
+**The short version.**
+- **Does a drive on learning progress make far pay? No.**
+  - With the radius decoupled from d (shifted), far offers are about as novel as near ones: +0.015 (−0.026 to +0.039), as at 2.7 km under the Reference (+0.013 on seeds 0–3).
+  - Going far does not raise the progress drive. In the shuffled walks, `recovery_at_d` is +0.014 (−0.018 to +0.059), above 0 in 2 of 4.
+  - By the rule fixed beforehand, **v1 is `e09_ref`, unchanged**.
+- **The progress drive changes the rhythm, not the character.**
+  - It is a homebody. Its walkers go far late (steps 803–982) and rarely: 0–2 bouts per walk. When they do go, they stay out for 36–73 steps.
+  - Far, the chosen cell carries no progress (z 0.06, against 0.42–0.50 near), so the drive does not climb back.
+  - Against the Null, the four character leads hold: top tile, revisits, straight-backs, settled contrast. Against the Reference there is no lead in the whole walk.
+- **World-view:** the same as the Reference, below colour, with no lead against it. Against the Null, R² and neighbours within 500 km lead. The Reference's own seeds 0–3 miss those two leads by one seed.
+
+## The tables
+
+### 19. The progress walk and its controls (seeds 0–3; mean, with the range over seeds; whole walk)
+
+| | Reference (`e09_ref` s0–3) | Null (s0–3) | progress | progress shifted | progress shuffled |
+|---|---|---|---|---|---|
+| collapsed | 0 of 4 | 0 of 4 | 0 of 4 | 0 of 4 | 0 of 4 |
+| seeds reaching r_max | 4 of 4 | 4 of 4 | 3 of 4 (s0 for one step) | 3 of 4 | 3 of 4 |
+| first r_max (step) | 208, 418, 602, 608 | — | 803, 888, 982 | 167, 290, 587 | 56, 95, 103 |
+| bouts at r_max (steps) | 1–3 mostly; 24, 81, 127 | — | s0: 1; s1: 1, 65; s3: 36, 73 | same | 1–3 |
+| steps at r_min | 0.77 (0.62–0.90) | 0.66 | 0.83 (0.71–0.89) | same | same |
+| steps at r_max | 0.076 (0.001–0.175) | 0.114 | 0.046 (0–0.115) | same | same |
+| r_max episodes per 1,000 | 5.8 (1.1–10.5) | 7.6 (3.2–12.6) | **1.3** (0–2.1) | 1.3 | **43** (0–105) |
+| r_max followed by r_min | 0 | 0 | 0.33 (s0's single step) | 0.34 | **0.82** |
+| period (steps) | 128 (43–218) | 134, 3 seeds | 42 (35–48), 2 seeds | 80, 3 seeds | **6** (2–10) |
+| places | 16.5 (11–24) | 24.8 | **9.5** (5–15) | 10.0 | **115** (70–203) |
+| median dwell (steps) | 42 (22–76) | 9 | 23 (12–32) | 29 | **6** (2–9) |
+| d, SD after step 100 | 0.24–0.32 | | 0.30–0.37 | | |
+| recovery, raw | 0.27 (0.08–0.60) | 0.13 | 0.22 (0.002–0.63), 3 seeds | −0.03 | −0.04 |
+| `recovery_at_d` (progress drive) | — | — | — | 0.031 (−0.094 to +0.218) | **0.014** (−0.018 to +0.059) |
+| offered novelty far; near | 0.20; 0.32 | 0.18; 0.27 | 0.29; 0.22 | 0.28; 0.26 | 0.21; 0.21 |
+| far − near (`offer_n_gap`) | −0.11 (−0.17 to −0.06) | −0.09 | +0.056 (−0.052 to +0.165) | **+0.015** (−0.026, +0.031, +0.039) | −0.016 (2 seeds) |
+| offered progress z far − near (`offer_gz_gap`) | +0.01 (−0.23 to +0.21) | −0.21 | **−0.34** (−0.46 to −0.21) | −0.16 (−0.40 to +0.12) | +0.036 (2 seeds) |
+| chosen progress z, far; near | | | 0.06, 0.06 (s1, s3); 0.42, 0.51 | | |
+| chosen novelty, far; near | | | 0.64, 0.49 (s1, s3); 0.24, 0.32 | | |
+| radius of gyration (km) | 4,326 (1,541–5,864) | 4,391 | 1,981 (368–4,623) | 2,453 | 3,123 |
+| continents | 4.0 (1–6) | 4.3 | 3.0 (1–5) | 3.3 | 3.3 |
+| unique cells | 603 (557–672) | 742 | 556 (493–603) | 552 | **665** |
+| steps outside Europe | 0.38 | 0.53 | 0.09 (0–0.21) | 0.29 | 0.40 |
+
+How to read it:
+- The controls replay the progress walk's radii, so their shares and seeds reaching r_max match it by construction, and the shifted walks' episodes too.
+- The far − near rows are over the seeds that reach r_max. Seed 0 reached r_max for a single step (eight far offers), so its gap is thin. Seed 2 never did.
+- The shuffled `recovery_at_d` of 0.059 is the seed that never reaches r_max. In the shifted control, the 0.218 is seed 0, at r_max for one step. In the two shifted seeds with long far bouts it is −0.094 and −0.066.
+- For comparison, Stage 2's controls on seeds 0–3 (the Reference's own radii): shifted far − near −0.077, +0.007, +0.108 (one seed none), mean +0.013; shuffled `recovery_at_d` −0.005 to 0.029.
+
+### 20. Returns, choice, taste, the world-view (seeds 0–3; returns and choice whole walk, taste settled, world-view at step 1,000; mean, with the range)
+
+| | Reference | Null | progress | progress shifted | progress shuffled |
+|---|---|---|---|---|---|
+| revisits beyond blind | 0.16 (0.13–0.18) | −0.00 | 0.13 (0.11–0.16) | **0.17** | 0.15 |
+| straight-backs beyond blind | 0.09 | −0.01 | 0.08 (0.07–0.09) | 0.10 | **0.10** |
+| top tile beyond chance | 0.45 | 0.01 | 0.45 (0.44–0.45) | **0.47** | **0.48** |
+| texture of the choice | 0.09 | 0.00 | 0.07 (−0.09–0.29) | 0.13 | 0.21 |
+| contrast | 0.19 (0.08–0.31) | −0.01 | 0.17 (0.03–0.41) | 0.21 | 0.34 |
+| ocean | −0.14 | −0.01 | −0.13 | −0.12 | −0.13 |
+| held-out error at 1,000 | 0.003–0.004 | 0.004 | 0.002–0.010 (0.010: s0, radius of gyration 368 km) | 0.003–0.005 | 0.003–0.004 |
+| lowest probe spread after step 0 | 0.65 | 0.79 | 0.64 (0.57–0.73) | 0.70 | 0.69 |
+| land cover, balanced accuracy (colour 0.50; untrained 0.40) | 0.37 (0.34–0.39) | 0.35 (0.31–0.38) | 0.36 (0.31–0.38) | 0.34 | 0.35 |
+| macro-F1 | 0.31 | 0.27 | 0.29 | 0.27 | 0.28 |
+| class fractions, R² (colour 0.25) | 0.29 | 0.24 | 0.28 (0.22–0.32) | 0.24 | 0.27 |
+| Tobler ρ (colour 0.04) | 0.17 (0.12–0.21) | 0.11 (0.05–0.18) | 0.15 (0.10–0.19) | 0.15 | 0.14 |
+| plateau (km) | 7,700–12,400 | 7,700–12,400 (2 seeds none) | 7,700–12,400 (s3 none) | 7,700–12,400 | 7,700–12,400 (one none) |
+| neighbours within 500 km beyond chance (colour 0.038) | 0.023 | 0.018 | 0.024 | 0.020 | 0.020 |
+| leads | (against the Null, settled: top tile, revisits, straight-backs, contrast, texture; places −7, dwell +27, unique cells −116) | — | against the Null: top tile +0.44, revisits +0.13, straight-backs +0.09, contrast +0.18 (settled), episodes −6.3, places −15, dwell +14, unique cells −186, R² +0.041, neighbours +0.006. Against the Reference: revisits −0.034 (settled only) | against the progress walk: revisits +0.044, top tile +0.023 | against the progress walk: places +106, dwell −17, unique cells +108, straight-backs +0.020, top tile +0.029 |
+
+"None" for the plateau means no bin from which every populated bin lies within 5 % of the far mean (Stage 3a, table 18).
+
+## Findings
+
+50. **The progress drive goes far late, rarely, and for long (table 19).**
+    - Two of four seeds go far in earnest: s1 for 65 steps from step 888 and s3 for 36 and 73 steps from step 803. Seed 0 touches r_max once, at step 982, and is sent straight back to r_min. Seed 2 never leaves the ground near Paris.
+    - That is 1.3 episodes per 1,000 steps, against 5.8 for the Reference. Fewer than the Null in 4 of 4 (−6.3, lead); against the Reference, 3 of 4 and no lead.
+    - The walkers stay home: 0.83 of steps at r_min, 9.5 places, 9 % of steps outside Europe (0.38 for the Reference), radius of gyration 1,981 km.
+    - The offline preview (4.0 episodes, 8 of 8 seeds, first at 377–877) overestimated the closed loop again, as in Stage 1.
+51. **Why the bouts are long: far gives no progress (table 19).**
+    - In the two seeds with far bouts, the chosen cell's progress z is 0.06 far, against 0.42 and 0.51 near. A low drive sends the walker far. Out there progress stays low, so the drive does not climb back and the walker stays out.
+    - Under the Reference most bouts last 1–3 steps: interest regresses to its mean (raw recovery 0.27; Stage 2 showed this is regression, not far paying). Under the progress drive, raw recovery in these two seeds is 0.002 and 0.022.
+    - Novelty does pay far in these walks: the chosen novelty is 0.64 and 0.49 far, against 0.24 and 0.32 near. The progress drive does not read novelty.
+    - The rare exception is a single far cell with very high progress. Seed 0's one far step had progress z 4.5, which sent the drive up and the walker straight back to r_min. No Reference walk jumps from r_max straight to r_min (finding 29).
+52. **Far does not pay under the progress drive either (table 19).**
+    - Shifted, far − near in offered novelty is +0.015: −0.026 in s0 (one far step), +0.031 and +0.039 in the two seeds with long far bouts. That is the same as the Reference's own shifted walks at this eye (+0.013 on seeds 0–3). A walker that stays home longer finds the rest of the world newer, but no newer than the Reference's controls did.
+    - Shifted, far − near in offered progress z is −0.16 (2 of 3 below 0). Far offers carry less progress than near.
+    - Shuffled, `recovery_at_d` on the progress drive is +0.014 (above 0 in 2 of 4). Being sent far does not raise the drive. Stage 2's shuffled walks, on the Reference drive, gave −0.005 to 0.029.
+    - In the progress walk itself, near offers carry more progress than far ones (`offer_gz_gap` −0.34, 3 of 3). Near ground is where progress is.
+53. **The character holds against the Null (table 20).** Top tile +0.44, revisits +0.13, straight-backs +0.09 and settled contrast +0.18 all lead, as for the Reference. Against the Reference:
+    - Nothing leads over the whole walk.
+    - In the settled phase revisits are lower (−0.034, 4 of 4).
+    - Preference, clusters and taste come from the choice and the eye, and the choice is unchanged. The drive's signal changes only when and how far the walker goes.
+54. **The world-view is the Reference's (table 20).**
+    - Balanced accuracy 0.36, below colour in 4 of 4 (0 of 56 walks beat colour in all). Tobler ρ 0.15. Plateau 7,700–12,400 km.
+    - No lead against the Reference on any world-view readout.
+    - Against the Null, R² (+0.041) and neighbours within 500 km (+0.006) lead. The Reference against the Null on the same seeds is 3 of 4 on both, so this is the same small edge, not a new one.
+    - Seed 2 stays near Paris and reads worst (0.31). Seed 0 (radius of gyration 368 km) has the highest held-out error (0.010, 2–4 times the others) but a normal probe (0.38).
+55. **Shifted: timing matters a little for returns (table 20).** Against the progress walk, the shifted walks revisit more (+0.044) and take the top tile more often (+0.023), 4 of 4 each. Nothing else leads: not gyration, unique cells, places or straight-backs.
+    - Stage 2's shifted walks showed no such difference against the Reference on 8 seeds.
+    - Nor did Stage 3a's controls at the larger eyes (top tile 0.44–0.46, against 0.45–0.47 for their walks). Four seeds cannot say whether this one is real.
+56. **Shuffled: bouts matter, as in Stages 2 and 3a.** 115 places, period 6, 0.82 of far steps followed straight by r_min, +108 unique cells (leads against the progress walk).
+57. **No collapse; cost.**
+    - In all 12 walks, chosen novelty never stays under 0.005 for more than one step, held-out error never freezes, and probe spread stays at 0.57 or more.
+    - 12 of 12 finished, 17–27 min each, three side by side. 1 h 50 min in all, 00:03:38 to 01:53:24.
+    - No fetches dropped. 14 MB per walk with checkpoints, 138 MB of checkpoints in all.
+    - The world-view pass took 3 min 27 s.
+
+## Against the predictions (75–84, written 2026-11-10)
+
+| # | Setting | Predicted | Found | Verdict |
+|---|---|---|---|---|
+| 75 | the progress drive goes far | ≥ 3 of 4 reach r_max, first after 300 in ≥ 3; episodes 1–10 per 1,000; share at r_max 0.02–0.15; no lead against the Reference on share, episodes, period, places, gyration | 3 of 4 (s0 for one step); 803–982 in 3 of 3; 0–2.1 (3 of 4 in range); 0–0.115 (2 of 4 in range); no lead | partly (by the letter mostly, but it goes far much less than predicted) |
+| 76 | far does not pay in novelty | shifted `offer_n_gap` −0.10 to +0.03 (seed mean), not > 0 in every seed that goes far | +0.015; −0.026, +0.031, +0.039 | right (narrowly: the two seeds with long bouts are > 0) |
+| 77 | far does not pay in progress | shuffled `recovery_at_d` within ±0.05 in 4 of 4; `offer_gz_gap` within ±0.15 in shifted and shuffled; raw recovery > 0 in ≥ 3 seeds that go far | 3 of 4 (0.059 in the seed never far); −0.161 and +0.036; 3 of 3 (0.002, 0.022, 0.625) | mostly right (conclusion right, two sizes just outside) |
+| 78 | near carries more progress in the walk | `offer_gz_gap` < 0 in ≥ 3 seeds that go far | 3 of 3 (−0.21 to −0.46) | right |
+| 79 | character against the Null | leads on top tile, revisits, straight-backs, settled contrast; none against the Reference; no rhythm lead against the Null on episodes or period | all four lead; settled revisits −0.034 lead against the Reference; episodes −6.3 lead against the Null | partly |
+| 80 | world-view | no lead against the Reference; below colour 4 of 4; plateau ≥ 7,700 km; no lead against the Null on balanced accuracy or ρ | none; 4 of 4; 7,700–12,400 (s3 none); none (but R² and neighbours lead) | mostly right |
+| 81 | controls | shifted: no lead against the progress walk on gyration, unique cells, places, revisits, straight-backs, top tile; shuffled: period < 20 in 4 of 4, ≥ 3× places in ≥ 3 of 4 | revisits +0.044 and top tile +0.023 lead, the rest none; period 2–10; 4.7–34× in 4 of 4 | mostly right |
+| 82 | no collapse | none of 12 | none | right |
+| 83 | cost | 12 of 12, 15–30 min, under 2 h; world-view pass < 10 min | 12; 17–27 min; 1 h 50; 3.5 min | right |
+| 84 | v1 is the Reference | the rule keeps `interest_long` | (a) fails on both parts; v1 = `e09_ref` | right |
+
+Tally: 5 right (76, 78, 82, 83, 84), 3 mostly right (77, 80, 81), 2 partly (75, 79), none wrong.
+
+What I got wrong, in kind:
+- I took the open-loop preview's frequency of far bouts. As in Stage 1, the closed loop went far less often. I had not thought about bout length: a drive that does not recover far keeps the walker out.
+- I expected the rhythm to match the Null's in frequency. The progress walker's rarity of bouts is a rhythm of its own.
+
+## The rule for walker v1 (log 2026-11-10), applied
+
+- (a) Shifted `offer_n_gap` or `offer_gz_gap` > 0 in every seed that goes far, at least 3: **fails**. In s0 both are negative (−0.026, −0.20). If s0's single far step does not count, two seeds go far, fewer than 3.
+- (a) Shuffled `recovery_at_d` > 0 in 4 of 4 with mean ≥ 0.1: **fails** (2 of 4, mean 0.014).
+- (b) Leads against the Null on top tile, revisits, straight-backs, settled contrast: holds, but (a) has already failed.
+
+So walker v1 is `e09_ref` unchanged: `drive_signal: interest_long`, Δ 0.25, drive averages 0.05 / 0.005 from step 50, r 15–2,000 km, the 2.7 km eye.
+
+## For review
+
+The brief's question, whether a drive on learning progress makes far pay: no.
+- The walker's progress is a near-ground signal: offers far carry less of it (−0.16 shifted, −0.34 in the walk), and going far does not raise it (`recovery_at_d` 0.014).
+- A drive on progress therefore makes a different rhythm: long stays at home, then rare long voyages that end only when the walk does or a lucky far tile resets the drive.
+- The choice, and so preference, clusters and taste, is unchanged.
+
+What this means for the aim:
+- This is the first time in experiment 09 that changing only the drive's signal changed the style. "Homebody with rare long voyages" against the Reference's "frequent short sorties", from one line of config, with no new mechanism.
+- It is a style difference at four seeds. Against the Reference no rhythm readout leads, because the Reference's own seeds span 1–10 episodes. It would need eight seeds to be a result.
+- It does not open the loop, and it reads the world no better, so by the rule it does not become v1.
+
+Next, as agreed: freeze v1 (`configs/09_compass/walker_v1.yaml`, tag `walker-v1`) and walk it alone for 15,000 steps (`e09_v1_long_s0`).

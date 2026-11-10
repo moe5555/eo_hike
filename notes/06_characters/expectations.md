@@ -166,6 +166,8 @@ Offline previews (`analysis/e09/progress_offline.py`; log 2026-11-10; open-loop,
 83. **Cost.** 12 of 12 finish, 15–30 min each, the batch in under 2 h. The world-view pass takes under 10 min.
 84. **v1 is the compass Reference.** By the rule in the log, the progress drive does not make far pay. So v1 keeps `interest_long`, unchanged from `e09_ref`.
 
+Scored 2026-11-10 in `notes/09_compass/observations.md`, the progress test: 5 right (76, 78, 82, 83, 84), 3 mostly right (77, 80, 81), 2 partly (75, 79), none wrong. A drive on progress does not make far pay. Shifted far − near in novelty is +0.015, as under the Reference's own controls. Shuffled `recovery_at_d` on the progress drive is 0.014. Far offers carry less progress than near (−0.16 shifted, −0.34 in the walk). So v1 is `e09_ref`. Not foreseen: the progress walker is a homebody. It makes 1.3 far bouts per 1,000 steps (lead against the Null, not against the Reference), late (steps 803–982) and long (36–73 steps), because progress stays near 0 far and the drive does not recover (75, 79). The character leads against the Null all hold. The shifted controls revisit more than the progress walk (+0.044, lead; 81).
+
 The long walk (predictions written for v1 = `e09_ref`; if the rule picks the progress drive, 85 does not apply and the rest stand):
 
 85. **It starts as `e09_ref_s0`.** The first 1,000 steps choose the same tiles as `e09_ref_s0`, step for step. Checkpoints draw no random numbers, and the step count changes nothing before step 1,000. The exception would be a fetch dropped in one walk and not in the other.
