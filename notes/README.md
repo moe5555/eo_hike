@@ -19,6 +19,7 @@ One folder per experiment, numbered in the order they were run. Each one has a b
 | 07 | `07_film_arc/` | 2026-11-01 | Emergent or designed arc for the film? Is "interesting" the same as "hard to draw", and what does the scorer really do? | done (the recommended 5,000-step walk not run) | round h0111 / `h0111_` |
 | 08 | `08_character_sheet/` | 2026-11-03 | Which settings are responsible for what, in what the walker sees and how it moves? A character sheet backed by paired walks | Stage 0 done; Done: Stages 0 and 1, seeds 4–7 for seven settings (17 results); Stages 2–3 replaced by the new navigation | round h0311 / `e08_` |
 | 09 | `09_compass/` | 2026-11-08 | Can one drive set how far the walker looks (eight offers at one radius, close when curious, far when bored), and is the rhythm that comes out the walker's or the mapping's? | Stage 2 walked (48 walks): the radius follows the drive and a rhythm comes out, but the loop is open (going far does not restore the drive) and the rhythm is the drive's filter, shared with the Null; character against the Null (preference, clusters) comes from the choice. Stage 3a (larger eye, 24 walks, world-view readout): a 5.3 or 8 km eye does not open the loop (far offers stay duller than near ones even decoupled), the embedding is ordered at continental scale at every eye, and no eye beats colour on land cover. Progress test (12 walks): a drive on learning progress does not make far pay either; it makes a homebody with rare long voyages. Walker v1 frozen (= the compass Reference, tag `walker-v1`) and walked for 15,000 steps: rhythm, preference and clusters last, a taste for texture, contrast and snow grows for 6,000 steps and takes the walker into the high north, novelty does not wear down, and the embedding's ordering by distance dissolves (Tobler ρ 0.16 → −0.02) | `e09_` |
+| 10 | `10_landsat_pass/` | 2026-11-10 | Placeholder: a walk inside one orbital pass of one satellite (the satellite as the first walker). Oldest usable pass: Landsat 1 MSS, 22 Nov 1972, path 183 (Caucasus → South Africa) | infrastructure built; first try: 300 steps of walker v1 at 5.34 km cells (r 7.5–100 km) from the pass's first tile, and a clip (no brief yet) | `e10_` |
 
 Not an experiment: `agents_paper/`, the write-up of the agent design (Typst source, figures built by `build_figures.py`, PDF).
 
@@ -147,3 +148,15 @@ All documents in `notes/09_compass/`:
 - Configs: `configs/09_compass/e09_*.yaml`, radius schedules for the controls in `configs/09_compass/schedules/`
 - Script: `scripts/hikes_e09.sh start <stage> | stop` (with the disk and `.git` watchdog)
 - Runs: `runs/e09_*`; Stage 0 checks `e09_check_classic_s0`, `e09_test_fetch_s0`, `e09_smoke_s0`; Stage 1 `e09_reference_s0–3`, `e09_delta_0175_s0–3`, `e09_delta_07_s0–3`; Stage 1 round 2 `e09_avg20_d025_s0–3`, `e09_avg20_d035_s0–3`, `e09_avg20_d05_s0–3`; checks `e09_check_r1_s0_s0`, `e09_smoke_avg20_s0_s0`
+
+## 10. Landsat pass (placeholder name)
+
+All documents in `notes/10_landsat_pass/`:
+
+- Log (research on single passes, the infrastructure, the first world, checks): `log.md`
+- Code: `data/landsat_pass.py` (`list`, `fetch`, `build`, `check`; `PassStore`), `open_store` in `data/tile_store.py`, `world: landsat_pass` in `agent/walk.py` (the global store is unchanged, checked bit-identical); `analysis/e09/walk_viewer.py` reads the run's own store
+- Data: `data/landsat/<pass>/scenes/` (downloads), `data/landsat/<pass>/<world>/` (tiles, index, check images); the first world is `LM01_183_19721122/c10680m_256px_cir`
+- Code, analysis: `analysis/e10/offers_geometry.py` (distinct compass offers per radius on a built world), `analysis/e10/film_pass.py` (a clip of a pass walk)
+- Results: `results/offers_geometry_*.csv`, `results/films/*_contact.png`; films in `runs/e10_films/` (git-ignored)
+- Configs: `configs/10_landsat_pass/e10_pass_v1.yaml` (walker v1 unchanged, 10.68 km world), `e10_pass_5km.yaml` (5.34 km, linear tone: the first try, offers indistinguishable), `e10_pass_5km_sqrt.yaml` (the same in sqrt tone)
+- Runs: `runs/e10_pass_smoke_s0`, `runs/e10_pass_5km_s0`, `runs/e10_pass_5km_sqrt_s0` (300 steps each)
