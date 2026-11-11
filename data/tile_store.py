@@ -19,7 +19,8 @@ Remote reads fetch only the `thumbnail` column chunk of one row group, from the 
 once per file, see TileStore._signed; a Hugging Face token is sent if one is set: HF_TOKEN or `hf auth login`). Up to 8 attempts per tile with
 exponential backoff; an HTTP 429 (Hugging Face rate limit) pauses every thread of the store for 15 s,
 doubling while 429s keep coming (cap 5 min). Every fetch is timed. World = the walker's view of the store: a pool of tile ids (global,
-regional or a confinement circle), a BallTree over that pool and random long-jump targets.
+regional or a confinement circle), a BallTree over that pool and random long-jump targets. open_store(cfg) returns this store or,
+for `world: landsat_pass`, a local pass world (data/landsat_pass.PassStore) with the same interface.
 """
 
 from __future__ import annotations
@@ -355,6 +356,9 @@ class World:
     @classmethod
     def from_config(cls, store: TileStore, cfg: dict) -> "World":
         idx = store.idx
+        if cfg.get("world") == "landsat_pass":  # the store is a data.landsat_pass.PassStore: its own index, all of it
+            assert cfg.get("confine_center") is None, "world: landsat_pass cannot be confined"
+            return cls(store, None, "landsat_pass")
         if cfg.get("confine_center") is not None:
             la, lo = cfg["confine_center"]
             d = haversine_km(idx.lat.to_numpy(), idx.lon.to_numpy(), la, lo)
@@ -373,6 +377,16 @@ class World:
 
     def random_tile(self, rng: np.random.Generator) -> int:
         return int(self.pool[rng.integers(len(self.pool))])
+
+
+def open_store(cfg: dict, cache_gb: float | None = None):
+    """The tile store a walk's config names: a built Landsat pass (world: landsat_pass, pass_world: <dir>) or the global
+    Major TOM store. Used by agent/walk.py and by the viewers, so both read the tiles the walker saw."""
+    if cfg.get("world") == "landsat_pass":
+        from data.landsat_pass import PassStore
+
+        return PassStore(cfg["pass_world"])
+    return TileStore(cache_gb=float(cfg.get("cache_gb", 50)) if cache_gb is None else cache_gb)
 
 
 def haversine_km(lat1, lon1, lat2, lon2):

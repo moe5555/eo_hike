@@ -53,16 +53,13 @@ def land_png() -> str:
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
-def write_tiles(ids: list[int], folder: Path, px: int, quality: int) -> int:
+def write_tiles(ids: list[int], folder: Path, px: int, quality: int, store) -> int:
     from tqdm import tqdm
-
-    from data.tile_store import TileStore
 
     folder.mkdir(parents=True, exist_ok=True)
     todo = [i for i in ids if not (folder / f"{i}.jpg").exists()]
     if not todo:
         return 0
-    store = TileStore(cache_gb=30)
     failed = set(store.fetch_all(todo, desc="fetch evicted tiles"))
     if failed:
         print(f"[viewer] {len(failed)} tiles could not be fetched and are shown blank: {sorted(failed)[:10]}")
@@ -85,10 +82,13 @@ def build(run: str, out: Path, px: int, quality: int) -> Path:
     s = pd.read_parquet(rd / "steps.parquet").reset_index(drop=True)
     c = pd.read_parquet(rd / "candidates.parquet", columns=["step", "tile_idx", "n", "n_z", "g_z", "I", "p", "chosen"])
     h = pd.read_parquet(rd / "heldout.parquet")
-    ix = pd.read_parquet(Path(__file__).resolve().parents[2] / "data" / "global" / "index.parquet", columns=["idx", "lat", "lon"]).set_index("idx")
+    from data.tile_store import open_store
+
+    store = open_store(cfg, cache_gb=30)  # the global Major TOM store, or the Landsat pass the walk was on (world: landsat_pass)
+    ix = store.idx[["idx", "lat", "lon"]].set_index("idx")
     c = c.join(ix, on="tile_idx").sort_values(["step", "p"], ascending=[True, False])
     ids = list(dict.fromkeys(map(int, s.tile_idx)))
-    n_new = write_tiles(ids, out / "tiles", px, quality)
+    n_new = write_tiles(ids, out / "tiles", px, quality, store)
 
     cells = s.grid_cell.to_numpy()
     first_seen: dict = {}

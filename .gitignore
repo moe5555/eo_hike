@@ -11,6 +11,7 @@ orest/
 !data/global_index.py
 !data/tile_store.py
 !data/global_stretch.py
+!data/landsat_pass.py
 logs/
 third_party/
 .venv-sg/

@@ -83,13 +83,15 @@ class RegionalTiles:
 
 class LazyTiles:
     """v3 backend: data/tile_store.py over the global Major TOM index, restricted to a World pool
-    (global, regional_lazy for development, or a confinement circle). No noisy TV."""
+    (global, regional_lazy for development, or a confinement circle). No noisy TV.
+    world: landsat_pass swaps in a local Landsat pass (data/landsat_pass.PassStore, `pass_world: <dir>`) behind the same interface;
+    its held-out tiles come from the pass (heldout: global means the whole world the store holds)."""
 
     def __init__(self, cfg: dict, device: str) -> None:
-        from data.tile_store import TileStore, World
+        from data.tile_store import World, open_store
 
         self.dev, self.cfg = device, cfg
-        self.store = TileStore(cache_gb=float(cfg.get("cache_gb", 50)))
+        self.store = open_store(cfg)
         self.world = World.from_config(self.store, cfg)
         self.name = self.world.name
         self.idx = self.store.idx.assign(tv=False)
@@ -172,7 +174,8 @@ def run(cfg: dict, name: str) -> Path:
     meta = {"run_id": out.name, "name": name, "seed": seed, "git": git_hash(), "start_tile": t, "n_tiles": T.N, "device": dev, "torch": torch.__version__, "started": time.strftime("%Y-%m-%d %H:%M:%S")}
     if T.name != "regional":
         meta.update(world=T.name, pool_size=T.pool_size, start_cell=str(idx.grid_cell[t]), start_latlon=[float(lat[t]), float(lon[t])],
-                    start_cover=str(idx.cover[t]), confine_center=cfg.get("confine_center"), confine_radius_km=cfg.get("confine_radius_km"))
+                    start_cover=str(idx.cover[t]), confine_center=cfg.get("confine_center"), confine_radius_km=cfg.get("confine_radius_km"),
+                    **({"pass_world": cfg["pass_world"]} if T.name == "landsat_pass" else {}))
     (out / "meta.json").write_text(json.dumps(meta, indent=2))
 
     def look(ids: list[int], g: torch.Generator, timeout: float | None = None, fixed: bool = False):

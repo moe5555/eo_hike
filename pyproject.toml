@@ -25,6 +25,7 @@ dependencies = [
     "global-land-mask>=1.0",
     "imageio>=2.30",
     "imageio-ffmpeg>=0.5",
+    "rasterio>=1.4",          # data/landsat_pass.py: Landsat MSS GeoTIFFs, UTM -> lat/lon
 ]
 
 [tool.uv]
