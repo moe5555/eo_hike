@@ -181,3 +181,19 @@ The long walk (predictions written for v1 = `e09_ref`; if the rule picks the pro
 90. **No collapse, and the cost.** No collapse flag over 15,000 steps. The walk takes 4–8 h alone, without a crash. Fewer than 100 fetches are dropped. The run folder is under 300 MB.
 
 Scored 2026-11-10 in `notes/09_compass/observations.md`, the long walk: 3 right (85, 86, 90), 1 mostly right (88: top tile 0.51 and 10,002 cells, just above), 1 partly (87: held-out falls, but novelty rises, 0.41 → 0.55), 1 wrong (89: Tobler ρ falls to −0.02 and the plateau is gone from step 1,500; land cover −0.02 from step 1,000). Not foreseen: a taste for texture, contrast and snow that grows for 6,000 steps, and a drift into the high north (78 % of steps north of 50° N from step 5,000).
+
+## The season-seam readout (added 2026-11-11, before the readout is run on the e09 walks; `analysis/e09/seams.py`)
+
+Major TOM is the world (decision 2026-11-11): one acquisition per 10 km cell, 2016–2023, any season, stitched into one image. The readout asks whether the choice follows the seams between acquisitions. Definitions in the script's docstring. "Here" is the cell the offers are made around (the tile chosen at the step before); a seam is an offer from another datatake than here.
+
+Already seen, so not a prediction: in the long walk (`e09_v1_long_s0`), from step 5,000 and north of 50° N, the chosen cell was imaged in the local cold half-year 0.14 more often than its step's offers (60 % against 45 %), and 98 % of r_min steps there offer both seasons. One walk, month as the proxy for snow.
+
+Lead and result as in e08 D10, against the compass Null on seeds 0–7, settled phase.
+
+91. **The Null picks blind.** `seam_cross_excess`, `cold_excess` and every `selz_` of this readout within ±0.03 of 0 in the seed mean, no lead against 0.
+92. **The world is a patchwork at r_min.** In the Reference, `seam_share` (the share of offers from another datatake than here) is 0.6–0.95 at r_min.
+93. **The walker crosses seams.** A cell from another acquisition looks less like the archive around here. `seam_cross_excess` > 0 and `selz_daysgap` > 0 in the Reference: a lead against the Null at least, a result at best. Medium confidence.
+94. **Cold acquisitions at 1,000 steps from Paris: weak.** `selz_cold` is above the Null's in the mean but not a result. Low confidence: at 1,000 steps the taste for bright ground was still negative (long walk, block 1: −0.38).
+95. **The long walk's taste for snow is partly the season's.** By blocks of 1,000 steps, `selz_cold` rises with age as `selz_bright` does (Spearman ρ over the 15 blocks > 0.5). From step 5,000, bright selection among same-season offers only (`selz_bright_inseason`) is still > 0 but at most 0.7 times `selz_bright`. Low confidence.
+
+Scored 2026-11-11 in `notes/09_compass/observations.md`, the season-seam readout: 1 right (91), 2 partly (94, 95), 2 wrong (92, 93). Every offer is from another acquisition than here (seam share 1.00), so seam crossing is 0 by construction (92, 93). The walker picks cells closer in time to here, not farther (`selz_daysgap` −0.14, a result against the Null; 93). Snow taste survives holding season fixed (0.91 ×; 95). Not predicted: the young walker chooses the same processing baseline (+0.062) and year (+0.046) as here, results against the Null. N04/05 tiles are about twice as bright and a third as saturated as older ones in the same place and season.

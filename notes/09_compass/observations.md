@@ -1009,3 +1009,91 @@ Open questions, if they matter for what comes next:
 3. **The Tobler readout:** the ρ on random pairs is dominated by long separations. A readout split into within-region and between-region distances would say more about what the older walker knows. I have not built one.
 
 The viewer (`runs/e09_v1_long_s0/viewer/index.html`) shows all of the above step by step: the compass offers, the path by radius, the timeline and the blocks.
+
+# The season-seam readout, and novelty where the walker has never been (2026-11-11)
+
+Offline, on the logs of every compass walk of experiment 09 (`analysis/e09/seams.py`, `analysis/e09/novelty_unseen.py`). No new walk. Predictions 91–95 were written before the readout ran on the e09 set (expectations, 2026-11-11). The long walk had been looked at first, and the expectations say so. The baseline and year readouts were added after the first pass and were not predicted.
+
+Files: `results/seams.csv`, `seams_paired.csv` (against the compass Null and the Reference, e08 verdicts), `seams_blocks_e09_v1_long_s0.csv`, `novelty_unseen_e09_v1_long_s0.csv`.
+
+**The short version.**
+- **The mosaic is stitched at every cell.** A Sentinel-2 datatake leaves a median of 12 cells in Major TOM, scattered over the planet. In every e09 walk, every offer comes from another acquisition than the cell the walker stands on (seam share 1.00). Neighbouring cells around Paris are from 2017, 2021, 2022, 2017, 2023.
+- **The mosaic has a processing seam.** Land tiles from ESA processing baselines N0400/N0500 (2022 on) look washed out. In central Europe in June–August alone, their median grey is 111 against 58 for the older baselines, and their saturation 0.11 against 0.30. That is consistent with the +1000 offset of baseline 04.00 not being removed in the thumbnails (not checked against the raw bands).
+- **The young walker follows the archive's provenance.** At 1,000 steps the Reference picks offers from the same processing baseline as here more often than offered: +0.062, 8 of 8 seeds, a result against the Null. It also picks cells closer in acquisition time (`selz_daysgap` −0.14, a result), but not closer in season. Every compass setting does this (results or leads in 20 of 24 groups), so it belongs to the choice, not the radius.
+- **The old walker follows the season.** In the long walk the baseline preference fades after step 2,000 (0.10–0.20 → 0.02–0.08). Season-following grows: `selz_doygap` goes from −0.1 to −0.3/−0.46 from step 8,000, and cold acquisitions are chosen at +0.33 SD from step 5,000.
+- **The taste for snow is the walker's, not the season's or the processing's.** From step 5,000, bright selection holds when only same-season offers are compared (0.66 against 0.72) and when only same-baseline ones are (0.73 against 0.73). Snow lies in cold acquisitions, so the mosaic's dates decide where the taste can be met.
+- **Novelty is about looks, not places.** Ground the walker has never stood on is not novel if it looks like ground it knows. A visit lowers a tile's novelty, but only a little: 0.56 → 0.47 for the same tile, lower in 94 % of 4,747 tiles. Unusual tiles therefore stay on top, and the walker returns to them. (First written as "visited cells are more novel". That came from comparing chosen tiles with declined ones, which is selection; corrected after review the same day.)
+
+## The tables
+
+### 24. Seams at 1,000 steps (settled phase, seeds 0–7; mean, with the range over seeds)
+
+| | compass Reference | compass Null | verdict |
+|---|---|---|---|
+| seam share (offers from another datatake than here) | 1.000 | 1.000 | (the world) |
+| offered from the same baseline as here | 0.20 | 0.23 | |
+| same baseline, chosen beyond offered | +0.062 (0.009 to 0.093) | 0.00 (−0.01 to 0.02) | result |
+| same year, chosen beyond offered | +0.046 (0.03 to 0.07) | +0.004 | result |
+| `selz_daysgap` (time apart from here) | −0.17 (−0.39 to −0.07) | −0.03 | result |
+| `selz_doygap` (season apart) | −0.05 | −0.01 | none |
+| `selz_cold` | −0.03 (−0.14 to 0.19) | +0.01 | none |
+
+### 25. The long walk by blocks (from `seams_blocks_e09_v1_long_s0.csv`)
+
+| steps | same baseline beyond offered | `selz_doygap` | `selz_cold` | `selz_bright` | `selz_bright_inseason` |
+|---|---|---|---|---|---|
+| 0–1,999 | 0.10, 0.20 | −0.12, −0.11 | −0.15, +0.05 | −0.38, −0.13 | −0.41, −0.11 |
+| 2,000–7,999 | −0.00 to 0.04 | −0.03 to −0.18 | −0.04 to +0.29 | 0.20 to 0.67 | 0.11 to 0.63 |
+| 8,000–14,999 | 0.04 to 0.08 | −0.26 to −0.47 | 0.20 to 0.69 | 0.67 to 0.94 | 0.64 to 0.78 |
+
+Over the 15 blocks, Spearman ρ of `selz_cold` and `selz_bright` is 0.89.
+
+### 26. Novelty against ground distance from the cells stood on (long walk, offers of every 50th step from 500 and of every third far step)
+
+| nearest cell stood on | offers | median novelty |
+|---|---|---|
+| < 5 km (the cell itself) | 699 | 0.32 |
+| 5–20 km | 1,366 | 0.22 |
+| 20–100 km | 2,794 | 0.18 |
+| 100–500 km | 4,344 | 0.16 |
+| 500–2,000 km | 898 | 0.15 |
+
+Near offers (r < 20 km) by prior visits: never 0.24 (1,039), once 0.48, 2–3 times 0.54, 4–10 times 0.45. Across tiles, so confounded by selection (finding 70). Within a tile: 0.56 before its first visit, 0.47 after (4,747 tiles).
+
+## Findings
+
+65. **Every step crosses a seam (table 24).** The cell the walker stands on and each of its eight offers come from different acquisitions, in every walk. Major TOM keeps one product per cell and a datatake's cells are scattered, so "the image" is a patchwork at the scale of the cell. The seam-crossing readout is 0 by construction and is kept only as the record. *RQ2, Ch. 5.*
+66. **The patchwork has a processing seam.** Tone depends on the processing baseline more than on place or season: within central Europe in summer, the grey level doubles and saturation falls by two thirds from N02/03 to N04/05. The bright flag (snow, ice, cloud) is barely touched: 2.4 % of N04/05 summer tiles against 0.6 %. But the taste readouts for brightness and saturation are confounded with processing (finding 61's falling saturation included). *RQ2, Ch. 5.* Set by hand: nothing; it's the dataset's.
+67. **The young walker follows provenance (table 24).** Against the Null it chooses the same baseline and the same year as here, and a smaller time gap (all three results on 8 seeds), but not the same season. This holds under every radius control and at every eye, so it comes from the choice (novelty plus progress in its own latent space), as preference and clusters do (finding 38). It sees the archive's processing history as continuity of ground. Not tested: whether it is the tone, or the year through something else, and whether novelty or progress carries it. *RQ2, Ch. 6–7.* Emerged; nothing in the walker reads dates or baselines.
+68. **The old walker follows the season instead (table 25).** In the long walk, baseline-following fades after step 2,000 and season-following grows with the taste for snow. It ends up threading through winter acquisitions of the north. One walk. *RQ2, Ch. 7.*
+69. **The taste for snow survives holding season and processing fixed (table 25).** Prediction 95 expected the season to explain part of it. It explains little: bright selection among same-season offers is 0.91 of the unrestricted one from step 5,000, and among same-baseline offers it is equal. What the season does is put the snow there: 66 % of the bright cells chosen are cold-month acquisitions. *RQ2, Ch. 7.*
+70. **Novelty is a property of a tile's look, not of its being unseen (table 26).** Corrected after review (2026-11-11). The first version read table 26 as "the less seen, the less novel". That was selection.
+    - **Within a tile, a visit lowers novelty, as the definition says.** 4,747 tiles were offered both before and after their first visit. Median novelty 0.56 before, 0.47 after, lower after in 94 %.
+    - **Across tiles, table 26 compares what the walker chose with what it declined.** It takes the most novel offer: chosen 0.53 against declined 0.23. So the cells it has stood on were unusual-looking before it came, and the ground near its path is the kind it went to for its look (snow, texture, contrast). Ground far from everything it has visited is mostly the kind it never went for. Distance does not lower novelty; it marks ordinary ground. The far-offers ρ (−0.16) is the same selection.
+    - **What stands:**
+      - "Seen" means a look-alike is in memory, not "been here". Novelty is the mean distance to the 10 nearest archive latents, so unvisited ground of a known kind sits beside its look-alikes, and the walker's view orders ground by kind (finding 63). This is why far offers do not pay.
+      - A visit dents novelty by about a sixth, because a tile's own entries are only a few of its ten neighbours. An unusual tile stays on top after visits, and that is where revisits and the top tile come from.
+    - One walk, no Null. *RQ2, Ch. 6.* Set by hand: the novelty definition (k_nn 10 over all visits).
+
+## Against the predictions (91–95, written 2026-11-11)
+
+| # | Setting | Predicted | Found | Verdict |
+|---|---|---|---|---|
+| 91 | the Null picks blind | every readout within ±0.03 | all within, `selz_daysgap` −0.031 | right (by a hair) |
+| 92 | the world is a patchwork at r_min | seam share 0.6–0.95 | 1.000 | wrong (more of a patchwork than predicted) |
+| 93 | the walker crosses seams | seam crossing and time gap > 0, lead or result | crossing 0 by construction; time gap −0.14, a result the other way | wrong |
+| 94 | cold acquisitions at 1,000 steps: weak | above the Null, not a result | −0.03, no lead | partly |
+| 95 | snow is partly the season's | ρ(cold, bright) > 0.5; in-season bright ≤ 0.7 × bright | 0.89; 0.91 × | partly |
+
+Tally: 1 right, 2 partly, 2 wrong.
+
+What I got wrong, in kind:
+- I took a seam to be an edge between acquisitions. In Major TOM every cell is its own acquisition.
+- I expected a novelty-seeker to cross into what looks different. Early on it holds to what looks continuous with here: same processing, same year.
+
+## For review
+
+- The decision (2026-11-11) to keep Major TOM because it is a stitched multi-temporal image passing as one is borne out: the walker's choices track the stitching. The young walker follows the processing history and the old one the season, and neither is visible in a single image of the Earth.
+- **For the replication:** the seam readouts (same baseline, same year, time and season gap, cold) go into the core. The taste readouts for brightness and saturation should be read per baseline class, or the baseline should be named as their confound.
+- **For the GAN:** the long path's tiles mix two tone regimes (48 % N04/05 from step 5,000). A GAN will learn the washed-out and the saturated Earth as two looks. That is the dataset's, and it should be stated, not corrected, if the stitching is the point.
+- **Not checked:** whether N04/05 thumbnails really carry the uncorrected offset (raw bands of a few tiles would settle it), and whether the provenance-following runs through novelty or progress.
