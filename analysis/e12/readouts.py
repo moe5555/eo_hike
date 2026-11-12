@@ -2,6 +2,11 @@
 
     python analysis/e12/readouts.py            # every finished e12 walk -> notes/12_two_eye/results/*.csv
     python analysis/e12/readouts.py shuffle    # the patch-shuffle test on the final networks (slower)
+    python analysis/e12/readouts.py l1         # the e12_l1_ walks on the whole mission -> notes/12_two_eye/results/l1/*.csv
+
+On the mission (l1), offers and steps are images (cell and acquisition, `image_key`); their quirks come from the store's cache
+(data/landsat1_store.quirks), brightness from the store's render, and the crops' quirks from crops.parquet itself. Added for l1: revisit
+share (steps on an acquisition of rank > 0), dates seen per visited cell, and selection of night, fill and rank among offers.
 
 Written before the factorial walks finished (2026-11-12) and not changed after, except for bugs (logged).
 Steps before SETTLE (50) are left out. Quirk shares are the pass world's tables (analysis/e12/pass_quirks.py); "stripe" and "at255"
@@ -42,6 +47,9 @@ CACHE = ROOT / "data" / "sheet"
 WORLD = ROOT / "data" / "landsat" / "LM01_183_19721122" / "c10680m_256px_cir_sqrt"
 SETTLE = 50
 SEEN = ("green", "red", "nir08")
+L1 = "l1" in sys.argv[1:2]
+if L1:
+    OUT = OUT / "l1"
 CONDS = ["e12_v1", "e12_null", "e12_grid_mean", "e12_grid_top4", "e12_grid_top1", "e12_two_top4", "e12_two_top4_g2",
          "e12_two_top4_shifted", "e12_two_top4_shuffled"]
 EDGE = np.array([r in (0, 3) or c in (0, 3) for r, c in (divmod(k, 4) for k in range(16))])
@@ -70,9 +78,36 @@ def world_tables() -> tuple[pd.DataFrame, pd.DataFrame]:
     return cells, qc[["tile_idx", "crop", "stripe", "at255", "cloud", "fill"]]
 
 
+def image_tables(keys) -> pd.DataFrame:
+    """Mission images: quirks (seen bands), brightness of the one view, night, rank; cached in data/sheet/e12_l1_images.parquet."""
+    from data.landsat1_store import Landsat1TileStore
+
+    CACHE.mkdir(parents=True, exist_ok=True)
+    p = CACHE / "e12_l1_images.parquet"
+    have = pd.read_parquet(p) if p.exists() else pd.DataFrame(columns=["tile_idx"])
+    todo = sorted(set(map(int, keys)) - set(have.tile_idx.astype(int)))
+    if todo:
+        st = Landsat1TileStore()
+        q = st.quirks(todo)
+        q["brightness"] = [float(st.get_lowres(int(k)).mean()) for k in q.tile_idx]
+        if "rank" not in q:
+            q["rank"] = 0
+        for k in ("stripe", "at255"):
+            q[k] = q[[f"{k}_{b}" for b in SEEN]].max(axis=1)
+        q["cover"] = st.idx.cover.to_numpy()[q.tile_idx.to_numpy() % (1 << 21)]
+        q = q[["tile_idx", "stripe", "at255", "cloud", "fill", "brightness", "night", "rank", "cover"]]
+        have = pd.concat([have, q], ignore_index=True) if len(have) else q
+        have.to_parquet(p)
+    t = have.drop_duplicates("tile_idx").set_index("tile_idx")
+    t["night"] = t.night.astype(float)
+    t["rank"] = t["rank"].astype(float)
+    t["bright_q"] = pd.qcut(t.brightness.rank(method="first"), 4, labels=False)
+    return t
+
+
 def runs() -> list[tuple[str, int, Path]]:
     out = []
-    for c in CONDS:
+    for c in ([k.replace("e12_", "e12_l1_") for k in CONDS] if L1 else CONDS):
         for s in (0, 1):
             r = RUNS / f"{c}_s{s}"
             if (r / "final.pt").exists():
@@ -116,6 +151,7 @@ def running_z(x: np.ndarray, alpha: float = 0.002) -> tuple[np.ndarray, np.ndarr
 
 def deaths(cond: str, seed: int, s: pd.DataFrame, cr: pd.DataFrame | None, cells: pd.DataFrame, qc: pd.DataFrame, r_max: float) -> list[dict]:
     out = []
+    kc = "image_key" if "image_key" in s else "tile_idx"
     srcs = {"glance": "e_glance", "grid_pooled": "e_grid", "grid_max": "e_grid_max"} if "e_glance" in s else {"v1": "e"}
     d = s.drive_d.to_numpy()
     settled = pd.Series(d >= 0).rolling(50).sum().shift(1).to_numpy() >= 50
@@ -135,10 +171,11 @@ def deaths(cond: str, seed: int, s: pd.DataFrame, cr: pd.DataFrame | None, cells
                 row = s.iloc[t]
                 rec = {"cond": cond, "seed": seed, "source": src, "rule": cond_name, "step": int(row.step), "tile_idx": int(row.tile_idx),
                        "z": float((x[t] - m[t]) / sd[t])}
-                cl = cells.loc[int(row.tile_idx)]
-                rec.update(cover=cl.cover, cloud=cl.cloud, bright_q=int(cl.bright_q), stripe=cl.stripe, at255=cl.at255)
+                cl = cells.loc[int(row[kc])]
+                rec.update(cover=cl.cover, cloud=cl.cloud, bright_q=int(cl.bright_q), stripe=cl.stripe, at255=cl.at255,
+                           **({"night": float(cl.night), "rank": int(cl["rank"])} if L1 else {}))
                 if cr is not None:
-                    tc = ch[ch.step == row.step]
+                    tc = ch[ch.step == row.step]  # crops of the chosen image at that step
                     if len(tc) == 16:
                         top = tc.loc[tc["rank"].idxmin()]
                         worst = tc.loc[tc.e.idxmax()]
@@ -147,7 +184,7 @@ def deaths(cond: str, seed: int, s: pd.DataFrame, cr: pd.DataFrame | None, cells
                 out.append(rec)
     for t in np.flatnonzero(run20 & ~np.r_[False, run20[:-1]]):  # C3: the first step of each 20-step stretch at r_max
         row = s.iloc[t]
-        cl = cells.loc[int(row.tile_idx)]
+        cl = cells.loc[int(row[kc])]
         out.append({"cond": cond, "seed": seed, "source": "drive", "rule": "C3", "step": int(row.step), "tile_idx": int(row.tile_idx),
                     "cover": cl.cover, "cloud": cl.cloud, "bright_q": int(cl.bright_q), "stripe": cl.stripe, "at255": cl.at255})
     return out
@@ -180,9 +217,21 @@ def readout(cond: str, seed: int, r: Path, cells: pd.DataFrame, qc: pd.DataFrame
         far, near = cs[cs.r_km >= r_max * 0.999], cs[cs.r_km <= float(cfg["radius_min_km"]) * 1.001]
         out["far_near_gap_Ilong"] = float(far.groupby("step").I_long.mean().mean() - near.groupby("step").I_long.mean().mean()) if len(far) and len(near) else np.nan
     # selection, offer -> choice
-    c = c.join(cells[["stripe", "at255", "cloud", "brightness", "crop_stripe_max"]], on="tile_idx")
+    kc = "image_key" if "image_key" in c else "tile_idx"
+    sel = ["stripe", "at255", "cloud", "brightness"] + (["fill", "night", "rank"] if L1 else ["crop_stripe_max"])
+    c = c.join(cells[sel], on=kc)
     cst = c[c.step >= SETTLE]
-    for q in ("stripe", "at255", "cloud", "brightness", "crop_stripe_max"):
+    if L1:
+        rk = s.acq_rank.to_numpy()
+        out["revisit_rank"] = float((rk[st.to_numpy()] > 0).mean())
+        out["dates_per_cell_median"] = float(s.groupby("tile_idx").acq_rank.max().add(1).median())
+        out["dates_per_cell_max"] = int(s.acq_rank.max() + 1)
+        out["night_steps"] = float(s.acq_night.astype(float)[st].mean())
+        out["n_drop_exhausted"] = int(s.n_drop_exhausted.sum())
+        out["n_dropped_fetch"] = int(s.n_dropped.sum())
+        out["max_km_from_start"] = float(np.max(np.hypot(s.lat - s.lat.iloc[0], (s.lon - s.lon.iloc[0]) * np.cos(np.radians(s.lat.iloc[0]))) * 111))
+        out["selz_night_from200"] = selz(cst[cst.step >= 200], "night")
+    for q in sel:
         out[f"selz_{q}"] = selz(cst, q)
         out[f"selz_{q}_h1"] = selz(cst[cst.step < 500], q)
         out[f"selz_{q}_h2"] = selz(cst[cst.step >= 500], q)
@@ -195,8 +244,15 @@ def readout(cond: str, seed: int, r: Path, cells: pd.DataFrame, qc: pd.DataFrame
             out[f"lift_{k}"] = float(ss[f"lift_{k}"].mean())
         out["best_offer"] = float(ss.best_offer.mean())
         out["p_chosen"] = float(ss.p_chosen.mean())
-        cr = pd.read_parquet(r / "crops.parquet", columns=["step", "tile_idx", "crop", "e", "n", "rank", "share", "chosen"])
-        cr = cr.merge(qc, on=["tile_idx", "crop"], how="left").sort_values(["step", "tile_idx", "crop"], kind="stable")
+        if qc is None:  # mission: the crops' quirks were written into crops.parquet by the walk
+            cr = pd.read_parquet(r / "crops.parquet")
+            for k in ("stripe", "at255"):
+                cr[k] = cr[[f"{k}_{b}" for b in SEEN]].max(axis=1)
+            cr = cr[["step", "tile_idx", "crop", "e", "n", "rank", "share", "chosen", "stripe", "at255", "cloud", "fill"]]
+        else:
+            cr = pd.read_parquet(r / "crops.parquet", columns=["step", "tile_idx", "crop", "e", "n", "rank", "share", "chosen"])
+            cr = cr.merge(qc, on=["tile_idx", "crop"], how="left")
+        cr = cr.sort_values(["step", "tile_idx", "crop"], kind="stable")
         # one tile appears once per step (offers are distinct); keep the order step, tile, crop
         crs = cr[cr.step >= SETTLE]
         ch = crs[crs.chosen]
@@ -223,10 +279,10 @@ def readout(cond: str, seed: int, r: Path, cells: pd.DataFrame, qc: pd.DataFrame
 
 
 def hints(R: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    null = R[R.cond == "e12_null"]
+    null = R[R.cond.isin(["e12_null", "e12_l1_null"])]
     rows = []
     for cond, g in R.groupby("cond"):
-        if cond == "e12_null" or len(g) < 2 or len(null) < 2:
+        if cond in ("e12_null", "e12_l1_null") or len(g) < 2 or len(null) < 2:
             continue
         for k in cols:
             lo, hi = null[k].min(), null[k].max()
@@ -238,7 +294,13 @@ def hints(R: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    cells, qc = world_tables()
+    if L1:
+        keys = set()
+        for _, _, r in runs():
+            keys |= set(pd.read_parquet(r / "candidates.parquet", columns=["image_key"]).image_key.astype(int))
+        cells, qc = image_tables(keys), None
+    else:
+        cells, qc = world_tables()
     rows, dd = [], []
     for cond, seed, r in runs():
         o, d = readout(cond, seed, r, cells, qc)
@@ -252,7 +314,7 @@ def main() -> None:
     num = [k for k in R.columns if k not in ("cond", "seed", "eye")]
     summ = R.groupby("cond", sort=False)[num].mean()
     summ.T.to_csv(OUT / "summary_by_condition.csv")
-    H = hints(R, [k for k in num if k.startswith(("selz_", "revisit", "straight", "share_rmax", "rmax_", "unique", "wt_", "edge_"))])
+    H = hints(R, [k for k in num if k.startswith(("selz_", "revisit", "straight", "share_rmax", "rmax_", "unique", "wt_", "edge_", "dates_", "night_", "max_km"))])
     H.to_csv(OUT / "hints.csv", index=False)
     if len(D):
         dsum = D.groupby(["cond", "source", "rule"]).agg(n=("step", "size"), walks=("seed", "nunique"), first=("step", "min"),
@@ -318,4 +380,4 @@ def shuffle_test(n: int = 200) -> None:
 
 
 if __name__ == "__main__":
-    shuffle_test() if sys.argv[1:2] == ["shuffle"] else main()
+    shuffle_test() if "shuffle" in sys.argv[1:] else main()
