@@ -229,7 +229,9 @@ def readout(cond: str, seed: int, r: Path, cells: pd.DataFrame, qc: pd.DataFrame
         out["night_steps"] = float(s.acq_night.astype(float)[st].mean())
         out["n_drop_exhausted"] = int(s.n_drop_exhausted.sum())
         out["n_dropped_fetch"] = int(s.n_dropped.sum())
-        out["max_km_from_start"] = float(np.max(np.hypot(s.lat - s.lat.iloc[0], (s.lon - s.lon.iloc[0]) * np.cos(np.radians(s.lat.iloc[0]))) * 111))
+        from data.tile_store import haversine_km  # bug fixed 2026-11-12 after the walks: was a flat-degree distance
+
+        out["max_km_from_start"] = float(np.max(haversine_km(s.lat.iloc[0], s.lon.iloc[0], s.lat.to_numpy(), s.lon.to_numpy())))
         out["selz_night_from200"] = selz(cst[cst.step >= 200], "night")
     for q in sel:
         out[f"selz_{q}"] = selz(cst, q)

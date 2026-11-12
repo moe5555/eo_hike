@@ -6,7 +6,8 @@ and the step's interest decomposition.
 Pages go to runs/<run>/contact/page_NN.png (git-ignored); the first page, at half size, to notes/12_two_eye/results/<run>_contact_p1.png.
 Each step: the tile as the walker saw it (the store's render, no other stretch), the top crop (most novel of the 16) outlined in
 white over black, and under it three bars, the shares of |contribution| to interest at the choice: glance (blue), grid (orange),
-progress (green). The label is the step, the radius of the offers and the acquisition date; night cells say so.
+progress (green). The label is the step, the radius of the offers, the acquisition date (and, under the revisit rule, which acquisition
+of the cell, #1 = the earliest); night images say so.
 """
 
 from __future__ import annotations
@@ -53,7 +54,8 @@ def main() -> None:
                          f"glance (blue) / grid (orange) / progress (green).", fill=INK)
         for k, r in enumerate(page.itertuples()):
             x0, y0 = PAD + (k % cols) * cw, 22 + PAD + (k // cols) * ch
-            tile = Image.fromarray(store.get_lowres(int(r.tile_idx))).resize((TH, TH), Image.Resampling.BILINEAR)
+            img_id = int(r.image_key) if hasattr(r, "image_key") else int(r.tile_idx)  # the revisit rule: the image this step showed
+            tile = Image.fromarray(store.get_lowres(img_id)).resize((TH, TH), Image.Resampling.BILINEAR)
             S.paste(tile, (x0, y0))
             q = TH // 4
             ty, tx = divmod(int(r.top_crop), 4)
@@ -66,11 +68,15 @@ def main() -> None:
                 d.rectangle((bx, y0 + TH + 2, bx + w, y0 + TH + BAR), fill=COL[nm])
                 bx += w
             row = idx.loc[int(r.tile_idx)] if "timestamp" in idx else None
-            when = "" if row is None else str(pd.Timestamp(row.timestamp).date())
-            night = row is not None and bool(row.get("night", False))
-            d.text((x0, y0 + TH + BAR + 2), f"{r.step}  {r.r_km:.0f} km  {when}{'  NIGHT' if night else ''}", fill=INK)
-            if row is not None and "level" in idx:
-                d.text((x0, y0 + TH + BAR + 2 + LAB), f"{row.level} {row.grid_cell}", fill=(107, 106, 99))
+            if hasattr(r, "acq_date"):  # the acquisition the step showed, as the walk logged it
+                when, night, level, rank = str(pd.Timestamp(r.acq_date).date()), bool(r.acq_night), r.acq_level, f" #{int(r.acq_rank) + 1}"
+            else:
+                when = "" if row is None else str(pd.Timestamp(row.timestamp).date())
+                night = row is not None and bool(row.get("night", False))
+                level, rank = (row.level if row is not None and "level" in idx else ""), ""
+            d.text((x0, y0 + TH + BAR + 2), f"{r.step}  {r.r_km:.0f} km  {when}{rank}{'  NIGHT' if night else ''}", fill=INK)
+            if row is not None:
+                d.text((x0, y0 + TH + BAR + 2 + LAB), f"{level} {row.grid_cell}", fill=(107, 106, 99))
         pth = out / f"page_{p0 // a.per_page + 1:02d}.png"
         S.save(pth, optimize=True)
         print(pth)

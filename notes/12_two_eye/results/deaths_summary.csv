@@ -1,0 +1,13 @@
+cond,source,rule,n,walks,first,cloud_ge_03,bright_top,top_crop_quirky,maxerr_crop_quirky
+e12_grid_mean,drive,C3,1,1,742,1.0,0.0,,
+e12_grid_mean,glance,C1,1,1,532,0.0,1.0,1.0,1.0
+e12_grid_mean,glance,C2,1,1,532,0.0,1.0,1.0,1.0
+e12_grid_top4,drive,C3,1,1,894,1.0,1.0,,
+e12_grid_top4,glance,C1,2,1,395,0.5,0.5,1.0,1.0
+e12_grid_top4,glance,C2,1,1,490,1.0,1.0,1.0,1.0
+e12_null,drive,C3,3,1,503,0.0,0.0,,
+e12_null,glance,C1,2,1,481,0.0,0.0,1.0,1.0
+e12_two_top4,drive,C3,3,1,121,0.0,0.3333333333333333,,
+e12_two_top4,grid_max,C1,2,1,887,1.0,1.0,1.0,1.0
+e12_two_top4,grid_pooled,C1,1,1,889,1.0,1.0,1.0,1.0
+e12_v1,drive,C3,1,1,959,1.0,1.0,,

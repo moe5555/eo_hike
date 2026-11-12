@@ -80,3 +80,14 @@ As the brief, with these choices (each a config key, recorded in `meta.json`):
 - **Start:** cell `479U_839L` (43.068° N, 103.023° W), nearest the centre of `LM01_L1GS_136214_19720725` (the first Landsat 1 scene in Collection 2, 04:00:01 UTC, sun −15°). 434 cells show that scene first.
 - **Smoke walk** `e12_l1_smoke_s0` (two eyes, 100 steps): 1.1 s a step alone, 397 fetches, none failed. 61 revisits, 39 cells, ranks up to 8, 39 night steps, 40 % of offers at rank > 0.
 - **Factorial on the mission:** configs `e12_l1_*`, predictions 111–121, `scripts/hikes_e12.sh start l1`, three walkers side by side with six fetch workers each.
+
+## 2026-11-12, 11:37–14:25: the mission factorial walked and read
+
+- 18 of 18 walks finished. 23–33 min each, three side by side. 1 offer dropped on a fetch timeout in 18,000 steps; no failures.
+- The store's cache grew to 16 GB (45,736 images, ~0.35 MB each). It has no size cap: 14 GB were left on the Mac.
+- **Readout bugs, fixed after the walks** (definitions unchanged):
+  - `max_km_from_start` used flat degrees; it is now great-circle (`data.tile_store.haversine_km`);
+  - `analysis/e12/contact_sheet.py` and `walk_viewer.py` drew each cell's earliest image. They now draw the step's own image (`image_key`) with its acquisition from the walk's log.
+- **Night radiometry checked.** In `LM01_L1GS_136214_19720725`, the DN medians are 5 (green), 2 (red), 209 (nir08) and 8 (nir09), at a sun elevation of −15°. The CIR tile is red with saturated scan lines. As designed (M · DN + A); the brief's expectation of black was wrong about the data.
+- The forgetting check printed "False" because of missing values in v1's rows; every value at step 1,000 is below step 0.
+- The patch-shuffle test was run on the five pass walks with two eyes or grid (pass tiles), not on the mission.

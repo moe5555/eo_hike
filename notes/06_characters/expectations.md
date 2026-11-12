@@ -232,3 +232,12 @@ Readouts as for 96–110, computed per image (cell and acquisition), plus: revis
 119. **No edge pull** of the top crop: 0.70–0.80 (chance 0.75), as 103.
 120. **Forgetting.** Grid error on the mission forgetting set at step 1,000 below step 0 for every kind and walk.
 121. **Death dry run.** Max-grid surprise fires C1 at least as often as pooled grid and glance, summed over walks; its firings fall on striped, saturated or night tiles in at least 2/3.
+
+Scored 2026-11-12 in `notes/12_two_eye/observations.md`.
+- **Pass (96–110, six walks, seed 0):** 3 right (98, 101, 105), 2 mostly right (97, 103), 3 partly (100, 104, 107), 5 wrong (99, 102, 106, 108, 109), 2 superseded (96, 110).
+- **Mission (111–121):** 6 right (111, 115, 116, 118, 119, 120), 1 mostly right (113), 2 partly (114, 121), 1 mostly wrong (112), 1 wrong (117).
+- Not foreseen:
+  - night tiles are red, not black (nir08 ~209 DN with the sun at −15°);
+  - the early time well is the escape from the night start;
+  - every curious walker prefers a cell's earlier acquisitions, and clear, dark tiles;
+  - fill attracts at tile level while the top crop avoids it.
