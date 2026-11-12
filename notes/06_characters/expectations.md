@@ -241,3 +241,20 @@ Scored 2026-11-12 in `notes/12_two_eye/observations.md`.
   - the early time well is the escape from the night start;
   - every curious walker prefers clear, dark tiles (an apparent preference for earlier acquisitions is mostly place memory: corrected after review, observations finding 2);
   - fill attracts at tile level while the top crop avoids it.
+
+## Brief v2, Gate B: the dry runs on the clock world (added 2026-11-12, before any dry run; brief `notes/brief_landsat_v2_run.md`)
+
+Walks: curious (`configs/gen1/curious.yaml`, walker v2 = `e12_l1_two_top4`) and the compass Null (`null.yaml`), start cells 0–2 of `configs/gen1/start_list.csv` (seeds 0–2), each until the clock reaches T_end = 1977-12-20 or a dry-run cap of 3,000 steps. Set by hand: the time offer (next pass only), the closest-date rule, the end rule, the start list, the cap.
+
+Already seen, so not predicted: in 50-step smoke walks from start 0 (Rondônia, 4 passes at the start cell), both walkers made 4 waits and the clock reached 1974-01-01; a time offer existed in 18 % (curious) and 34 % (Null) of steps; ~1 s a step alone; the curious walker went 28 steps without any time offer.
+
+122. **The Null ends by the clock.** At least 2 of 3 Null walks end by `time` before 3,000 steps, at 300–2,500 steps. Low confidence: it depends on how often the region offers a later pass.
+123. **The curious walker waits less than the Null when it can.** P(wait | time offer available) is below the Null's (which is 1/n_offers ≈ 1/9) in at least 2 of 3 curious walks: a wait shows a place whose last image is in memory, so its novelty is low. As a result, curious walks are longer, and at least one hits the 3,000-step cap. Medium-low confidence.
+124. **When it waits, it waits for weather.** Curious waits land on tiles whose cloud share differs from the tile before by more than Null waits do (median |Δcloud|). Low confidence.
+125. **Clear over cloud.** Curious walkers' chosen tiles are less cloudy than their offers, for waits and moves alike (as in e12, "clear, dark tiles"). The Null shows no gap.
+126. **Δt.** Pooled over walks, the most common wait is one 18-day cycle; the median Δt is between 18 and 120 days; under 5 % of waits are 1-day sidelap waits (high latitudes only).
+127. **The clock is a staircase.** Every walk has at least one stretch of 25+ steps without a time offer.
+128. **Yield.** Unique tiles per step ≥ 0.6 in every walk. From the dry runs, N = 10,000 needs fewer than 30 walks per condition.
+129. **Compute.** 1–2.5 s a step with three walkers side by side, rising with memory size. Projected wall time for generation 1 at N = 10,000 under 72 h.
+130. **No edge pull** of the top crop: 0.70–0.80 (chance 0.75), as 119.
+131. **Nothing breaks.** No crash; under 1 % of offers dropped; the cache stays under its cap (12 GB) with no pinned tile evicted.
