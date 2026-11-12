@@ -13,7 +13,7 @@ steps: 15000                  # the step cap: a walk not ended by the clock stop
 ckpt_every: 1000              # encoders (ckpt_*.pt) and the state to resume from (resume.pt), logs flushed to parts/
 render_every: 500             # a contact sheet of the last 500 steps (contact/*.jpg)
 fetch_workers: 6              # cells read at once from Planetary Computer, per walker (three walkers side by side)
-mem_tiles: 8000               # rendered tiles kept in RAM per walker (~1.6 GB); the disk cache is capped by data/cache_cap.py
+mem_tiles: 2000               # rendered tiles kept in RAM per walker (~0.4 GB; 8,000 made three walkers swap on the 16 GB Mac); the disk cache is capped by data/cache_cap.py
 choice: uniform               # softmax | uniform: the Null, uniform over the offers available that step (the time offer included)
 crop_px: 64           # scale of attention (32 ~ 1.3 km, 64 ~ 2.6 km, 128 ~ 5 km)
 lr: 1.0e-3            # how quickly things become familiar

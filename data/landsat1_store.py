@@ -216,7 +216,7 @@ class Landsat1TileStore:
         self.stats = {"hit_mem": 0, "hit_disk": 0, "remote": 0, "fail": 0, "retry": 0, "remote_sec": 0.0, "scene_meta": 0}
         self.fetch_log: list[tuple[int, float, int]] = []
         self.qmem: OrderedDict[int, tuple] = OrderedDict()  # (cell, crop) quirk shares per image key, filled whenever a tile is read
-        self.qmem_cap = 50000
+        self.qmem_cap = 20000
         self.fail_log: list[tuple[int, str]] = []
         self._scene = self.idx.scene.to_numpy()
         self._win = self.idx[["r0", "c0"]].to_numpy()
@@ -318,6 +318,7 @@ class Landsat1TileStore:
         out = {}
         with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MERGE_CONSECUTIVE_RANGES="YES", GDAL_HTTP_MAX_RETRY="2",
                           GDAL_HTTP_TIMEOUT="60", GDAL_HTTP_CONNECTTIMEOUT="20",  # a stalled read fails and is retried, never hangs
+                          GDAL_CACHEMAX="64",  # MB; GDAL's default (5 % of RAM per process) made three walkers swap
                           GDAL_HTTP_RETRY_DELAY="1", CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".TIF,.tif"):
             for k in BANDS + QA:
                 try:
