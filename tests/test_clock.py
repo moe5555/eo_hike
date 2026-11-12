@@ -129,6 +129,16 @@ class OnePerDate(unittest.TestCase):
         self.assertTrue((np.diff(start) > 0).all())
 
 
+class StoreSettings(unittest.TestCase):
+    def test_the_gdal_settings_open(self):
+        import rasterio
+
+        from data.landsat1_store import GDAL_ENV
+
+        with rasterio.Env(**GDAL_ENV):  # a bad value (GDAL_CACHEMAX as a string) fails here, as it failed every read of the dry run
+            pass
+
+
 class EndRule(unittest.TestCase):
     def test_time_and_cap(self):
         self.assertEqual(CL.end_reason(100, 5, 100, 50), "time")

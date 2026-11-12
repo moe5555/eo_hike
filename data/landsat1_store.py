@@ -172,6 +172,13 @@ def render(bands: np.ndarray, lo=STRETCH_LO, hi=STRETCH_HI, out_px: int = LOW_PX
     return np.asarray(im.resize((out_px, out_px), Image.Resampling.BILINEAR if out_px >= n else Image.Resampling.BOX))
 
 
+# GDAL settings for the COG reads. GDAL_CACHEMAX must be an int (rasterio sets it through its own call; a string fails every read)
+GDAL_ENV = {"GDAL_DISABLE_READDIR_ON_OPEN": "EMPTY_DIR", "GDAL_HTTP_MERGE_CONSECUTIVE_RANGES": "YES", "GDAL_HTTP_MAX_RETRY": "2",
+            "GDAL_HTTP_RETRY_DELAY": "1", "CPL_VSIL_CURL_ALLOWED_EXTENSIONS": ".TIF,.tif",
+            "GDAL_HTTP_TIMEOUT": "60", "GDAL_HTTP_CONNECTTIMEOUT": "20",  # a stalled read fails and is retried, never hangs
+            "GDAL_CACHEMAX": 64}  # MB; GDAL's default (5 % of RAM per process) made three walkers swap
+
+
 class Signer:
     """Planetary Computer SAS tokens per storage container, renewed after 30 min or when forced (HTTP 403)."""
 
@@ -316,10 +323,7 @@ class Landsat1TileStore:
         n = NATIVE_PX + 2 * MARGIN
         win = Window(c0 - MARGIN, r0 - MARGIN, n, n)
         out = {}
-        with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MERGE_CONSECUTIVE_RANGES="YES", GDAL_HTTP_MAX_RETRY="2",
-                          GDAL_HTTP_TIMEOUT="60", GDAL_HTTP_CONNECTTIMEOUT="20",  # a stalled read fails and is retried, never hangs
-                          GDAL_CACHEMAX="64",  # MB; GDAL's default (5 % of RAM per process) made three walkers swap
-                          GDAL_HTTP_RETRY_DELAY="1", CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".TIF,.tif"):
+        with rasterio.Env(**GDAL_ENV):
             for k in BANDS + QA:
                 try:
                     with rasterio.open(self.sign(meta["href"][k])) as ds:
