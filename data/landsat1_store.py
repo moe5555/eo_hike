@@ -151,6 +151,13 @@ def quirk_arrays(dn: dict, qa_pixel: np.ndarray, qa_radsat: np.ndarray | None, m
     return cell, crops
 
 
+def mtl_number(v) -> float:
+    """A number of the MTL; NULL (or missing) is NaN. Some scenes carry a band without calibration (e.g. LM01_L1GS_086018_19770525:
+    band 4 is a constant DN 19 with NULL rescaling): its reflectance is undefined, so it is NaN, black in its channel of the one view,
+    and the scene's meta lists it as uncalibrated. Nothing is borrowed from another scene (the archive as stored)."""
+    return float("nan") if v is None or str(v).strip().upper() == "NULL" else float(v)
+
+
 def toa(dn: np.ndarray, mult: float, add: float, sun_elevation: float) -> np.ndarray:
     """TOA reflectance (M * DN + A) / sin(sun elevation); at night (sun <= 0) M * DN + A, without the sun term."""
     r = mult * dn.astype(np.float32) + add
@@ -305,9 +312,10 @@ class Landsat1TileStore:
                 resc, files = L["LEVEL1_RADIOMETRIC_RESCALING"], L["PRODUCT_CONTENTS"]
                 num = {b: next(k for k, v in files.items() if k.startswith("FILE_NAME_BAND_") and v == Path(href[b]).name).rsplit("_", 1)[1]
                        for b in BANDS}
-                meta = {"href": href, "num": num, "sun_elevation": float(L["IMAGE_ATTRIBUTES"]["SUN_ELEVATION"]),
-                        "mult": {b: float(resc[f"REFLECTANCE_MULT_BAND_{num[b]}"]) for b in BANDS},
-                        "add": {b: float(resc[f"REFLECTANCE_ADD_BAND_{num[b]}"]) for b in BANDS}}
+                mult = {b: mtl_number(resc.get(f"REFLECTANCE_MULT_BAND_{num[b]}")) for b in BANDS}
+                add = {b: mtl_number(resc.get(f"REFLECTANCE_ADD_BAND_{num[b]}")) for b in BANDS}
+                meta = {"href": href, "num": num, "sun_elevation": mtl_number(L["IMAGE_ATTRIBUTES"].get("SUN_ELEVATION")), "mult": mult, "add": add,
+                        "uncalibrated": [b for b in BANDS if not (np.isfinite(mult[b]) and np.isfinite(add[b]))]}
                 tmp = p.with_suffix(f".part{os.getpid()}{threading.get_ident()}")
                 tmp.write_text(json.dumps(meta))
                 os.replace(tmp, p)

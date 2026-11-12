@@ -139,6 +139,15 @@ class StoreSettings(unittest.TestCase):
             pass
 
 
+class Calibration(unittest.TestCase):
+    def test_null_rescaling_is_nan_not_an_error(self):
+        from data.landsat1_store import mtl_number, toa
+
+        self.assertTrue(np.isnan(mtl_number("NULL")) and np.isnan(mtl_number(None)))
+        self.assertEqual(mtl_number("1.3602E-03"), 1.3602e-3)
+        self.assertTrue(np.isnan(toa(np.full((2, 2), 19, np.uint8), mtl_number("NULL"), mtl_number("NULL"), 43.0)).all())
+
+
 class EndRule(unittest.TestCase):
     def test_time_and_cap(self):
         self.assertEqual(CL.end_reason(100, 5, 100, 50), "time")
