@@ -165,7 +165,7 @@ class TwoEye:
         contrib = {k: self.w[k] * z[k] for k in raw}
         I = sum(contrib.values())
         I_long = sum(self.w[k] * lz[k] for k in raw)
-        e_max = npy(enc["e_crop"].max(1))
+        e_max = npy(enc["e_crop"].amax(1))
         e_glance = npy(enc["e_map"].flatten(1).mean(1))
         # one row per offered crop
         C = len(cands)

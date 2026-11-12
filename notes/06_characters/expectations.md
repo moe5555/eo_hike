@@ -181,3 +181,32 @@ The long walk (predictions written for v1 = `e09_ref`; if the rule picks the pro
 90. **No collapse, and the cost.** No collapse flag over 15,000 steps. The walk takes 4–8 h alone, without a crash. Fewer than 100 fetches are dropped. The run folder is under 300 MB.
 
 Scored 2026-11-10 in `notes/09_compass/observations.md`, the long walk: 3 right (85, 86, 90), 1 mostly right (88: top tile 0.51 and 10,002 cells, just above), 1 partly (87: held-out falls, but novelty rises, 0.41 → 0.55), 1 wrong (89: Tobler ρ falls to −0.02 and the plateau is gone from step 1,500; land cover −0.02 from step 1,000). Not foreseen: a taste for texture, contrast and snow that grows for 6,000 steps, and a drift into the high north (78 % of steps north of 50° N from step 5,000).
+
+## Experiment 12: the two-eye walker (added 2026-11-12, before any factorial walk; brief: `notes/brief_landsat_pipeline.md`, E13–E16; log: `notes/12_two_eye/log.md`)
+
+Walks: the short factorial on the e10 pass world in sqrt tone (`c10680m_256px_cir_sqrt`), 1,000 steps, seeds 0–1: `e12_v1`, `e12_grid_mean` (k = 16), `e12_grid_top4`, `e12_grid_top1`, `e12_two_top4` (w_glance 1), `e12_two_top4_g2` (w_glance 2), `e12_null` (two eyes, top-4, uniform choice). Plus `e12_two_top4_shifted` and `_shuffled` (e09's existing radius schedules replayed), the brief's check of the interest statistics. Then a 500-step smoke walk on the mission world.
+
+Already seen, so not predicted: v1 is bit-identical (60 steps); a 120-step two-eye smoke walk (`e12_smoke_two_s0`) gave mean shares at the choice of glance 0.45, grid 0.34, progress 0.22, and lifts 0.49, 0.32, 0.10.
+
+Readouts are defined in `analysis/e12/readouts.py` (written before the walks finish, not changed after). Steps before 50 are left out. With two seeds, nothing here can be a lead or result by e08's rule (four seeds). A **hint** is: both seeds of a condition lie outside the Null's two-seed range, on the same side.
+
+The death dry run (brief D12), on logged surprise of the chosen tile before training, per source (glance; pooled grid; max grid):
+- C1: surprise above its running mean + 3 running SDs (rate 0.002, cumulative until step 500), after step 150.
+- C2: C1, but only after 50 steps in a row with drive d ≥ 0.
+- C3: d ≤ −δ (r_max) for 20 steps in a row.
+
+96. **Cost.** All 18 walks finish; 12–30 min each, three side by side. Two-eye walks take longer than v1.
+97. **Interest decomposition** (`e12_two_top4`). Mean share at the choice: glance 0.35–0.50, grid 0.30–0.45, progress 0.15–0.30. Lift of the glance above the grid's in both seeds. In `g2`: glance share 0.50–0.70, glance lift more than twice the grid's.
+98. **Stripes in the eye (within tile).** The top crop's stripe share exceeds the median of its tile's other crops in every grid and two-eye walk, the Null included: a striped crop is hard to place in memory. The ranking is the eye's, so the excess is within a factor of 2 across pooling.
+99. **Stripes in the choice (against the Null).** Selection of the chosen tile's most striped crop (selz): top-1 > top-4 > mean pooling, and top-1 a hint against the Null. v1 within ±0.1. Medium confidence.
+100. **The glance reads cloud and brightness.** Over offers, |ρ(glance novelty, cloud)| > |ρ(grid novelty, cloud)| in both seeds of `two_top4`. `g2` chooses cloudier tiles than the Null (a hint). Low confidence.
+101. **Crop memory tires of stripes faster than v1.** Stripe selection falls from steps 50–500 to 500–1,000 in both seeds of grid top-4 and top-1, and by more than in v1. Low confidence.
+102. **Fill and night.** Not testable on the pass (daylight only, fill ≤ 10 %). In the mission smoke walk, the top crop holds more fill than its tile's other crops (fill edges are novel). Low confidence.
+103. **No edge pull.** The top crop is an edge crop in 0.70–0.80 of chosen tiles in every walk (chance 0.75).
+104. **Patch shuffle.** Grid novelty does not change (|Δ| < 1e-5, by construction). Glance novelty of shuffled tiles is above that of the originals, median relative change above 10 %.
+105. **The revisit problem does not return.** Revisit share and straight-backs in grid and two-eye walks at most 1.5 × v1's, in both seeds.
+106. **The drive needs no recalibration.** Share of steps at r_max within a factor of 2 of v1's in every condition. Under the replayed schedules, far offers do not pay: far − near gap in offered interest (long yardstick) ≤ 0.1.
+107. **Forgetting.** Grid error on the forgetting set at step 1,000 below step 0 for every kind and walk. Between 500 and 1,000 the sea's error rises in both top-1 walks, not in mean pooling. Low confidence.
+108. **The shadow.** Over offers, Spearman(v1 shadow novelty, pooled grid novelty) ≥ 0.8 for mean pooling, 0.5–0.8 for top-1.
+109. **Death dry run.** Firings of C1 summed over walks: max grid ≥ pooled grid ≥ glance. Max-grid firings land on a tile whose top crop has stripe or DN-255 share above the walk's median crop in at least 2/3. Glance firings land on cloud ≥ 0.3 or the brightest quarter in at least 2/3. C3 fires in fewer than half the walks.
+110. **Mission smoke walk** (two eyes, top-4, 500 steps). 1.5–4 s a step with fetching, under 1 % of offers dropped, no crash.

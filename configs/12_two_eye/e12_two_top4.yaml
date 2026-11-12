@@ -1,0 +1,77 @@
+# Experiment 12 (notes/12_two_eye/), the short factorial of the brief (E14) on the e10 pass world in sqrt tone, 1,000 steps, seeds 0-1.
+# Two eyes, top-4 pooling, w_glance 1: judge of the whole and connoisseur of details weighted alike.
+# Everything else is walker v1 (configs/09_compass/walker_v1.yaml) as on the pass (configs/10_landsat_pass/e10_pass_v1.yaml).
+policy: curious       # curious | random
+seed: 0               # random init of the network (identical settings, different seeds -> divergence)
+start_lat: 41.5          # the centre of scene LM01_L1TP_183031_19721122 (the pass's first, northernmost scene)
+start_lon: 44.6
+crop_px: 64           # scale of attention (32 ~ 1.3 km, 64 ~ 2.6 km, 128 ~ 5 km)
+lr: 1.0e-3            # how quickly things become familiar
+buffer_size: 2048     # memory (patches)
+radius_km: 15         # classic only (compass: radius_min_km)
+p_long_jump: 0.02     # classic only: does nothing in compass mode
+patience: 0.6         # classic only: does nothing in compass mode
+temperature: 0.5      # softmax temperature over interest
+w_n: 1.0              # novelty weight
+w_g: 1.0              # progress weight
+w_e: 0.0              # raw surprise weight
+steps: 1000
+# fixed mechanics
+K: 16                 # patches per tile
+k_nn: 10              # novelty kNN in the archive
+probe_steps: 3        # s: Adam steps in the progress probe
+update_steps: 4       # u: Adam steps on the chosen tile
+replay_batch: 48      # replay patches mixed into each update (16 new + 48 replay = 64)
+reembed_every: 100
+ema_alpha: 0.02       # running z-score rate (~50-step memory)
+heldout_every: 25
+ckpt_every: 250
+# the world: one Landsat pass (data/landsat_pass.py), through the same store interface as the global index
+world: landsat_pass
+pass_world: data/landsat/LM01_183_19721122/c10680m_256px_cir_sqrt   # `python data/landsat_pass.py build --pass LM01_183_19721122 --tone sqrt` (the brief's eye colour)
+heldout: global       # the 200 held-out tiles are drawn from the whole pass
+cache_gb: 30          # unused: the pass is local
+prefetch_ring_km: 10  # unused: the pass is local
+fetch_timeout: 30     # unused: nothing is fetched, nothing is dropped
+# hike revisions (notes/04_perception_fix/, reflection_revisits.md options 1-4); defaults = the v3a walker
+score_crops: fixed            # random | fixed: score candidates (and the archive) on crops seeded by tile id; training keeps random crops
+refresh_archive: candidates   # none | candidates: re-embed a candidate's own archive entries (fresh look, current model) before novelty
+normalise_latents: true       # novelty on L2-normalised latents
+return_cost: 0.0              # temperament, not a fix: I -= return_cost * log(1 + visits)
+no_backstep: false            # temperament, not a fix: the tile just left is not a candidate
+# round h0111 (notes/07_film_arc/brief.md); the defaults (rng_mode legacy, choice softmax, teleport_landing blind, log_prev_error false, ae_width 1.0) = the h2910 walker
+rng_mode: split               # legacy | split: one independent random stream per decision
+choice: softmax               # softmax | uniform: uniform ignores the scores when choosing (the null walker)
+teleport_landing: blind       # blind | best_of_k: land on the most novel of landing_k random tiles
+landing_k: 1                  # number of tiles drawn by best_of_k
+log_prev_error: true          # log e_self_after and e_prev_after in steps.parquet; changes nothing in the walk
+ae_width: 1.0                 # multiplies the autoencoder's channels and latent size
+# experiment 09: the compass walker (agent/compass.py); nav classic (the default) is every earlier walker
+nav: compass                  # classic | compass: eight offers at one radius set by the drive; no far offers, no boredom, no teleports
+drive_signal: interest_long   # interest_long | interest | novelty | progress | surprise | novelty_z | progress_z (Stage 0 report, D1-D2)
+drive_norm: z_diff            # z_diff: (EMA_short - EMA_long) / SD_long | raw: EMA_short
+ema_alpha_long: 0.002         # yardstick of interest_long (~500 steps)
+drive_alpha_short: 0.05       # short average of the drive (~20 steps); default ema_alpha
+drive_alpha_long: 0.005       # long average of the drive (~200 steps); default ema_alpha_long
+drive_warmup: 50              # steps at radius_min_km before the radius rule starts
+drive_start: 50               # first step the drive counts; default 0 (Stage 1 round 2, finding 25)
+radius_min_km: 15             # r_min, the Reference's radius_km
+radius_max_km: 2000           # r_max (Stage 0.4, D6)
+radius_delta: 0.25            # r_max at d <= -radius_delta (Stage 1 round 2: chosen)
+radius_mode: deterministic    # deterministic | jitter (lognormal, SD radius_jitter in log r)
+radius_hysteresis: 0.0        # dead band: r_min while d >= -radius_hysteresis
+compass_frame: random         # fixed | random (theta drawn each step in [0, 45)) | heading
+persistence: 0.0              # heading frame only: interest += persistence * cos(bearing - heading)
+snap_tol: 0.25                # an offer may sit at most max(snap_tol * r, snap_floor_km) from its target
+snap_floor_km: 7.5            # half the diagonal of a 10 km grid cell (Stage 0.2)
+offer_stay: false             # the classic walker never offers its own cell (World.neighbours drops it)
+radius_schedule: null         # CSV with a radius_km column, one row per step: replayed instead of the rule (controls)
+# walker v2 (notes/brief_landsat_pipeline.md, B; agent/eyes.py). eye v1 is every earlier walker; the other keys do nothing under v1
+eye: two_eye                     # v1 | grid (w_glance 0) | two_eye: a glance at the whole tile and a 4 x 4 grid of crops, one network and memory each
+novelty_topk: 4              # grid novelty = mean of the top-k crop novelties (16 = mean pooling, 1 = the maximum)
+w_glance: 1.0                # weight of z(glance novelty) in interest: the temperament between the whole and the detail
+w_grid: 1.0                   # weight of z(pooled grid novelty); w_n is v1's novelty weight
+jitter_px: 4                  # training crops: the top-k crops (cycled to 16), each moved by up to this many px
+glance_replay_batch: 15       # glance training: the chosen glance + this many past glances
+forget_set: configs/12_two_eye/forget_pass.csv   # brief C10: 8 sea, 8 sand, 8 field tiles; errors of both eyes every forget_every steps
+forget_every: 500
