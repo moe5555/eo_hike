@@ -4,7 +4,7 @@
 #     scripts/gen1.sh start dryrun     # curious and Null, start cells 0-2, interleaved, until the clock ends them or 3,000 steps
 #     scripts/gen1.sh stop
 #
-# Detached, keeps the Mac awake; log runs/gen1_batch.log, one log per walk in runs/<phase>/logs/. Three walkers side by side with
+# Detached, keeps the Mac awake; log runs/gen1_batch.log, one log per walk in runs/<phase>/logs/. PARALLEL walkers side by side (2) with
 # three threads each, in the order curious 0, Null 0, curious 1, ... A finished walk (walk.json) is not repeated; an unfinished one with a
 # checkpoint is resumed. Beside the walkers: the cache cap (data/cache_cap.py, LRU, CAP_GB) and a watchdog that stops the batch if the
 # disk has under MIN_FREE_GB left or .git/objects grows by MAX_GIT_GROWTH_MB. Generation 1 (section 7) waits for Moe's approval at Gate B.
@@ -13,6 +13,7 @@ export OMP_NUM_THREADS=3 MKL_NUM_THREADS=3
 MIN_FREE_GB=5
 MAX_GIT_GROWTH_MB=1000
 CAP_GB=${CAP_GB:-12}
+PARALLEL=${PARALLEL:-2}  # walkers side by side: three swapped on the 16 GB Mac (each holds ~2 GB: the world index, its BallTree, tiles)
 PIDFILE=runs/gen1_batch.pgid
 LOG=runs/gen1_batch.log
 
@@ -71,12 +72,12 @@ walk() {
   fi
 }
 export -f walk
-echo "=== $(date '+%F %T') phase ${phase}, $(free_gb) GB free, cache cap ${CAP_GB} GB"
+echo "=== $(date '+%F %T') phase ${phase}, $(free_gb) GB free, cache cap ${CAP_GB} GB, ${PARALLEL} side by side"
 jobs_list=""
 case "$phase" in
   dryrun) for k in 0 1 2; do for c in curious null; do jobs_list+="$c $k dryrun 3000"$'\n'; done; done ;;
 esac
-printf '%s' "$jobs_list" | xargs -P 3 -L 1 bash -c 'walk "$0" "$1" "$2" "$3"'
+printf '%s' "$jobs_list" | xargs -P "$PARALLEL" -L 1 bash -c 'walk "$0" "$1" "$2" "$3"'
 echo "=== $(date '+%F %T') phase ${phase} done, $(free_gb) GB free"
 kill "$watchdog" "$cap_pid" 2>/dev/null
 rm -f "$PIDFILE"
