@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -25,6 +26,7 @@ import torch
 import yaml
 from PIL import Image
 
+from agent import clock as CL
 from agent import compass as CP
 from agent import signals as S
 from agent.model import CH, LATENT, ConvAE
@@ -157,21 +159,24 @@ def save_grid(x: torch.Tensor, path: Path, scale: int = 4) -> None:
     Image.fromarray(grid).resize((n * h * scale, n * h * scale), Image.Resampling.NEAREST).save(path)
 
 
-def run(cfg: dict, name: str) -> Path:
+def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, stop_after: int | None = None) -> Path:
+    """resume and stop_after: the clock walker only (brief v2). resume continues from <out>/resume.pt (the last checkpoint);
+    stop_after ends the process after the checkpoint at that step without finishing the walk (tests the resume)."""
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     seed = int(cfg["seed"])
-    out = RUNS / f"{name}_s{seed}"
+    out = Path(out) if out is not None else RUNS / f"{name}_s{seed}"
     (out / "daydreams").mkdir(parents=True, exist_ok=True)
-    for f in out.glob("*.pt"):
-        f.unlink()
-    for f in (out / "daydreams").glob("*.png"):
-        f.unlink()
+    if not resume:
+        for f in list(out.glob("*.pt")) + list((out / "daydreams").glob("*.png")) + list((out / "parts").glob("*")) + list((out / "contact").glob("*")):
+            f.unlink()
     (out / "config.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
 
     T = load_tiles(cfg, dev)
     idx, lat, lon = T.idx, T.lat, T.lon
-    t = T.start(cfg["start_lat"], cfg["start_lon"])
-    meta = {"run_id": out.name, "name": name, "seed": seed, "git": git_hash(), "start_tile": t, "n_tiles": T.N, "device": dev, "torch": torch.__version__, "torch_threads": torch.get_num_threads(), "started": time.strftime("%Y-%m-%d %H:%M:%S")}
+    # brief v2 (notes/brief_landsat_v2_run.md): stack clock, the wanderer's clock (agent/clock.py); the start cell comes from the shared start list
+    clockm = cfg.get("stack") == "clock"
+    t = int(cfg["start_idx"]) if clockm else T.start(cfg["start_lat"], cfg["start_lon"])
+    meta = {"run_id": cfg.get("walk_id", out.name), "name": name, "seed": seed, "git": git_hash(), "start_tile": t, "n_tiles": T.N, "device": dev, "torch": torch.__version__, "torch_threads": torch.get_num_threads(), "started": time.strftime("%Y-%m-%d %H:%M:%S")}
     if T.name != "regional":
         meta.update(world=T.name, pool_size=T.pool_size, start_cell=str(idx.grid_cell[t]), start_latlon=[float(lat[t]), float(lon[t])],
                     start_cover=str(idx.cover[t]), confine_center=cfg.get("confine_center"), confine_radius_km=cfg.get("confine_radius_km"),
@@ -192,9 +197,38 @@ def run(cfg: dict, name: str) -> Path:
         assert cfg.get("world") == "landsat1" and cfg.get("nav", "classic") == "compass", "stack: revisit_next needs world: landsat1 and nav: compass"
         from data.landsat1_store import image_key, split_key
 
+    if clockm:
+        assert cfg.get("world") == "landsat1" and cfg.get("nav", "classic") == "compass" and two, "stack: clock needs world: landsat1, nav: compass and eye grid | two_eye"
+        from data.landsat1_store import QUIRK_COLS, image_key, split_key
+
+        t_end, cap = CL.to_day(str(cfg["t_end"])), int(cfg["steps"])
+        clk = d_cur = int(T.store.days(t)[0])  # the clock starts at the start cell's first acquisition
+        cur_key = prev_key = int(image_key(t, 0))
+        render_every, ckpt_every = int(cfg.get("render_every", 500)), int(cfg["ckpt_every"])
+        assert ckpt_every % render_every == 0, "renders are drawn from the steps in memory: render_every must divide ckpt_every"
+        parts = out / "parts"
+        (out / "contact").mkdir(exist_ok=True)
+        pin = T.store.cache / "pins" / ("_".join(out.resolve().relative_to(RUNS.resolve()).parts) + ".txt")  # data/cache_cap.py never evicts these
+        pin.parent.mkdir(parents=True, exist_ok=True)
+        meta["clock"] = {"t_end": CL.to_date(t_end), "cap": cap, "start_idx": t, "start_cell": str(idx.grid_cell[t]), "start_clock": CL.to_date(clk),
+                         "archive_last": CL.to_date(int(T.store.ck_day.max())), "condition": cfg.get("condition"), "walk_id": cfg.get("walk_id")}
+        (out / "meta.json").write_text(json.dumps(meta, indent=2))
+
     def key_of(c: int) -> int:
-        """The image a cell shows now: its acquisition of rank = visits so far (stack), or the cell itself."""
+        """The image a cell shows now: under the clock, its acquisition closest to the clock (ties to the earlier pass); under the
+        revisit rule, its acquisition of rank = visits so far; otherwise the cell itself."""
+        if clockm:
+            return int(image_key(c, CL.closest_rank(T.store.days(c), clk)))
         return int(image_key(c, visits.get(c, 0))) if stack else c
+
+    def clock_offers(cands: list[int], kinds: list[str]) -> tuple[list[int], list[str], list[int], bool]:
+        """brief v2, 2: each compass offer shown at its acquisition closest to the clock, plus the time offer at the current cell (its
+        first acquisition after max(clock, the date now seen), next pass only), when there is one. Returns cells, kinds, image keys."""
+        keys = [key_of(c) for c in cands]
+        r = CL.time_offer(T.store.days(t), clk, d_cur)
+        if r is not None:
+            cands, kinds, keys = cands + [t], kinds + ["time"], keys + [int(image_key(t, r))]
+        return cands, kinds, keys, r is not None
 
     def last_key(c: int) -> int:
         """The image a cell showed at its last visit."""
@@ -304,6 +338,9 @@ def run(cfg: dict, name: str) -> Path:
 
             te = TwoEye(cfg, dev)
             model = te.grid
+            if clockm:  # crop quirks attached when scored: the cache may evict an offer's file before the walk ends
+                te.crop_quirk_fn = lambda keys: np.stack([T.store.crop_quirk_rows(k) for k in keys])
+                te.crop_quirk_cols = QUIRK_COLS
             meta["eye"] = {"eye": eye, "novelty_topk": te.k_top, "w": te.w, "jitter_px": te.jitter, "glance_replay_batch": te.glance_replay}
         else:
             model = ConvAE(tuple(int(c * ae_width) for c in CH), int(LATENT * ae_width)).to(dev)
@@ -343,6 +380,16 @@ def run(cfg: dict, name: str) -> Path:
         forget_log.extend({"step": step, "tile_idx": i, "kind": k, "e_grid": float(a), "e_glance": float(b)}
                           for i, k, a, b in zip(forget_ids, forget_kinds, eg, el))
 
+    def render_contact(s1: int) -> None:
+        """brief v2, 4: a contact sheet of the steps since the last one (every render_every steps, and at the end), as the walker saw them."""
+        from analysis.e12.contact_sheet import sheet
+
+        s_first = (s1 - 1) // render_every * render_every
+        page = pd.DataFrame([r for r in steps_log if r["step"] >= s_first])
+        title = (f"{cfg.get('walk_id', out.name)}: steps {s_first}-{s1 - 1}, clock {page.clock.iloc[0]} to {page.clock.iloc[-1]}. Outline: top crop. "
+                 f"Bars: glance / grid / progress share at the choice. WAIT = time offer; +Nd = tile date minus clock; N = night.")
+        sheet(T.store, page, title, th=96, cols=25).save(out / "contact" / f"steps_{s_first:05d}-{s1 - 1:05d}.jpg", quality=85)
+
     def reembed():
         nonlocal arch_z
         if two:
@@ -375,7 +422,40 @@ def run(cfg: dict, name: str) -> Path:
     if forget_x is not None:
         forget_eval(0)
 
-    for step in range(int(cfg["steps"])):
+    step0 = 0
+
+    def resume_state(s1: int) -> dict:
+        return {"step": s1, "t": t, "clk": clk, "d_cur": d_cur, "cur_key": cur_key, "prev_key": prev_key, "came_from": came_from, "heading": heading,
+                "r_now": r_now, "theta_now": theta_now, "visits": visits, "te": te, "drive": drive, "norms": norms, "long_norms": long_norms,
+                "held_log": held_log, "forget_log": forget_log, "land_log": land_log,
+                "rng": {"offer": r_offer, "land": r_land, "choice": r_choice, "compass": r_compass, "radius": r_radius},
+                "torch_gen": {"crops": gen.get_state(), "replay": gen_replay.get_state(), "daydream": gen_dream.get_state()},
+                "torch_rng": torch.get_rng_state(), "elapsed": time.time() - t0, "meta": meta}
+
+    if clockm and resume:  # brief v2, 4: continue from the last checkpoint, every state of the walker as it was
+        R = torch.load(out / "resume.pt", weights_only=False, map_location=dev)
+        step0, t, clk, d_cur, cur_key, prev_key = R["step"], R["t"], R["clk"], R["d_cur"], R["cur_key"], R["prev_key"]
+        came_from, heading, r_now, theta_now, visits = R["came_from"], R["heading"], R["r_now"], R["theta_now"], R["visits"]
+        te, drive, norms, long_norms = R["te"], R["drive"], R["norms"], R["long_norms"]
+        model = te.grid
+        te.crop_quirk_fn = lambda keys: np.stack([T.store.crop_quirk_rows(k) for k in keys])
+        held_log[:], forget_log[:], land_log[:] = R["held_log"], R["forget_log"], R["land_log"]
+        r_offer, r_land, r_choice, r_compass, r_radius = (R["rng"][k] for k in ("offer", "land", "choice", "compass", "radius"))
+        gen.set_state(R["torch_gen"]["crops"])
+        gen_replay.set_state(R["torch_gen"]["replay"])
+        gen_dream.set_state(R["torch_gen"]["daydream"])
+        torch.set_rng_state(R["torch_rng"])
+        t0 = time.time() - R["elapsed"]
+        meta = {**R["meta"], "resumed": meta.get("resumed", []) + R["meta"].get("resumed", []) + [{"at_step": step0, "time": time.strftime("%Y-%m-%d %H:%M:%S")}]}
+        for f in parts.glob("*"):  # chunks written after the checkpoint (a crash between flush and resume.pt) are written again
+            k = int(f.stem.rsplit("_", 1)[1])
+            if k >= te.n_parts:
+                f.unlink()
+        pin.write_text("".join(T.store.cache_path(k) + "\n" for k in dict.fromkeys(te.tiles)))
+        print(f"[{out.name}] resumed at step {step0}, clock {CL.to_date(clk)}", flush=True)
+    end_reason = None
+
+    for step in range(step0, int(cfg["steps"])):
         ts = time.time()
         # -- candidates ------------------------------------------------------------
         if compass:
@@ -394,6 +474,8 @@ def run(cfg: dict, name: str) -> Path:
             kinds = ["compass"] * len(cands)
             if offer_stay:
                 cands, kinds = cands + [t], kinds + ["stay"]
+            if clockm:
+                cands, kinds, ckeys, time_offered = clock_offers(cands, kinds)
         elif force_teleport:
             cands, kinds = [best_landing(step) if land_k else T.random_tile(r_land)], ["bored"]
             force_teleport = False
@@ -409,29 +491,51 @@ def run(cfg: dict, name: str) -> Path:
                 cands, kinds = [T.random_tile(r_land)], ["empty"]
 
         # -- look (lazy store: candidates that can't be fetched in time are dropped) ----
-        x, kept, fst = look_cells(cands, gen, fixed=fixed_crops) if not random_policy else (None, cands, {})
-        n_redraw = 0
-        if not random_policy and len(kept) < len(cands):
+        if clockm:  # offers are image keys: the time offer is the current cell at a later date
+            x, kept, fst = look(ckeys, gen)
+            n_redraw = 0
             if not kept:  # nothing arrived: wait longer rather than stall the walk on an empty choice
-                x, kept, fst2 = look_cells(cands, gen, timeout=120.0, fixed=fixed_crops)
+                x, kept, fst2 = look(ckeys, gen, timeout=120.0)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst2["dropped"]
-            while not kept:  # still nothing (e.g. one blind target that can't be fetched): blindly redraw it
+            while not kept:  # still nothing: turn the compass and try eight new cells at the same radius
                 n_redraw += 1
                 if n_redraw > 50:
-                    raise RuntimeError(f"step {step}: no candidate could be fetched after {n_redraw - 1} redraws")
-                if compass:  # turn the compass and try eight new cells at the same radius
-                    theta_now = float(r_compass.uniform(0.0, 360.0))
-                    cands, cinfo = compass_offers(t, r_now, theta_now)
-                    cands = cands or [T.random_tile(r_land)]
-                    kinds = ["compass"] * len(cands)
-                else:
-                    cands, kinds = [T.random_tile(r_land)], [kinds[0] if kinds[0] in ("bored", "empty") else "redraw"]
-                x, kept, fst2 = look_cells(cands, gen, timeout=120.0, fixed=fixed_crops)
+                    raise RuntimeError(f"step {step}: no offer could be fetched after {n_redraw - 1} redraws")
+                theta_now = float(r_compass.uniform(0.0, 360.0))
+                cands, cinfo = compass_offers(t, r_now, theta_now)
+                cands = cands or [T.random_tile(r_land)]
+                cands, kinds, ckeys, time_offered = clock_offers(cands, ["compass"] * len(cands))
+                x, kept, fst2 = look(ckeys, gen, timeout=120.0)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst["dropped"] + fst2["dropped"]
-            kinds = [k for c, k in zip(cands, kinds) if c in set(kept)]
-            cands = kept
+            ks = set(kept)
+            m = [k in ks for k in ckeys]
+            cands, kinds, ckeys = ([v for v, ok in zip(l, m) if ok] for l in (cands, kinds, ckeys))
+        else:
+            x, kept, fst = look_cells(cands, gen, fixed=fixed_crops) if not random_policy else (None, cands, {})
+            n_redraw = 0
+            if not random_policy and len(kept) < len(cands):
+                if not kept:  # nothing arrived: wait longer rather than stall the walk on an empty choice
+                    x, kept, fst2 = look_cells(cands, gen, timeout=120.0, fixed=fixed_crops)
+                    fst["wait_sec"] += fst2["wait_sec"]
+                    fst["dropped"] = fst2["dropped"]
+                while not kept:  # still nothing (e.g. one blind target that can't be fetched): blindly redraw it
+                    n_redraw += 1
+                    if n_redraw > 50:
+                        raise RuntimeError(f"step {step}: no candidate could be fetched after {n_redraw - 1} redraws")
+                    if compass:  # turn the compass and try eight new cells at the same radius
+                        theta_now = float(r_compass.uniform(0.0, 360.0))
+                        cands, cinfo = compass_offers(t, r_now, theta_now)
+                        cands = cands or [T.random_tile(r_land)]
+                        kinds = ["compass"] * len(cands)
+                    else:
+                        cands, kinds = [T.random_tile(r_land)], [kinds[0] if kinds[0] in ("bored", "empty") else "redraw"]
+                    x, kept, fst2 = look_cells(cands, gen, timeout=120.0, fixed=fixed_crops)
+                    fst["wait_sec"] += fst2["wait_sec"]
+                    fst["dropped"] = fst["dropped"] + fst2["dropped"]
+                kinds = [k for c, k in zip(cands, kinds) if c in set(kept)]
+                cands = kept
         C = len(cands)
 
         # -- signals + choice --------------------------------------------------------
@@ -441,7 +545,10 @@ def run(cfg: dict, name: str) -> Path:
             e = n = g = ez = nz = gz = I = np.full(C, np.nan)
             maxI = np.nan
         elif two:  # walker v2: glance and grid (agent/eyes.py); n is the pooled grid novelty, e the grid surprise (mean over crops)
-            sc = te.score(step, x, [key_of(c) for c in cands], set(te.tiles), refresh) if stack else te.score(step, x, cands, set(visits), refresh)
+            if clockm:
+                sc = te.score(step, x, ckeys, set(te.tiles), refresh)
+            else:
+                sc = te.score(step, x, [key_of(c) for c in cands], set(te.tiles), refresh) if stack else te.score(step, x, cands, set(visits), refresh)
             e, n, g = sc["raw"]["e"], sc["raw"]["grid"], sc["raw"]["g"]
             ez, nz, gz = sc["z"]["e"], sc["z"]["grid"], sc["z"]["g"]
             I, I_long = sc["I"], sc["I_long"]
@@ -450,6 +557,8 @@ def run(cfg: dict, name: str) -> Path:
                 I, I_long = I - rc, I_long - rc
             c_bear = CP.initial_bearing(lat[t], lon[t], lat[cands], lon[cands])
             c_dist = haversine_km(lat[t], lon[t], lat[cands], lon[cands])
+            if clockm:  # the time offer has no bearing
+                c_bear = np.where(np.array(kinds) == "time", np.nan, c_bear)
         else:
             g_t, _, _ = S.progress_probe(model, x, float(cfg["lr"]), int(cfg["probe_steps"]))
             e_t = S.recon_err(model, x)
@@ -479,22 +588,30 @@ def run(cfg: dict, name: str) -> Path:
         if not random_policy:
             if compass and persistence and heading is not None:  # temperament: a pull towards the current heading
                 I = I + persistence * np.cos(np.radians(c_bear - heading))
-            logits = I / float(cfg["temperature"])
-            p = np.exp(logits - logits.max())
-            p /= p.sum()
-            if uniform_choice:
-                p = np.full(C, 1.0 / C)
+            p = CL.choice_probs(I, float(cfg["temperature"]), uniform_choice)  # the Null: uniform over the offers available this step
             j = int(r_choice.choice(C, p=p))
             maxI = float(I.max())
             rec.update(p_chosen=float(p[j]), best_offer=bool(j == int(np.argmax(I))))  # brief C8; draws nothing
             extra = ({"n_glance": sc["raw"]["glance"], "n_glance_z": sc["z"]["glance"], "n_v1": sc["n_v1"], "e_max": sc["e_max"], "e_glance": sc["e_glance"]}
                      if two else {})
+            if clockm:  # each offer's image, date, offset from the clock and pixel quirks (fill, cloud, dropped) and night
+                ka = np.array(ckeys, np.int64)
+                cq = np.stack([T.store.quirk_row(k) for k in ckeys])
+                cday = T.store.day_of(ka).astype(np.int64)
+                extra.update(image_key=ka, acq_rank=split_key(ka)[1], day=cday, clock_day=np.full(C, clk), offset_days=cday - clk, night=T.store.night_of(ka),
+                             q_fill=cq[:, 0], q_cloud=cq[:, 1], q_dropped=cq[:, 2])
             for c in range(C):
                 cand_log.append({"step": step, "tile_idx": cands[c], "kind": kinds[c], "e": e[c], "n": n[c], "g": g[c], "e_z": ez[c], "n_z": nz[c], "g_z": gz[c], "I": I[c], "p": p[c], "chosen": c == j,
                                  **({"I_long": I_long[c], "bearing": c_bear[c], "cand_km": c_dist[c]} if compass else {}),
                                  **{k: v[c] for k, v in extra.items()}, **({"image_key": key_of(cands[c]), "acq_rank": visits.get(cands[c], 0)} if stack else {})})
         prev, t = t, cands[j]
         came_from = prev
+        if clockm:  # a time offer sets the clock to its date; sideways moves never change it
+            clk_before, prev_key, cur_key = clk, cur_key, ckeys[j]
+            if kinds[j] == "time":
+                clk = int(T.store.day_of(cur_key))
+            d_cur = int(T.store.day_of(cur_key))
+            assert cur_key == key_of(t), "the tile seen is not its cell's acquisition closest to the clock"
         if not compass:  # the compass walker prefetches exactly its next offers instead (below)
             T.prefetch(t)
         if compass:
@@ -507,7 +624,8 @@ def run(cfg: dict, name: str) -> Path:
             r_was, theta_was, info_was = r_now, theta_now, cinfo
             if step + 1 < int(cfg["steps"]):
                 r_now, theta_now = next_radius(step + 1), next_theta(heading)
-                T.store.prefetch([key_of(c) for c in compass_offers(t, r_now, theta_now)[0]])
+                nxt = compass_offers(t, r_now, theta_now)[0]
+                T.store.prefetch(clock_offers(nxt, ["compass"] * len(nxt))[2] if clockm else [key_of(c) for c in nxt])
 
         # -- train on the chosen tile --------------------------------------------------
         err_before = err_after = np.nan
@@ -518,9 +636,15 @@ def run(cfg: dict, name: str) -> Path:
             rec.update(err_glance_before=tr["err_glance_before"], err_glance_after=tr["err_glance_after"], **te.log_choice(j, sc))
             if log_prev:  # grid error (mean over the 16 crops) on this tile and the one before, after the update; draws no random numbers
                 rec["e_self_after"] = float(te.errors(xj)[0][0])
-                rec["e_prev_after"] = float(te.errors(look([last_key(prev) if prev != t else key_of(prev)], gen, timeout=600.0)[0])[0][0])
+                pk = prev_key if clockm else (last_key(prev) if prev != t else key_of(prev))
+                rec["e_prev_after"] = float(te.errors(look([pk], gen, timeout=600.0)[0])[0][0])
             if stack:
                 rec.update(image_key=key_of(t), acq_rank=visits.get(t, 0))
+            if clockm:
+                rec.update(image_key=cur_key, acq_rank=int(split_key(cur_key)[1]))
+                if cur_key not in te.tiles:
+                    with open(pin, "a") as fh:
+                        fh.write(T.store.cache_path(cur_key) + "\n")
             te.remember(key_of(t), xj)
             visits[t] = visits.get(t, 0) + 1
         elif not random_policy:
@@ -581,6 +705,14 @@ def run(cfg: dict, name: str) -> Path:
             rec.update(cover=str(idx.cover[t]), fetch_sec=float(fst.get("wait_sec", 0.0)), n_fetch=int(fst.get("n", 0)),
                        n_cache_hit=int(fst.get("cache_hits", 0)), n_dropped=len(fst.get("dropped", [])), n_redraw=n_redraw,
                        dropped=",".join(map(str, fst.get("dropped", []))))
+        if clockm:  # brief v2, 4: the clock, the offer taken, and the pixel quirks of the tile now seen
+            q = T.store.quirk_row(cur_key)
+            slot = [k for k in range(CP.N_BEARINGS) if int(cinfo["cell"][k]) == t and cinfo["drop"][k] == ""] if kinds[j] == "compass" else []
+            rec.update(clock_before=CL.to_date(clk_before), clock=CL.to_date(clk), clock_day=clk, tile_date=CL.to_date(d_cur), tile_day=d_cur,
+                       offset_days=d_cur - clk, offer_kind=kinds[j], compass_slot=slot[0] if slot else -1,
+                       wait_days=float(clk - clk_before) if kinds[j] == "time" else np.nan, n_offers=C, time_offered=bool(time_offered),
+                       time_available="time" in kinds, night=bool(T.store.night_of(cur_key)), cloud_cover=float(q[1]),
+                       **{f"q_{k}": float(v) for k, v in zip(QUIRK_COLS, q)})
         steps_log.append(rec)
 
         s1 = step + 1
@@ -595,13 +727,39 @@ def run(cfg: dict, name: str) -> Path:
                 forget_eval(s1)
         if s1 % 100 == 0:
             df = pd.DataFrame(steps_log[-100:])
-            print(f"[{out.name}] step {s1}  {time.time() - t0:.0f}s  uniq {len(set(r['tile_idx'] for r in steps_log))}  "
+            print(f"[{out.name}] step {s1}  {time.time() - t0:.0f}s  uniq {len(set(te.tiles)) if two else len(set(r['tile_idx'] for r in steps_log))}  "
+                  + (f"clock {CL.to_date(clk)}  waits {(df.offer_kind == 'time').mean():.2f}  " if clockm else "")
+                  + 
                   f"tv {df.tv.mean():.2f}  bored {df.bored_event.sum()}  B {B:.2f}  err {df.err_before.mean():.4f}"
                   + (f"  fetch {df.fetch_sec.mean():.2f}s  hit {df.n_cache_hit.sum() / max(df.n_fetch.sum(), 1):.2f}  dropped {df.n_dropped.sum()}"
                      if "fetch_sec" in df else ""), flush=True)
+        if clockm:
+            # brief v2, 3: the only ways a walk ends, the clock reaching T_end or the step cap. There is no death
+            end_reason = CL.end_reason(clk, s1, t_end, cap)
+            if render_every and (s1 % render_every == 0 or end_reason):
+                render_contact(s1)
+            if end_reason:
+                break
+            if s1 % ckpt_every == 0:  # brief v2, 4: checkpoint (encoders above, every 1,000 steps), logs flushed, the state to resume from
+                te.flush(parts)
+                k = te.n_parts - 1
+                pd.DataFrame(steps_log).to_parquet(parts / f"steps_{k:03d}.parquet")
+                pd.DataFrame(cand_log).to_parquet(parts / f"candidates_{k:03d}.parquet")
+                steps_log.clear()
+                cand_log.clear()
+                fn, te.crop_quirk_fn = te.crop_quirk_fn, None  # a closure over the store: not part of the state, set again on resume
+                torch.save(resume_state(s1), out / "resume.tmp")
+                te.crop_quirk_fn = fn
+                os.replace(out / "resume.tmp", out / "resume.pt")
+                if stop_after is not None and s1 >= stop_after:  # tests only: an interruption right after a checkpoint
+                    print(f"[{out.name}] stopped after the checkpoint at step {s1} (stop_after)", flush=True)
+                    return out
 
+    if clockm and te.n_parts:  # chunks flushed at checkpoints, then the rest
+        steps_log[:0] = [r for k in range(te.n_parts) for r in pd.read_parquet(parts / f"steps_{k:03d}.parquet").to_dict("records")]
+        cand_log[:0] = [r for k in range(te.n_parts) for r in pd.read_parquet(parts / f"candidates_{k:03d}.parquet").to_dict("records")]
     sl = pd.DataFrame(steps_log)
-    if stack and "image_key" in sl:  # the acquisition each step showed: scene, date, level, night
+    if (stack or clockm) and "image_key" in sl:  # the acquisition each step showed: scene, date, level, night
         a = T.store.acquisitions(sl.image_key.to_numpy())
         sl = sl.assign(acq_scene=a.scene.to_numpy(), acq_date=a.timestamp.to_numpy(), acq_level=a.level.to_numpy(), acq_night=a.night.to_numpy(),
                        acq_sun=a.sun_elevation.to_numpy())
@@ -614,7 +772,7 @@ def run(cfg: dict, name: str) -> Path:
             reembed()
             np.savez(out / "archive.npz", z=te.mem_v1.cpu().numpy(), tile_idx=np.array(te.tiles))
             daydream(te.grid, te.mem_crop.flatten(0, 1), gen_dream, out / "daydreams" / "final.png", int(cfg["k_nn"]))
-            te.save_logs(out, T.store)
+            te.save_logs(out, None if clockm else T.store)  # the clock walker attached crop quirks when it scored
             if forget_log:
                 pd.DataFrame(forget_log).to_parquet(out / "forgetting.parquet")
         else:
@@ -628,8 +786,22 @@ def run(cfg: dict, name: str) -> Path:
     if T.name != "regional":
         meta["store"] = T.summary()
         pd.DataFrame(T.store.fetch_log, columns=["tile_idx", "sec", "attempts"]).to_parquet(out / "fetches.parquet")
-    (out / "meta.json").write_text(json.dumps(meta, indent=2))
-    print(f"[{out.name}] done in {time.time() - t0:.0f}s -> {out}")
+    if clockm:  # brief v2, 4: the walk's summary
+        acq = T.store.acquisitions(sl.image_key.to_numpy())
+        walk = {"walk_id": cfg.get("walk_id", out.name), "condition": cfg.get("condition"), "seed": seed, "start_idx": int(cfg["start_idx"]),
+                "start_cell": meta["clock"]["start_cell"], "start_clock": meta["clock"]["start_clock"], "end_clock": CL.to_date(clk),
+                "steps": len(sl), "end_reason": end_reason, "unique_tiles": int(sl.image_key.nunique()), "unique_cells": int(sl.tile_idx.nunique()),
+                "waits": int((sl.offer_kind == "time").sum()), "t_end": CL.to_date(t_end), "cap": cap,
+                "night_share": float(acq.night.mean()), "seconds": round(time.time() - t0, 1), "git": meta["git"]}
+        meta["walk"] = walk
+        (out / "walk.json").write_text(json.dumps(walk, indent=2))
+        pin.unlink(missing_ok=True)
+        (out / "resume.pt").unlink(missing_ok=True)
+        for f in parts.glob("*"):
+            f.unlink()
+        parts.rmdir() if parts.exists() else None
+    (out / "meta.json").write_text(json.dumps(meta, indent=2, default=str))
+    print(f"[{out.name}] done in {time.time() - t0:.0f}s -> {out}" + (f"  end {end_reason}, clock {CL.to_date(clk)}" if clockm else ""))
     return out
 
 
@@ -651,12 +823,24 @@ def main() -> None:
     ap.add_argument("--seed", type=int)
     ap.add_argument("--steps", type=int)
     ap.add_argument("--name")
+    # brief v2: one wanderer per start cell of the shared start list; the walk number is its row (0-based) and its seed
+    ap.add_argument("--walk", type=int, help="row of the config's start_list: the start cell; seed = walk unless --seed")
+    ap.add_argument("--phase", default="gen1", help="runs/<phase>/<condition>/w<walk>/ (dryrun | gen1 | smoke | test)")
+    ap.add_argument("--resume", action="store_true", help="continue from the walk's last checkpoint (resume.pt)")
+    ap.add_argument("--stop-after", type=int, help="tests: end the process after the checkpoint at this step")
     a = ap.parse_args()
     cfg = yaml.safe_load(Path(a.config).read_text())
     if a.seed is not None:
         cfg["seed"] = a.seed
     if a.steps is not None:
         cfg["steps"] = a.steps
+    if a.walk is not None:
+        sl = pd.read_csv(ROOT / cfg["start_list"])
+        cfg["start_idx"] = int(sl.idx.iloc[a.walk])
+        cfg["seed"] = a.walk if a.seed is None else a.seed
+        cfg["walk_id"] = f"{cfg['condition']}_w{a.walk:03d}"
+        run(cfg, cfg["walk_id"], RUNS / a.phase / cfg["condition"] / f"w{a.walk:03d}", resume=a.resume, stop_after=a.stop_after)
+        return
     run(cfg, a.name or Path(a.config).stem)
 
 

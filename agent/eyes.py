@@ -121,6 +121,10 @@ class TwoEye:
         self.glance_err: list[np.ndarray] = []
         self.crop_lat: list[np.ndarray] = []
         self.glance_lat: list[np.ndarray] = []
+        # brief v2: crop quirks attached when the offers are scored (the cache may evict a tile later); keys -> [C, 16, Q] or None
+        self.crop_quirk_fn = None
+        self.crop_quirk_cols: tuple[str, ...] = ()
+        self.n_parts = 0  # log chunks flushed to <run>/parts/ (checkpoints, so a walk can resume)
 
     # -- encoding ------------------------------------------------------------------------------------------------------------
     @torch.no_grad()
@@ -178,6 +182,10 @@ class TwoEye:
         self._last_crops = pd.DataFrame({"step": step, "tile_idx": np.repeat(cands, N_CROPS), "crop": np.tile(k, C),
                                          "x": np.tile((k % GRID) * step_px, C), "y": np.tile((k // GRID) * step_px, C),
                                          "e": ec.ravel(), "n": nc.ravel(), "rank": rk.ravel(), "share": sh.ravel()})
+        if self.crop_quirk_fn is not None:
+            q = self.crop_quirk_fn(cands).reshape(C * N_CROPS, -1)
+            for i, col in enumerate(self.crop_quirk_cols):
+                self._last_crops[col] = q[:, i].astype(np.float32)
         return {"raw": raw, "z": z, "contrib": contrib, "I": I, "I_long": I_long, "n_v1": npy(n_v1), "n_v1_z": npy(z_v1),
                 "e_max": e_max, "e_glance": e_glance, "n_crop": n_crop, "rank": rank, "enc": enc}
 
@@ -276,7 +284,28 @@ class TwoEye:
     def state(self) -> dict:
         return {"model": self.grid.state_dict(), "glance": self.glance.state_dict()}
 
+    def flush(self, parts) -> None:
+        """Write the logs gathered since the last flush to parts/ as chunk n_parts, and clear them (memory stays flat; resume)."""
+        k = self.n_parts
+        parts.mkdir(parents=True, exist_ok=True)
+        pd.concat(self.crop_log, ignore_index=True).to_parquet(parts / f"crops_{k:03d}.parquet") if self.crop_log else None
+        pd.DataFrame(self.train_log).to_parquet(parts / f"train_crops_{k:03d}.parquet")
+        for nm, v in (("glance_err", self.glance_err), ("crop_latents", self.crop_lat), ("glance_latents", self.glance_lat)):
+            if v:
+                np.save(parts / f"{nm}_{k:03d}.npy", np.stack(v))
+        self.crop_log, self.train_log, self.glance_err, self.crop_lat, self.glance_lat = [], [], [], [], []
+        self.n_parts = k + 1
+
     def save_logs(self, out, store=None) -> None:
+        parts = out / "parts"
+        if self.n_parts:  # chunks flushed at checkpoints come first
+            def chunks(nm, ext):
+                return [parts / f"{nm}_{k:03d}.{ext}" for k in range(self.n_parts) if (parts / f"{nm}_{k:03d}.{ext}").exists()]
+            self.crop_log = [pd.read_parquet(f) for f in chunks("crops", "parquet")] + self.crop_log
+            self.train_log = [r for f in chunks("train_crops", "parquet") for r in pd.read_parquet(f).to_dict("records")] + self.train_log
+            self.glance_err = [a for f in chunks("glance_err", "npy") for a in np.load(f)] + self.glance_err
+            self.crop_lat = [a for f in chunks("crop_latents", "npy") for a in np.load(f)] + self.crop_lat
+            self.glance_lat = [a for f in chunks("glance_latents", "npy") for a in np.load(f)] + self.glance_lat
         crops = pd.concat(self.crop_log, ignore_index=True) if self.crop_log else pd.DataFrame()
         if store is not None and hasattr(store, "crop_quirks") and len(crops):
             q = store.crop_quirks(np.unique(crops.tile_idx))

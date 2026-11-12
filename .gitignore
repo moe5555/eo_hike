@@ -18,3 +18,4 @@ third_party/
 .DS_Store
 !data/landsat1_world.py
 !data/landsat1_store.py
+!data/cache_cap.py

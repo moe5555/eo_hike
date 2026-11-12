@@ -4,6 +4,8 @@
     python data/landsat1_world.py candidates   # every Landsat 1 acquisition covering each land cell -> candidates.parquet, scenes.parquet
     python data/landsat1_world.py index        # the selection rule (earliest) -> index.parquet, world.json
     python data/landsat1_world.py stack        # every cell's acquisitions in date order, one per day -> stack/ (the revisit rule)
+    python data/landsat1_world.py clock        # brief v2: every cell's acquisitions, one product per date (highest level) -> clock/
+    python data/landsat1_world.py startlist    # brief v2: the shared, seeded start list (500 cells of the first 18-day cycle) -> configs/gen1/
     python data/landsat1_world.py check        # the grid against the Major TOM cells of data/global/index.parquet
 
 The tiles themselves are read lazily by data/landsat1_store.Landsat1TileStore; the portrait of the world is analysis/landsat1/portrait.py.
@@ -294,6 +296,102 @@ def cmd_stack() -> None:
           f"{time.time() - t0:.0f} s -> {STACK_DIR}")
 
 
+# -- the clock world (notes/brief_landsat_v2_run.md, 1) ----------------------------------------------------------------------------
+CLOCK_DIR = OUT / "clock"  # acquisitions.parquet (the world), CSR arrays start/day/scene/r0/c0/night .npy (memory-mapped), clock.json
+LEVEL_RANK = {"L1TP": 0, "L1GT": 1, "L1GS": 2}  # highest processing level first
+EPOCH = np.datetime64("1970-01-01", "D")
+START_CYCLE_DAYS = 18  # Landsat 1's repeat cycle: the start pool is every cell with an acquisition in the archive's first 18 days
+
+
+def one_per_day(c: pd.DataFrame, product_id: np.ndarray) -> pd.DataFrame:
+    """One product per (cell, day): the highest processing level (LEVEL_RANK), ties by product ID (ascending). c needs cell, day,
+    level, scene; product_id maps scene -> ID. Adds n_same_day and chosen_by ('only' | 'level' | 'product_id')."""
+    c = c.assign(_lv=c.level.astype(str).map(LEVEL_RANK).astype(np.int8), _pid=product_id[c.scene.to_numpy()])
+    c = c.sort_values(["cell", "day", "_lv", "_pid"], kind="stable")
+    g = c.groupby(["cell", "day"], sort=False)
+    n = g._lv.transform("size")
+    nlv = g._lv.transform("nunique")
+    out = c.drop_duplicates(["cell", "day"], keep="first").copy()
+    out["n_same_day"] = n.loc[out.index].astype(np.int16).to_numpy()
+    k = nlv.loc[out.index].to_numpy()
+    out["chosen_by"] = pd.Categorical(np.where(out.n_same_day == 1, "only", np.where(k > 1, "level", "product_id")))
+    return out.drop(columns=["_lv", "_pid"])
+
+
+def cmd_clock() -> None:
+    """The world of brief v2: for every cell of the index, all its acquisitions, one product per date, sorted by date. Written as
+    acquisitions.parquet (idx, cell, day, scene, product_id, level, tier, night, r0, c0, n_same_day, chosen_by) and as CSR arrays over
+    the index's idx (entry k of cell i at start[i] + k), plus clock.json: cells, passes per cell, first and last dates, the start pool."""
+    t0 = time.time()
+    x = pd.read_parquet(INDEX_PQ, columns=["idx", "cell", "grid_cell"])
+    sc = pd.read_parquet(SCENES_PQ, columns=["scene", "id", "tier"])
+    pid = sc.sort_values("scene").id.to_numpy()
+    c = pd.read_parquet(CAND_PQ, columns=["cell", "scene", "day", "level", "night", "r0", "c0", "in_raster"])
+    n_pairs = len(c)
+    c = c[c.in_raster].drop(columns="in_raster")
+    n_in = len(c)
+    c = one_per_day(c, pid)
+    pos = pd.Series(x.idx.to_numpy(), index=x.cell.to_numpy())
+    c["idx"] = pos.reindex(c.cell.to_numpy()).to_numpy()
+    assert c.idx.notna().all(), "an acquisition of a cell outside the index"
+    c = c.sort_values(["idx", "day"], kind="stable").reset_index(drop=True)
+    n = np.bincount(c.idx.to_numpy(), minlength=len(x))
+    assert (n > 0).all(), "a cell of the index without acquisitions"
+    start = np.zeros(len(x) + 1, np.int64)
+    start[1:] = np.cumsum(n)
+    day = ((c.day.to_numpy().astype("datetime64[D]") - EPOCH).astype(np.int32))
+    assert (np.diff(day)[np.diff(c.idx.to_numpy()) == 0] > 0).all(), "dates not strictly increasing within a cell"
+    CLOCK_DIR.mkdir(parents=True, exist_ok=True)
+    arrs = {"start": start, "day": day, "scene": c.scene.to_numpy(np.int32), "r0": c.r0.to_numpy(np.int32), "c0": c.c0.to_numpy(np.int32),
+            "night": c.night.to_numpy(bool)}
+    for k, v in arrs.items():
+        np.save(CLOCK_DIR / f"{k}.npy", v)
+    tier = sc.set_index("scene").tier.reindex(c.scene.to_numpy()).to_numpy()
+    out = pd.DataFrame({"idx": c.idx.to_numpy(np.int64), "cell": c.cell.to_numpy(np.int32), "day": c.day.to_numpy(), "scene": c.scene.to_numpy(np.int32),
+                        "product_id": pd.Categorical(pid[c.scene.to_numpy()]), "level": pd.Categorical(c.level.astype(str)), "tier": pd.Categorical(tier),
+                        "night": c.night.to_numpy(bool), "r0": c.r0.to_numpy(np.int32), "c0": c.c0.to_numpy(np.int32),
+                        "n_same_day": c.n_same_day.to_numpy(), "chosen_by": c.chosen_by})
+    out.to_parquet(CLOCK_DIR / "acquisitions.parquet")
+    d0, d1 = int(day.min()), int(day.max())
+    first_day = day[start[:-1]]
+    pool = np.flatnonzero(first_day < d0 + START_CYCLE_DAYS)
+    np.save(CLOCK_DIR / "start_pool.npy", pool.astype(np.int64))
+    q = np.percentile(n, [0, 10, 25, 50, 75, 90, 99, 100])
+    info = {"world": "landsat1_clock", "rule": "all acquisitions per cell; one product per date: highest level (L1TP > L1GT > L1GS), ties by product ID",
+            "n_cells": int(len(x)), "n_acquisitions": int(len(c)), "n_pairs": int(n_pairs), "n_pairs_in_raster": int(n_in),
+            "passes_per_cell": {"mean": float(n.mean()), **{f"p{p}": float(v) for p, v in zip((0, 10, 25, 50, 75, 90, 99, 100), q)}},
+            "cells_with_one_pass": int((n == 1).sum()),
+            "first_date": str(EPOCH + np.timedelta64(d0, "D")), "last_date": str(EPOCH + np.timedelta64(d1, "D")),
+            "start_pool": {"rule": f"first acquisition before {EPOCH + np.timedelta64(d0 + START_CYCLE_DAYS, "D")} (the first {START_CYCLE_DAYS}-day cycle)", "n_cells": int(len(pool))},
+            "chosen_by": out.chosen_by.value_counts().to_dict(), "levels": out.level.value_counts().to_dict(), "night": int(out.night.sum()),
+            "built": time.strftime("%Y-%m-%d %H:%M:%S")}
+    (CLOCK_DIR / "clock.json").write_text(json.dumps(info, indent=1, default=str))
+    print(json.dumps(info, indent=1, default=str))
+    print(f"[clock] {time.time() - t0:.0f} s -> {CLOCK_DIR}")
+
+
+def cmd_startlist(n: int = 500, seed: int = 20261112) -> None:
+    """brief v2, 6: the shared start list, a seeded, ordered draw (without replacement) of n cells from the start pool. Walk k of every
+    condition starts at row k. -> configs/gen1/start_list.csv"""
+    pool = np.load(CLOCK_DIR / "start_pool.npy")
+    x = pd.read_parquet(INDEX_PQ, columns=["idx", "grid_cell", "lat", "lon", "cover"])
+    start = np.load(CLOCK_DIR / "start.npy")
+    day = np.load(CLOCK_DIR / "day.npy", mmap_mode="r")
+    night = np.load(CLOCK_DIR / "night.npy", mmap_mode="r")
+    pick = np.random.default_rng(seed).choice(pool, n, replace=False)
+    e = start[pick]
+    out = x.set_index("idx").loc[pick].reset_index()
+    out.insert(0, "walk", np.arange(n))
+    out["first_date"] = (EPOCH + np.asarray(day[e]).astype("timedelta64[D]")).astype(str)
+    out["first_night"] = np.asarray(night[e])
+    out["n_passes"] = (start[pick + 1] - start[pick]).astype(int)
+    dst = ROOT.parent / "configs" / "gen1" / "start_list.csv"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    out.to_csv(dst, index=False)
+    print(f"[startlist] {n} of {len(pool):,} start-pool cells, seed {seed}; night starts {out.first_night.mean():.3f}; -> {dst}")
+    print(out.head(6).to_string())
+
+
 def cmd_index(rule: str = "earliest") -> None:
     t0 = time.time()
     g = pd.read_parquet(GRID_PQ)
@@ -329,4 +427,4 @@ def cmd_index(rule: str = "earliest") -> None:
 
 if __name__ == "__main__":
     cmd = sys.argv[1]
-    {"grid": cmd_grid, "check": cmd_check, "candidates": cmd_candidates, "stack": cmd_stack, "index": lambda: cmd_index(*(sys.argv[2:3] or ["earliest"]))}[cmd]()
+    {"grid": cmd_grid, "check": cmd_check, "candidates": cmd_candidates, "stack": cmd_stack, "clock": cmd_clock, "startlist": cmd_startlist, "index": lambda: cmd_index(*(sys.argv[2:3] or ["earliest"]))}[cmd]()

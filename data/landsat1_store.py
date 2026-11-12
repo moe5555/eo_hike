@@ -196,6 +196,8 @@ class Signer:
 
 
 class Landsat1TileStore:
+    _meta_from_stack = False  # the clock store takes every image's metadata from its own lists
+
     def __init__(self, cache_dir: Path | str = CACHE, workers: int = WORKERS, retries: int = RETRIES, mem_low: int = 20000,
                  index: pd.DataFrame | None = None) -> None:
         self.idx = index if index is not None else pd.read_parquet(INDEX_PQ)
@@ -213,6 +215,8 @@ class Landsat1TileStore:
         self.sign = Signer()
         self.stats = {"hit_mem": 0, "hit_disk": 0, "remote": 0, "fail": 0, "retry": 0, "remote_sec": 0.0, "scene_meta": 0}
         self.fetch_log: list[tuple[int, float, int]] = []
+        self.qmem: OrderedDict[int, tuple] = OrderedDict()  # (cell, crop) quirk shares per image key, filled whenever a tile is read
+        self.qmem_cap = 50000
         self.fail_log: list[tuple[int, str]] = []
         self._scene = self.idx.scene.to_numpy()
         self._win = self.idx[["r0", "c0"]].to_numpy()
@@ -325,13 +329,28 @@ class Landsat1TileStore:
         out["meta"] = meta
         return out
 
+    def _adopt(self, i: int, p: Path) -> None:
+        """Hook: move an existing cache file of the same window into place (Landsat1ClockStore). Nothing here."""
+
     def _load(self, i: int) -> np.ndarray:
-        """Make sure cell i is in the disk cache; return its 256 px tile."""
+        """Make sure cell i is in the disk cache; return its 256 px tile. A disk hit touches the file's mtime (the cache cap's LRU,
+        data/cache_cap.py); a file evicted between the check and the read is fetched again."""
         p = self._p(i)
+        if not p.exists():
+            self._adopt(i, p)
         if p.exists():
-            self.stats["hit_disk"] += 1
-            with np.load(p) as z:
-                return render(z["toa"])
+            try:
+                with np.load(p) as z:
+                    a, q = render(z["toa"]), (z["q_cell"], z["q_crop"])
+                self._remember_q(i, q)
+                self.stats["hit_disk"] += 1
+                try:
+                    os.utime(p)
+                except OSError:
+                    pass
+                return a
+            except (FileNotFoundError, OSError, ValueError):  # evicted (or cut short) under our feet: fetch again
+                self.stats["evicted_reload"] = self.stats.get("evicted_reload", 0) + 1
         t0, err = time.time(), None
         for a in range(self.retries):
             try:
@@ -357,12 +376,16 @@ class Landsat1TileStore:
             valid &= w[b][sl, sl] > 0
         bands = np.stack([toa(w[b][sl, sl], meta["mult"][b], meta["add"][b], sun) for b in BANDS])
         bands[:, ~valid] = np.nan
+        # the one view is rendered from what the cache stores (float16), so a tile fetched now and the same tile read from disk later are
+        # the same pixels (before 2026-11-12 the fresh read rendered float32: a cold and a warm cache gave walks different views)
+        bands = bands.astype(np.float16)
         qc, qk = quirk_arrays({b: w[b] for b in BANDS}, w["qa_pixel"], w["qa_radsat"])
         p.parent.mkdir(parents=True, exist_ok=True)
         tmp = p.with_name(f"{p.stem}.part{os.getpid()}_{threading.get_ident()}.npz")
-        np.savez(tmp, toa=bands.astype(np.float16), qa_pixel=w["qa_pixel"][sl, sl], qa_radsat=w["qa_radsat"][sl, sl], q_cell=qc, q_crop=qk,
+        np.savez(tmp, toa=bands, qa_pixel=w["qa_pixel"][sl, sl], qa_radsat=w["qa_radsat"][sl, sl], q_cell=qc, q_crop=qk,
                  fetched=np.array(time.time()))
         os.replace(tmp, p)
+        self._remember_q(i, (qc, qk))
         return render(bands)
 
     def _submit(self, i: int) -> Future:
@@ -377,6 +400,13 @@ class Landsat1TileStore:
     def _done(self, i: int) -> None:
         with self.lock:
             self.inflight.pop(i, None)
+
+    def _remember_q(self, i: int, q: tuple) -> None:
+        with self.lock:
+            self.qmem[i] = q
+            self.qmem.move_to_end(i)
+            while len(self.qmem) > self.qmem_cap:
+                self.qmem.popitem(last=False)
 
     def _remember(self, i: int, a: np.ndarray) -> None:
         with self.lock:
@@ -406,6 +436,9 @@ class Landsat1TileStore:
                 out[i] = a
                 n_hit += 1
                 self.stats["hit_mem"] += 1
+                if i in self.qmem:
+                    with self.lock:
+                        self.qmem.move_to_end(i)
             elif i not in futs:
                 n_hit += self._p(i).exists()
                 futs[i] = self._submit(i)
@@ -456,7 +489,7 @@ class Landsat1TileStore:
                 with np.load(p) as z:
                     rows.append((i, *z["q_cell"].tolist()))
         q = pd.DataFrame(rows, columns=["tile_idx", *QUIRK_COLS])
-        if len(q) and (split_key(q.tile_idx.to_numpy())[1] > 0).any():  # images of later acquisitions: metadata from the stack
+        if len(q) and (self._meta_from_stack or (split_key(q.tile_idx.to_numpy())[1] > 0).any()):  # later acquisitions (or the clock world): metadata from the stack
             a = self.acquisitions(q.tile_idx.to_numpy())
             a["grid_cell"] = self.idx.grid_cell.to_numpy()[a.cell.to_numpy()]
             meta = a[["grid_cell", "cell", "rank", "scene", "timestamp", "level", "tier", "night", "sun_elevation", "scene_cloud", "path", "wrs_row"]]
@@ -490,6 +523,104 @@ class Landsat1TileStore:
         s.update(remote_p50=float(np.median(lat)), remote_p95=float(np.percentile(lat, 95)), sas_renewals=self.sign.n_renew,
                  n_failed=len(self.fail_log), stretch_source=STRETCH_SOURCE, tone=TONE)
         return s
+
+
+CLOCK = WORLD / "clock"
+
+
+class Landsat1ClockStore(Landsat1TileStore):
+    """The clock world of brief v2 (data/landsat1_world.py `clock`): every cell's acquisitions, one product per date, in date order.
+    Image key = idx + rank * KEY_STRIDE, rank in the cell's clock list (rank 0 = its first date). Cache files are named by scene,
+    <idx>_s<scene>.npz, so a file always names the window it holds; on a miss, a file of the same (cell, scene) from the e12 cache
+    (<idx>.npz or <idx>_r<rank>.npz) is moved into place instead of being fetched again (the windows are identical)."""
+
+    _meta_from_stack = True
+
+    def __init__(self, *a, **k) -> None:
+        super().__init__(*a, **k)
+        self.ck = {n: np.load(CLOCK / f"{n}.npy", mmap_mode="r") for n in ("start", "day", "scene", "r0", "c0", "night")}
+        self.ck_start = np.asarray(self.ck["start"])
+        self.ck_day = np.asarray(self.ck["day"])
+        self._load_stack()
+        self._scene_id = self._scenes.id.reindex(np.arange(int(self._scenes.index.max()) + 1)).to_numpy()
+        self._scene_sun = self._scenes.sun_elevation.reindex(np.arange(int(self._scenes.index.max()) + 1)).to_numpy()
+
+    # -- the clock ---------------------------------------------------------------------------------------------------------
+    def days(self, cell: int) -> np.ndarray:
+        """Acquisition days (since 1970-01-01) of a cell, strictly increasing."""
+        c = int(cell)
+        return self.ck_day[self.ck_start[c] : self.ck_start[c + 1]]
+
+    def stack_len(self, cell: int) -> int:
+        c = int(cell)
+        return int(self.ck_start[c + 1] - self.ck_start[c])
+
+    def _entry(self, key) -> np.ndarray:
+        cell, rank = split_key(key)
+        e = self.ck_start[cell] + rank
+        assert np.all(rank < self.ck_start[cell + 1] - self.ck_start[cell]), "rank beyond the cell's acquisitions"
+        return e
+
+    def day_of(self, key) -> np.ndarray:
+        return self.ck_day[self._entry(key)]
+
+    def night_of(self, key) -> np.ndarray:
+        return np.asarray(self.ck["night"])[self._entry(key)]
+
+    def _resolve(self, key: int) -> tuple[str, int, int, float]:
+        e = int(self._entry(int(key)))
+        sc = int(self.ck["scene"][e])
+        return str(self._scene_id[sc]), int(self.ck["r0"][e]), int(self.ck["c0"][e]), float(self._scene_sun[sc])
+
+    def acquisitions(self, keys) -> pd.DataFrame:
+        keys = np.asarray(list(keys), np.int64)
+        cell, rank = split_key(keys)
+        e = self._entry(keys) if len(keys) else np.zeros(0, int)
+        sc = np.asarray(self.ck["scene"])[e]
+        m = self._scenes.loc[sc].reset_index(drop=True)
+        return pd.concat([pd.DataFrame({"tile_idx": keys, "cell": cell, "rank": rank, "day": self.ck_day[e]}),
+                          m.rename(columns={"id": "scene", "datetime": "timestamp"})], axis=1)
+
+    # -- cache ---------------------------------------------------------------------------------------------------------------
+    def _p(self, i: int) -> Path:
+        cell = int(split_key(int(i))[0])
+        sc = int(self.ck["scene"][int(self._entry(int(i)))])
+        return self.cache / str(cell // 10000) / f"{cell}_s{sc}.npz"
+
+    def _adopt(self, i: int, p: Path) -> None:
+        cell = int(split_key(int(i))[0])
+        sc = int(self.ck["scene"][int(self._entry(int(i)))])
+        old = []
+        if str(self._scene[cell]) == str(self._scene_id[sc]):  # the earliest rule's acquisition (e12 rank 0)
+            old.append(self.cache / str(cell // 10000) / f"{cell}.npz")
+        st = self._stack
+        s0, s1 = int(st["start"][cell]), int(st["start"][cell + 1])
+        hit = np.flatnonzero(np.asarray(st["scene"][s0:s1]) == sc)
+        old += [self.cache / str(cell // 10000) / f"{cell}_r{int(r)}.npz" for r in hit if r > 0]
+        for o in old:
+            try:
+                os.replace(o, p)
+                self.stats["adopted"] = self.stats.get("adopted", 0) + 1
+                return
+            except FileNotFoundError:
+                continue
+
+    def cached_ids(self) -> np.ndarray:
+        raise NotImplementedError("clock cache files are named by scene; list them with data/cache_cap.py")
+
+    def quirk_row(self, key: int) -> np.ndarray:
+        """Quirk shares (QUIRK_COLS) of an image already read; NaN if this store has not read it (or forgot it)."""
+        q = self.qmem.get(int(key))
+        return np.full(len(QUIRK_COLS), np.nan, np.float32) if q is None else q[0]
+
+    def crop_quirk_rows(self, key: int) -> np.ndarray:
+        """[16, QUIRK_COLS] of an image already read; NaN if not."""
+        q = self.qmem.get(int(key))
+        return np.full((GRID * GRID, len(QUIRK_COLS)), np.nan, np.float32) if q is None else q[1]
+
+    def cache_path(self, key: int) -> str:
+        """The cache file of an image key, relative to the cache root (pin files, data/cache_cap.py)."""
+        return str(self._p(int(key)).relative_to(self.cache))
 
 
 # -- offline: baselines and the stretch ----------------------------------------------------------------------------------------

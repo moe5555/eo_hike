@@ -391,9 +391,10 @@ def open_store(cfg: dict, cache_gb: float | None = None):
 
         return PassStore(cfg["pass_world"])
     if cfg.get("world") == "landsat1":
-        from data.landsat1_store import Landsat1TileStore
+        from data.landsat1_store import Landsat1ClockStore, Landsat1TileStore
 
-        return Landsat1TileStore(workers=int(cfg.get("fetch_workers", 8)))
+        cls = Landsat1ClockStore if cfg.get("stack") == "clock" else Landsat1TileStore  # brief v2: the clock world
+        return cls(workers=int(cfg.get("fetch_workers", 8)), mem_low=int(cfg.get("mem_tiles", 20000)))
     return TileStore(cache_gb=float(cfg.get("cache_gb", 50)) if cache_gb is None else cache_gb)
 
 
