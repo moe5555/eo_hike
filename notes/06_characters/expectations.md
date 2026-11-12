@@ -239,5 +239,5 @@ Scored 2026-11-12 in `notes/12_two_eye/observations.md`.
 - Not foreseen:
   - night tiles are red, not black (nir08 ~209 DN with the sun at −15°);
   - the early time well is the escape from the night start;
-  - every curious walker prefers a cell's earlier acquisitions, and clear, dark tiles;
+  - every curious walker prefers clear, dark tiles (an apparent preference for earlier acquisitions is mostly place memory: corrected after review, observations finding 2);
   - fill attracts at tile level while the top crop avoids it.

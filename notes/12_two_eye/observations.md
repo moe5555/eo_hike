@@ -10,7 +10,7 @@ Brief: `notes/brief_landsat_pipeline.md`. Log (what was built, every choice and 
   - walker v2 with two eyes: a glance at the whole tile and a 4 × 4 grid of crops, each with its own network and memory, behind `eye:`; v1 is bit-identical.
 - **Walked:** the factorial on the whole mission, 9 conditions × 2 seeds × 1,000 steps from the archive's first scene (night, South Dakota). Also 6 walks on the e10 pass before Moe moved the factorial to the mission.
 - **The two eyes can be told apart in every choice.** With the weights equal, the glance carries 38–42 % of interest at the choice, the grid 36–37 % and progress 21–25 %. Doubling the glance weight gives it 57 %.
-- **The curious walkers share a taste no pooling changes.** Every condition selects against cloud and against bright tiles, and prefers a cell's earlier acquisition to its later one (hints against the Null for all seven curious conditions).
+- **The curious walkers share a taste no pooling changes.** Every condition selects against cloud and against bright tiles (hints against the Null for all seven curious conditions). An apparent preference for a cell's earlier acquisitions turned out to be mostly place memory; with memory held fixed, no shared taste for date remains (finding 2, corrected 2026-11-12).
 - **The apparatus, read per eye:**
   - Stripes pull the grid when one crop decides (top-1) and v1, but not the two-eye walker.
   - Black fill pulls the grid and the glance-heavy walker at tile level, yet the top crop is *less* filled than its neighbours.
@@ -66,7 +66,7 @@ Means of the two seeds (per seed in `results/l1/readouts.csv`). The lift is a co
 
 ### Offer → choice against the Null (selz, steps from 50; + / − = hint)
 
-| condition | cloud | brightness | earlier acquisition (−rank) | stripes | fill | night |
+| condition | cloud | brightness | rank of the acquisition (− = earlier; see finding 2) | stripes | fill | night |
 |---|---|---|---|---|---|---|
 | Null (range) | −0.01 / −0.01 | −0.02 / 0.00 | +0.02 / +0.05 | −0.02 / +0.01 | −0.04 / +0.09 | +0.01 / +0.02 |
 | v1 | −0.33 / −0.15 (−) | −0.43 / −0.45 (−) | −0.16 / −0.30 (−) | +0.16 / +0.18 (+) | +0.05 / +0.46 | +0.29 / −0.39 |
@@ -120,9 +120,15 @@ C2 (after 50 settled steps) fires 1–4 times in 4 walks. C3 (20 steps at r_max)
    - With equal weights, the glance's share of interest at the choice is 0.38–0.42, the grid's 0.36–0.37, progress's 0.21–0.25. Lifts: glance 0.65–0.74, grid 0.55–0.56, progress 0.41–0.43.
    - Doubling the glance weight raises its share to 0.57 and its lift to 1.8, and the walker takes the best offer 71 % of the time, against 55 %.
    - Authored: the weights and the z-scoring. Emergent: how much each eye separates the offers. The decomposition is what principle 4 asked for. *RQ2; chapters 6 and 7.*
-2. **A shared taste: clear, dark and first.**
+2. **A shared taste: clear and dark. Not "first".**
    - Every curious condition, whatever the eye or pooling, selects against QA cloud (−0.02 to −0.48) and against brightness (−0.16 to −0.57) compared with the offers. All seven are hints against the Null.
-   - Six of seven also prefer a cell's earlier acquisition to its later ones (selz of rank −0.03 to −0.30). Offered a fresh cell and a revisit, they take the fresh cell.
+   - *Corrected after review (2026-11-12).* The selection of an acquisition's rank is negative in six of seven conditions (−0.03 to −0.30): the chosen offer has the lower rank. The first table's header ("−rank") had the sign flipped; the numbers are as stated.
+   - But rank is confounded with place memory. Rank 0 is always an unvisited cell; rank ≥ 1 is a cell already in memory, and its rank is the number of visits. A novelty drive with per-place memory prefers unvisited cells anyway.
+   - With memory held fixed (`results/l1/date_vs_memory.csv`), no shared taste for date remains:
+     - Among fresh cells only (nothing in memory), v1 prefers earlier dates (−0.26 / −0.15, hint), the two-eye walker *later* ones (+0.03 / +0.15, hint), and w_glance 2 and the grid walkers split by seed. Leaving out night offers changes nothing.
+     - Among revisits of equal rank (equal visit count), the two-eye walkers prefer earlier dates (−0.50 / −0.27 and −0.15 / −0.13, hints, on 59–84 steps a walk).
+   - So the rank effect is mostly memory: v1 and grid mean pooling take fresh cells more often than they are offered, and the two-eye walkers do not.
+   - "Date" among nearby fresh cells is not clean time either. Neighbouring cells at 15 km mostly differ in date because they fall in adjacent orbital paths (consecutive days) or a later 18-day cycle, so date is partly which pass, partly season.
    - The e09 long walk on Major TOM grew a taste for bright ground and snow only after ~6,000 steps (and started with a negative one, −0.38). At 1,000 steps this matches its first block.
    - Emergent from novelty on a 1972 world where cloud and snow saturate (the stretch's top is set by them). *RQ2; chapter 7.*
 3. **Stripes pull the eye that lets one crop decide.**
@@ -193,7 +199,7 @@ C2 (after 50 settled steps) fires 1–4 times in 4 walks. C3 (20 steps at r_max)
 | 120 | Forgetting: below step 0 for every kind and walk | Right |
 | 121 | Death: max ≥ pooled ≥ glance; max-grid on quirks ≥ 2/3 | Partly: max 21 > glance 11 > pooled 7; quirks 0.86 |
 
-Not foreseen: night tiles are red, not black (finding 5); the early time well is the escape from the night pass (finding 6); every curious walker prefers a cell's earlier acquisitions (finding 2); fill attracts at tile level while the top crop avoids it (finding 4).
+Not foreseen: night tiles are red, not black (finding 5); the early time well is the escape from the night pass (finding 6); every curious walker selects against cloud and brightness (finding 2; its apparent preference for earlier acquisitions is mostly place memory); fill attracts at tile level while the top crop avoids it (finding 4).
 
 ## The brief's proposed defaults: which held, which I'd change
 

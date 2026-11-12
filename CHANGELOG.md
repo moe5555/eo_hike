@@ -12,7 +12,7 @@ Newest entry first. Each entry: date, what changed, why this approach, what you 
   - **STATE.md** rewritten, keeping Moe's new RQ wording.
 - **Why this approach.** The brief's readouts, computed per image (cell and acquisition), against the two-eye Null. With two seeds, only hints.
 - **What I expect.**
-  - The findings to check with more seeds: the shared taste for clear, dark and earlier tiles; stripes drawing the detail-eye; the flight from the red night field; the early time well as an escape from the night start; the two-eye walker as a homebody.
+  - The findings to check with more seeds: the shared taste for clear, dark tiles (the apparent taste for earlier acquisitions was mostly place memory, corrected after review); stripes drawing the detail-eye; the flight from the red night field; the early time well as an escape from the night start; the two-eye walker as a homebody.
   - Before longer walks the cache needs a size cap: 18 walks filled 16 GB.
 
 ## 2026-11-12: the factorial moves to the whole Landsat 1 mission, with revisits through time

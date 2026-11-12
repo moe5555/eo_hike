@@ -91,3 +91,13 @@ As the brief, with these choices (each a config key, recorded in `meta.json`):
 - **Night radiometry checked.** In `LM01_L1GS_136214_19720725`, the DN medians are 5 (green), 2 (red), 209 (nir08) and 8 (nir09), at a sun elevation of −15°. The CIR tile is red with saturated scan lines. As designed (M · DN + A); the brief's expectation of black was wrong about the data.
 - The forgetting check printed "False" because of missing values in v1's rows; every value at step 1,000 is below step 0.
 - The patch-shuffle test was run on the five pass walks with two eyes or grid (pass tiles), not on the mission.
+
+## 2026-11-12, after review: finding 2 corrected
+
+- **Review (Moe, quoting a reader):** "first" probably isn't a taste. The column header "(−rank)" contradicts the reading, and rank is confounded with place memory: rank 0 is always unvisited.
+- **The sign.** `readouts.py` computes `selz(cst, "rank")`. A negative value means the chosen offer has the lower rank, i.e. the earlier acquisition. The numbers matched the reading; the table header in `observations.md` was flipped, and is fixed.
+- **The confound, tested** (`results/l1/date_vs_memory.csv`, computed ad hoc after the walks, not one of the fixed readouts). The same selz, grouped by step:
+  - the acquisition day among rank-0 offers only, with and without night offers;
+  - rank among revisit offers only;
+  - day among revisit offers of equal rank (grouped by step and rank).
+- **Result:** no shared taste for date once memory is fixed. v1 leans earlier among fresh cells, the two-eye walker later; among equal-rank revisits, the two-eye walkers lean earlier, on few steps. Finding 2 is rewritten, and the claim corrected in STATE, CHANGELOG, the scoring note and the index.
