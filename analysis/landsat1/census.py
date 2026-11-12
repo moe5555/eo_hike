@@ -2,6 +2,7 @@
 
     python analysis/landsat1/census.py items      # every Landsat 1 STAC item on Planetary Computer, month by month -> data/landsat/
     python analysis/landsat1/census.py coverage   # footprints on a 0.25° land grid: scenes per place, per year, by level
+    python analysis/landsat1/census.py items_proj # the raster geometry of every item (proj:transform, proj:shape) -> data/landsat/
     python analysis/landsat1/census.py map        # notes/11_landsat1_mission/figures/coverage_map.png
 
 Metadata and footprints only; no image is read. The quirk probe (windows of image data) is analysis/landsat1/quirk_probe.py.
@@ -21,6 +22,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[2]
 ITEMS = ROOT / "data" / "landsat" / "landsat1_c2l1_items.parquet"
 COVER = ROOT / "data" / "landsat" / "landsat1_coverage_025deg.npz"
+PROJ = ROOT / "data" / "landsat" / "landsat1_c2l1_proj.parquet"
 FIG = ROOT / "notes" / "11_landsat1_mission" / "figures" / "coverage_map.png"
 STAC = "https://planetarycomputer.microsoft.com/api/stac/v1/search"
 PROPS = ["datetime", "eo:cloud_cover", "landsat:cloud_cover_land", "landsat:wrs_path", "landsat:wrs_row", "landsat:correction",
@@ -64,6 +66,34 @@ def items() -> None:
         print(m0.date(), n, flush=True)
     ITEMS.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_parquet(ITEMS)
+    print("total", len(rows))
+
+
+def items_proj() -> None:
+    """The raster geometry of every Landsat 1 item (proj:transform, proj:shape), which `items` did not keep, for the pixel windows
+    of the world's candidate table (data/landsat1_world.py). Month by month, as `items`."""
+    rows = []
+    months = pd.date_range("1972-07-01", "1978-02-01", freq="MS")
+    for m0, m1 in zip(months[:-1], months[1:]):
+        body = {"collections": ["landsat-c2-l1"], "datetime": f"{m0.date()}/{(m1 - pd.Timedelta(seconds=1)).isoformat()}Z",
+                "query": {"platform": {"eq": "landsat-1"}}, "limit": 1000,
+                "fields": {"include": ["id", "properties.proj:transform", "properties.proj:shape", "properties.proj:epsg"],
+                           "exclude": ["assets", "links", "geometry", "bbox"]}}
+        n = 0
+        while True:
+            j = _post(body)
+            for f in j["features"]:
+                p = f["properties"]
+                t, s = p.get("proj:transform"), p.get("proj:shape")
+                rows.append({"id": f["id"], "epsg": p.get("proj:epsg"), "x0": t[2], "px": t[0], "y0": t[5], "py": t[4], "rot": t[1] + t[3],
+                             "height": s[0], "width": s[1]})
+                n += 1
+            nxt = [link for link in j.get("links", []) if link.get("rel") == "next"]
+            if not nxt:
+                break
+            body = nxt[0]["body"]
+        print(m0.date(), n, flush=True)
+    pd.DataFrame(rows).to_parquet(PROJ)
     print("total", len(rows))
 
 
@@ -147,4 +177,4 @@ def draw_map() -> None:
 
 
 if __name__ == "__main__":
-    {"items": items, "coverage": coverage, "map": draw_map}[sys.argv[1]]()
+    {"items": items, "items_proj": items_proj, "coverage": coverage, "map": draw_map}[sys.argv[1]]()

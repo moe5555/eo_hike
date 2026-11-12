@@ -166,6 +166,14 @@ Rendering as e10's world: TOA reflectance, square root, e10's fixed stretch, CIR
 - At the network's input the two look alike, except that MSS is softer and carries its stripes.
 - **It matters for everything shown at full size:** film frames, any GAN at a native-resolution crop, and the "hires" path `TileStore.get_hires` gives Major TOM. A full-frame MSS cell is 178 px, so a 1080p frame is a 6× enlargement.
 
+**Zoom levels** (`figures/zoom_levels.png`, `analysis/landsat1/render_zoom.py`; full 1080 × 1080 frames in `data/landsat/zoom/`, git-ignored).
+- Two places (Paris, 21 Sep 1976; the Eastern Desert, 14 May 1975), each framed at six widths: 2.7 km (the walker's eye, data enlarged ×24), 5.3 km (×12), 10.7 km (one cell, ×6), 21.6 km (×3), 32.4 km (×2) and 64.8 km (1:1).
+- **×24 and ×12 are blur. ×6 (one cell) is soft. From ×3 down the frame looks sharp, and at ×2 and 1:1 it shows the data rather than the interpolation.**
+- For the film this means frames covering about 20–65 km of ground. The resolution is fixed by the sensor (~79 m), so zooming out shows more ground at the data's own sharpness; it does not add detail.
+- Seen only when zoomed out:
+  - Paris's "haze" is a set of parallel diagonal streaks across the region (contrails or cloud streets?), on a day of 0 % listed cloud.
+  - The "clean" Tier 1 desert scene carries pale scan-line defects 10–30 km from the cell picked for the quirk sheet. Even the cleanest scenes have stripes somewhere.
+
 ## Decisions for Moe
 
 1. **The world:** Landsat 1 replaces Major TOM, or sits next to it (a second world for the same walker).

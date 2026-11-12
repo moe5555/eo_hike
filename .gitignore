@@ -16,3 +16,5 @@ logs/
 third_party/
 .venv-sg/
 .DS_Store
+!data/landsat1_world.py
+!data/landsat1_store.py
