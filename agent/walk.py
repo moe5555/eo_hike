@@ -455,8 +455,11 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
         print(f"[{out.name}] resumed at step {step0}, clock {CL.to_date(clk)}", flush=True)
     end_reason = None
 
+    import faulthandler
+
     for step in range(step0, int(cfg["steps"])):
         ts = time.time()
+        faulthandler.dump_traceback_later(900, exit=False)  # a step stalled for 15 min writes every thread's stack to the log (re-armed each step)
         # -- candidates ------------------------------------------------------------
         if compass:
             cands, cinfo = compass_offers(t, r_now, theta_now)
@@ -818,6 +821,10 @@ def daydream(model, arch_z: torch.Tensor, gen: torch.Generator, path: Path, k: i
 
 
 def main() -> None:
+    import faulthandler
+    import signal
+
+    faulthandler.register(signal.SIGUSR1, all_threads=True)  # kill -USR1 <pid>: every thread's stack into the walk's log
     ap = argparse.ArgumentParser()
     ap.add_argument("config")
     ap.add_argument("--seed", type=int)

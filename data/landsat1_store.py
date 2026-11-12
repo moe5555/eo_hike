@@ -206,7 +206,7 @@ class Landsat1TileStore:
         (self.cache / "scenes").mkdir(parents=True, exist_ok=True)
         self.retries = retries
         self.pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="l1")
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()  # reentrant: a done-callback may run in the thread that holds it (dry run 2026-11-12: a walk hung)
         self.inflight: dict[int, Future] = {}
         self.scene_locks: dict[str, threading.Lock] = {}
         self.scene_mem: dict[str, dict] = {}
@@ -317,6 +317,7 @@ class Landsat1TileStore:
         win = Window(c0 - MARGIN, r0 - MARGIN, n, n)
         out = {}
         with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MERGE_CONSECUTIVE_RANGES="YES", GDAL_HTTP_MAX_RETRY="2",
+                          GDAL_HTTP_TIMEOUT="60", GDAL_HTTP_CONNECTTIMEOUT="20",  # a stalled read fails and is retried, never hangs
                           GDAL_HTTP_RETRY_DELAY="1", CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".TIF,.tif"):
             for k in BANDS + QA:
                 try:
@@ -391,11 +392,13 @@ class Landsat1TileStore:
     def _submit(self, i: int) -> Future:
         with self.lock:
             fut = self.inflight.get(i)
-            if fut is None:
+            new = fut is None
+            if new:
                 fut = self.pool.submit(self._load, i)
                 self.inflight[i] = fut
-                fut.add_done_callback(lambda _f, i=i: self._done(i))
-            return fut
+        if new:  # outside the lock: a future already done runs its callback here, at once
+            fut.add_done_callback(lambda _f, i=i: self._done(i))
+        return fut
 
     def _done(self, i: int) -> None:
         with self.lock:
