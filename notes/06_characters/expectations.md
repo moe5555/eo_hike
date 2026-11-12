@@ -210,3 +210,25 @@ The death dry run (brief D12), on logged surprise of the chosen tile before trai
 108. **The shadow.** Over offers, Spearman(v1 shadow novelty, pooled grid novelty) ≥ 0.8 for mean pooling, 0.5–0.8 for top-1.
 109. **Death dry run.** Firings of C1 summed over walks: max grid ≥ pooled grid ≥ glance. Max-grid firings land on a tile whose top crop has stripe or DN-255 share above the walk's median crop in at least 2/3. Glance firings land on cloud ≥ 0.3 or the brightest quarter in at least 2/3. C3 fires in fewer than half the walks.
 110. **Mission smoke walk** (two eyes, top-4, 500 steps). 1.5–4 s a step with fetching, under 1 % of offers dropped, no crash.
+
+**Stopped 2026-11-12, 11:23, after 6 of 18 walks** (`e12_v1`, `e12_null`, `e12_grid_mean`, `e12_grid_top4`, `e12_grid_top1`, `e12_two_top4`, seed 0 only). Moe: the wanderers walk the whole mission, not one pass. Predictions 96–110 are scored only as far as these six walks allow (no seed 1, no `g2`, no schedule controls). Seen before stopping: in `e12_two_top4_s0`, 59 % of chosen tiles have a black wedge where the cell sticks out over the pass's edge, against 21 % in the Null (log 2026-11-12).
+
+## Experiment 12 on the whole mission (added 2026-11-12, before any `e12_l1_` factorial walk; log: `notes/12_two_eye/log.md`)
+
+Walks: the same nine conditions on the Landsat 1 world (`world: landsat1`), born in South Dakota (cell `479U_839L`, the first scene of the archive, night), with the revisit rule (`stack: revisit_next`: a cell shows its acquisitions in date order, one more per visit; a cell whose stack has run out is not offered). Configs `configs/12_two_eye/e12_l1_*.yaml`, 1,000 steps, seeds 0–1. No full-tile rule (Moe: not for now).
+
+Already seen, so not predicted: a 100-step two-eye smoke walk (`e12_l1_smoke_s0`): 61 of 100 steps were revisits, 39 distinct cells, all within ~30 km of the start; ranks up to 8; 39 steps on night tiles; 40 % of offers showed a later acquisition; 1.1 s a step alone, no fetch failed.
+
+Readouts as for 96–110, computed per image (cell and acquisition), plus: revisit share (steps on an acquisition of rank > 0), dates seen per visited cell, selection of night and of rank among offers. A hint as before.
+
+111. **Cost.** All 18 walks finish; 20–45 min each, three side by side; under 1 % of offers dropped; no failed fetch after retries.
+112. **The time well.** Revisit share (rank > 0) in every curious walk above the Null's range: a hint for every condition. In the two-eye walks at least a third of all steps are revisits, and visited cells show a median of at least 2 dates. Medium confidence.
+113. **The well is left.** The drive still sends walkers far: at least one bout at r_max in at least 3 of the 4 two-eye walks. Share at r_max below the Null's in the two-eye walks (a hint), since a new date keeps interest up near home. Low confidence.
+114. **Night wears off.** Night tiles look alike (dark, with detector lines). From step 200 on, two-eye walks select against night offers (selz below the Null's range, a hint). Low confidence.
+115. **Interest decomposition** (`e12_l1_two_top4`): glance share at the choice 0.30–0.55, grid 0.25–0.45, progress 0.15–0.30; in `g2` glance share above 0.5.
+116. **Stripes.** Within the tile, the top crop's stripe share exceeds its tile's other crops in every grid and two-eye walk (as 98). Among offers, top-1 pooling selects striped tiles more than mean pooling, and top-1 is a hint against the Null (as 99).
+117. **Black edges.** Where a tile has fill touching its border, the glance finds it: two-eye walks select fill (selz) above the Null's range (a hint), and the grid alone (w_glance 0) does not. Medium confidence (seen on the pass, one seed).
+118. **The glance reads cloud and brightness** (as 100): |ρ(glance novelty, cloud)| > |ρ(grid novelty, cloud)| in both two-eye seeds.
+119. **No edge pull** of the top crop: 0.70–0.80 (chance 0.75), as 103.
+120. **Forgetting.** Grid error on the mission forgetting set at step 1,000 below step 0 for every kind and walk.
+121. **Death dry run.** Max-grid surprise fires C1 at least as often as pooled grid and glance, summed over walks; its firings fall on striped, saturated or night tiles in at least 2/3.

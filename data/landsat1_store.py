@@ -70,6 +70,22 @@ STRETCH_LO = (0.04825839400291443, 0.03737824037671089, 0.0)
 STRETCH_HI = (0.9830099940299988, 0.9217425584793091, 0.9872243404388428)
 STRETCH_SOURCE = "baseline 2,000 random cells, 2026-11-12"
 
+# Image keys (the revisit rule, data/landsat1_world.py `stack`): image = cell + rank * KEY_STRIDE, rank 0 = the earliest acquisition,
+# so rank-0 keys are the cell ids of the index and every earlier use of the store is unchanged.
+KEY_STRIDE = 1 << 21  # > 1,466,863 cells
+STACK = WORLD / "stack"
+SCENES_PQ = WORLD / "scenes.parquet"
+
+
+def image_key(cell, rank):
+    return np.asarray(cell, np.int64) + np.asarray(rank, np.int64) * KEY_STRIDE
+
+
+def split_key(key) -> tuple[np.ndarray, np.ndarray]:
+    key = np.asarray(key, np.int64)
+    return key % KEY_STRIDE, key // KEY_STRIDE
+
+
 QUIRK_BANDS = ("stripe", "at255", "satflag", "disagree")
 QUIRK_COLS = ("fill", "cloud", "dropped") + tuple(f"{q}_{b}" for q in QUIRK_BANDS for b in BANDS)
 
@@ -201,10 +217,50 @@ class Landsat1TileStore:
         self._scene = self.idx.scene.to_numpy()
         self._win = self.idx[["r0", "c0"]].to_numpy()
         self._sun = self.idx.sun_elevation.to_numpy()
+        self._stack = None  # memory-mapped on first use of a rank above 0
+        self._scenes = None
+
+    # -- the stack of acquisitions per cell ----------------------------------------------------------------------------------
+    def _load_stack(self) -> None:
+        if self._stack is None:
+            self._stack = {k: np.load(STACK / f"{k}.npy", mmap_mode="r") for k in ("start", "scene", "r0", "c0")}
+            self._scenes = pd.read_parquet(SCENES_PQ, columns=["scene", "id", "datetime", "level", "tier", "night", "sun_elevation", "scene_cloud",
+                                                                 "path", "wrs_row"]).set_index("scene")
+
+    def stack_len(self, cell: int) -> int:
+        """Number of acquisitions (one per day) of a cell."""
+        self._load_stack()
+        st = self._stack["start"]
+        return int(st[int(cell) + 1] - st[int(cell)])
+
+    def _resolve(self, key: int) -> tuple[str, int, int, float]:
+        """(scene id, r0, c0, sun elevation) of an image key."""
+        cell, rank = (int(v) for v in split_key(key))
+        if rank == 0:
+            r0, c0 = (int(v) for v in self._win[cell])
+            return str(self._scene[cell]), r0, c0, float(self._sun[cell])
+        self._load_stack()
+        e = int(self._stack["start"][cell]) + rank
+        assert e < int(self._stack["start"][cell + 1]), f"cell {cell} has no acquisition of rank {rank}"
+        sc = int(self._stack["scene"][e])
+        row = self._scenes.loc[sc]
+        return str(row.id), int(self._stack["r0"][e]), int(self._stack["c0"][e]), float(row.sun_elevation)
+
+    def acquisitions(self, keys) -> pd.DataFrame:
+        """Per image key: cell, rank, scene, date, level, tier, night, sun elevation, scene cloud."""
+        keys = np.asarray(list(keys), np.int64)
+        cell, rank = split_key(keys)
+        self._load_stack()
+        st = self._stack["start"]
+        sc = np.asarray(self._stack["scene"])[st[cell] + rank] if len(keys) else np.zeros(0, int)
+        m = self._scenes.loc[sc].reset_index(drop=True)
+        return pd.concat([pd.DataFrame({"tile_idx": keys, "cell": cell, "rank": rank}), m.rename(columns={"id": "scene", "datetime": "timestamp"})], axis=1)
 
     # -- paths ---------------------------------------------------------------------------------------------------------------
     def _p(self, i: int) -> Path:
-        return self.cache / str(i // 10000) / f"{i}.npz"
+        """Cache file of an image key; rank 0 (the earliest) keeps the cell's own path."""
+        cell, rank = (int(v) for v in split_key(i))
+        return self.cache / str(cell // 10000) / (f"{cell}.npz" if rank == 0 else f"{cell}_r{rank}.npz")
 
     def cached(self, i: int) -> bool:
         return int(i) in self.mem or self._p(int(i)).exists()
@@ -251,9 +307,8 @@ class Landsat1TileStore:
         import rasterio
         from rasterio.windows import Window
 
-        sid = str(self._scene[i])
+        sid, r0, c0, _ = self._resolve(i)
         meta = self._scene_meta(sid)
-        r0, c0 = (int(v) for v in self._win[i])
         n = NATIVE_PX + 2 * MARGIN
         win = Window(c0 - MARGIN, r0 - MARGIN, n, n)
         out = {}
@@ -295,7 +350,7 @@ class Landsat1TileStore:
             raise err
         self.stats["remote"] += 1
         self.stats["remote_sec"] += dt
-        meta, sun = w["meta"], float(self._sun[i])
+        meta, sun = w["meta"], self._resolve(i)[3]
         sl = slice(MARGIN, MARGIN + NATIVE_PX)
         valid = (w["qa_pixel"][sl, sl] & 1) == 0
         for b in BANDS:
@@ -401,7 +456,12 @@ class Landsat1TileStore:
                 with np.load(p) as z:
                     rows.append((i, *z["q_cell"].tolist()))
         q = pd.DataFrame(rows, columns=["tile_idx", *QUIRK_COLS])
-        meta = self.idx.loc[q.tile_idx, ["grid_cell", "scene", "timestamp", "level", "tier", "night", "sun_elevation", "scene_cloud", "path", "wrs_row"]]
+        if len(q) and (split_key(q.tile_idx.to_numpy())[1] > 0).any():  # images of later acquisitions: metadata from the stack
+            a = self.acquisitions(q.tile_idx.to_numpy())
+            a["grid_cell"] = self.idx.grid_cell.to_numpy()[a.cell.to_numpy()]
+            meta = a[["grid_cell", "cell", "rank", "scene", "timestamp", "level", "tier", "night", "sun_elevation", "scene_cloud", "path", "wrs_row"]]
+        else:
+            meta = self.idx.loc[q.tile_idx, ["grid_cell", "scene", "timestamp", "level", "tier", "night", "sun_elevation", "scene_cloud", "path", "wrs_row"]]
         return pd.concat([q.reset_index(drop=True), meta.reset_index(drop=True)], axis=1)
 
     def crop_quirks(self, ids) -> pd.DataFrame:
@@ -415,7 +475,14 @@ class Landsat1TileStore:
         return pd.DataFrame(rows, columns=["tile_idx", "crop", *QUIRK_COLS])
 
     def cached_ids(self) -> np.ndarray:
-        return np.array(sorted(int(p.stem) for p in self.cache.glob("*/*.npz") if ".part" not in p.name), dtype=np.int64)
+        """Image keys in the cache."""
+        out = []
+        for p in self.cache.glob("*/*.npz"):
+            if ".part" in p.name:
+                continue
+            c, _, r = p.stem.partition("_r")
+            out.append(int(image_key(int(c), int(r) if r else 0)))
+        return np.array(sorted(out), dtype=np.int64)
 
     def summary(self) -> dict:
         s = dict(self.stats)
@@ -439,7 +506,7 @@ def cmd_baseline(n: int, seed: int = 20261112) -> None:
     t0 = time.time()
     failed = st.fetch_all(ids, desc="baseline")
     ok = [i for i in ids if i not in set(failed)]
-    q = st.quirks(ok)
+    q = st.quirks(ok)  # rank-0 keys are cell ids
     q.to_parquet(BASELINE)
     smp = []
     for i in ok:

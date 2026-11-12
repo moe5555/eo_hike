@@ -3,6 +3,7 @@
     python data/landsat1_world.py grid         # Major TOM 10 km grid, land mask -> data/landsat1/grid.parquet
     python data/landsat1_world.py candidates   # every Landsat 1 acquisition covering each land cell -> candidates.parquet, scenes.parquet
     python data/landsat1_world.py index        # the selection rule (earliest) -> index.parquet, world.json
+    python data/landsat1_world.py stack        # every cell's acquisitions in date order, one per day -> stack/ (the revisit rule)
     python data/landsat1_world.py check        # the grid against the Major TOM cells of data/global/index.parquet
 
 The tiles themselves are read lazily by data/landsat1_store.Landsat1TileStore; the portrait of the world is analysis/landsat1/portrait.py.
@@ -21,6 +22,10 @@ Choices, each named here and recorded in world.json:
   to the scene whose centre is nearest (e10's tie-break). Selection is a function, so other rules can be added (SELECT).
 - EPSG. Planetary Computer's proj:epsg drops the zero of UTM zones 1-9 (3265 for 32605); read as the zone it names, kept as
   epsg_catalogue.
+- Revisits (`stack`, Moe 2026-11-12): a cell's acquisitions in date order, one per day (overlapping scenes of one pass are the same
+  scan lines cut twice: the scene with the nearest centre stands for that day, e10's tie-break). The first visit shows the earliest,
+  each revisit the next; when a cell's stack runs out, it is no longer offered (agent/walk.py, `stack: revisit_next`). Rank 0 of the
+  stack is the earliest rule's acquisition.
 - Pixel window. 178 x 178 native 60 m pixels (10.68 km) centred on the cell's centre, in the scene's own projection and pixel grid,
   not rotated into the cell's UTM zone and not resampled: the archive as stored.
 """
@@ -259,6 +264,34 @@ def select_earliest(c: pd.DataFrame) -> pd.DataFrame:
 
 
 SELECT = {"earliest": select_earliest}
+STACK_DIR = OUT / "stack"  # start.npy, scene.npy, r0.npy, c0.npy (memory-mapped by the store)
+
+
+def cmd_stack() -> None:
+    """Every cell's acquisitions, ordered as select_earliest orders them, one per (cell, day): CSR arrays over the world's idx
+    (index.parquet), so stack entry k of cell i is at start[i] + k. Rank 0 is checked against the index."""
+    t0 = time.time()
+    x = pd.read_parquet(INDEX_PQ, columns=["idx", "cell", "scene_idx", "r0", "c0"])
+    c = pd.read_parquet(CAND_PQ, columns=["cell", "scene", "day", "d_centre_km", "r0", "c0", "in_raster"])
+    c = c[c.in_raster].drop(columns="in_raster")
+    n0 = len(c)
+    c = c.sort_values(["cell", "day", "d_centre_km"], kind="stable").drop_duplicates(["cell", "day"], keep="first")
+    pos = pd.Series(x.idx.to_numpy(), index=x.cell.to_numpy())
+    c["idx"] = pos.reindex(c.cell.to_numpy()).to_numpy()
+    c = c.sort_values(["idx", "day", "d_centre_km"], kind="stable")
+    n = np.bincount(c.idx.to_numpy(), minlength=len(x))
+    start = np.zeros(len(x) + 1, np.int64)
+    start[1:] = np.cumsum(n)
+    sc, r0, c0 = c.scene.to_numpy(np.int32), c.r0.to_numpy(np.int32), c.c0.to_numpy(np.int32)
+    first = start[:-1]
+    assert np.array_equal(sc[first], x.scene_idx.to_numpy()) and np.array_equal(r0[first], x.r0.to_numpy()) and np.array_equal(c0[first], x.c0.to_numpy()), \
+        "rank 0 of the stack differs from the earliest rule's index"
+    STACK_DIR.mkdir(parents=True, exist_ok=True)
+    for k, v in (("start", start), ("scene", sc), ("r0", r0), ("c0", c0)):
+        np.save(STACK_DIR / f"{k}.npy", v)
+    print(f"[stack] {n0:,} in-raster pairs -> {len(c):,} (cell, day) acquisitions; per cell median {np.median(n):.0f}, "
+          f"p90 {np.percentile(n, 90):.0f}, max {n.max()}; cells with one only {np.mean(n == 1):.3f}; rank 0 = index: ok; "
+          f"{time.time() - t0:.0f} s -> {STACK_DIR}")
 
 
 def cmd_index(rule: str = "earliest") -> None:
@@ -296,4 +329,4 @@ def cmd_index(rule: str = "earliest") -> None:
 
 if __name__ == "__main__":
     cmd = sys.argv[1]
-    {"grid": cmd_grid, "check": cmd_check, "candidates": cmd_candidates, "index": lambda: cmd_index(*(sys.argv[2:3] or ["earliest"]))}[cmd]()
+    {"grid": cmd_grid, "check": cmd_check, "candidates": cmd_candidates, "stack": cmd_stack, "index": lambda: cmd_index(*(sys.argv[2:3] or ["earliest"]))}[cmd]()

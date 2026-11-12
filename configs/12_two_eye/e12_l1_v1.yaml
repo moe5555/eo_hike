@@ -1,10 +1,10 @@
-# Experiment 12 (notes/12_two_eye/), the brief's smoke walk on the mission world (E16): two eyes, top-4, w_glance 1, 500 steps, seed 0.
-# The Landsat 1 world (data/landsat1_world.py, earliest rule) read lazily from Planetary Computer (data/landsat1_store.py). From Paris, as the e09 walkers.
-# Everything else is walker v1 (configs/09_compass/walker_v1.yaml) as on the pass (configs/10_landsat_pass/e10_pass_v1.yaml).
+# Experiment 12 (notes/12_two_eye/), the factorial on the whole Landsat 1 mission (Moe 2026-11-12: the wanderers walk the whole mission), 1,000 steps, seeds 0-1.
+# Walker v1 unchanged on the e10 pass in sqrt tone (the factorial's reference).
+# Everything else is walker v1 (configs/09_compass/walker_v1.yaml). The pass-world twin of this config is e12_<same name>.yaml without "l1_".
 policy: curious       # curious | random
 seed: 0               # random init of the network (identical settings, different seeds -> divergence)
-start_lat: 48.8566     # Paris (Île de la Cité), the e09 start
-start_lon: 2.3522
+start_lat: 43.0679       # born where the archive begins: the cell nearest the centre of its first scene, LM01_L1GS_136214_19720725 (night, 04:00 UTC, sun -15 deg; Moe 2026-11-12)
+start_lon: -103.0225     # cell 479U_839L, South Dakota (Black Hills)
 crop_px: 64           # scale of attention (32 ~ 1.3 km, 64 ~ 2.6 km, 128 ~ 5 km)
 lr: 1.0e-3            # how quickly things become familiar
 buffer_size: 2048     # memory (patches)
@@ -15,7 +15,7 @@ temperature: 0.5      # softmax temperature over interest
 w_n: 1.0              # novelty weight
 w_g: 1.0              # progress weight
 w_e: 0.0              # raw surprise weight
-steps: 500
+steps: 1000
 # fixed mechanics
 K: 16                 # patches per tile
 k_nn: 10              # novelty kNN in the archive
@@ -26,12 +26,13 @@ reembed_every: 100
 ema_alpha: 0.02       # running z-score rate (~50-step memory)
 heldout_every: 25
 ckpt_every: 250
-# the world: the Landsat 1 mission (brief A), lazily fetched; held-out tiles from the whole world
+# the world: the Landsat 1 mission (data/landsat1_world.py), lazily fetched (data/landsat1_store.py); held-out cells from the whole world
 world: landsat1
-heldout: global       # the 200 held-out cells are drawn from the whole world (fetched at the start)
-fetch_workers: 8      # cells read at once from Planetary Computer
+heldout: global       # the 200 held-out cells are drawn from the whole world (their earliest acquisition)
+fetch_workers: 6      # cells read at once from Planetary Computer, per walker (three walkers side by side)
 prefetch_ring_km: 10  # unused by the compass walker (it prefetches its next offers)
 fetch_timeout: 30     # seconds; offers not fetched in time are dropped from that step and logged
+stack: revisit_next   # earliest_only | revisit_next: a cell shows its acquisitions in date order, one more per visit; a cell whose stack has run out is not offered
 # hike revisions (notes/04_perception_fix/, reflection_revisits.md options 1-4); defaults = the v3a walker
 score_crops: fixed            # random | fixed: score candidates (and the archive) on crops seeded by tile id; training keeps random crops
 refresh_archive: candidates   # none | candidates: re-embed a candidate's own archive entries (fresh look, current model) before novelty
@@ -66,9 +67,9 @@ snap_floor_km: 7.5            # half the diagonal of a 10 km grid cell (Stage 0.
 offer_stay: false             # the classic walker never offers its own cell (World.neighbours drops it)
 radius_schedule: null         # CSV with a radius_km column, one row per step: replayed instead of the rule (controls)
 # walker v2 (notes/brief_landsat_pipeline.md, B; agent/eyes.py). eye v1 is every earlier walker; the other keys do nothing under v1
-eye: two_eye                     # v1 | grid (w_glance 0) | two_eye: a glance at the whole tile and a 4 x 4 grid of crops, one network and memory each
+eye: v1                     # v1 | grid (w_glance 0) | two_eye: a glance at the whole tile and a 4 x 4 grid of crops, one network and memory each
 novelty_topk: 4              # grid novelty = mean of the top-k crop novelties (16 = mean pooling, 1 = the maximum)
-w_glance: 1.0                # weight of z(glance novelty) in interest: the temperament between the whole and the detail
+w_glance: 0.0                # weight of z(glance novelty) in interest: the temperament between the whole and the detail
 w_grid: 1.0                   # weight of z(pooled grid novelty); w_n is v1's novelty weight
 jitter_px: 4                  # training crops: the top-k crops (cycled to 16), each moved by up to this many px
 glance_replay_batch: 15       # glance training: the chosen glance + this many past glances

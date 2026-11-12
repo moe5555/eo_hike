@@ -47,3 +47,36 @@ As the brief, with these choices (each a config key, recorded in `meta.json`):
 - **Two seeds** cannot make a lead or a result by e08's rule. Called a **hint** here: both seeds outside the Null's two-seed range on the same side.
 - Batch `scripts/hikes_e12.sh start factorial`: 18 walks, three side by side, three threads each, started 10:23 with 35 GB free.
 - The readouts (`analysis/e12/readouts.py`) and the contact sheet (`analysis/e12/contact_sheet.py`) were written and tested on the smoke walk before the factorial finished.
+
+## 2026-11-12, 10:50–11:23: the pass factorial read early, then stopped
+
+- **The black wedges.** In `e12_two_top4_s0`, 59 % of chosen tiles (49 % at r_min) are partial cells whose corner sticks out over the pass's slanted edge (3–5.5 % fill), against 21 % (3 % at r_min) in the Null, 10 % in v1 and 14 % in grid top-4. The world holds 9.9 % such cells; e10's build allowed up to 10 % missing. The glance chases them; the grid alone barely does. One seed.
+- **One axis.** The pass is a strip 177 km wide and 8,600 km long. Beyond ~90 km, offers across the strip find no cell within the snap tolerance and are dropped (1.6 of 8 offers left at 500–2,000 km), so long steps only go along the track and snap onto its edge. Set by the world, not the walker.
+- Film of `e12_two_top4_s0`, the full layout (243 MB), then deleted on Moe's request and re-rendered with only the tile (`analysis/e10/film_pass.py --tile-only`, `runs/e10_films/e12_two_top4_s0_tile.mp4`, 158 MB). Contact sheet: `results/films/e12_two_top4_s0_contact.png`.
+- **Moe's decisions** (2026-11-12):
+  - the wanderers walk the whole mission;
+  - the selection rule is a stack: the earliest acquisition first, each revisit the next;
+  - when a cell's stack runs out, it is no longer offered;
+  - interior missing-data bands are kept as artefacts;
+  - no full-tile rule for now;
+  - the start is the archive's first scene (night, South Dakota).
+- **Stopped** at 11:23 with 6 of 18 walks finished. The three running walks (`e12_two_top4_g2_s0`, `_shifted_s0`, `_shuffled_s0`) were aborted, and their folders and logs deleted.
+
+## 2026-11-12: the revisit rule and the mission factorial
+
+- **Stack** (`data/landsat1_world.py stack`, `data/landsat1/stack/*.npy`, memory-mapped):
+  - every cell's in-raster acquisitions, sorted as the earliest rule sorts them, one per (cell, day);
+  - 31,834,552 acquisitions; median 7 per cell, p90 83, max 169; 4.1 % of cells have one;
+  - rank 0 is identical to the index for every cell.
+- **One per day (my choice, forced by the data).** Consecutive scenes of a pass overlap, and their shared strip is the same scan lines, cut twice. Counting both would make a revisit show the same image again.
+- **Image keys** (`data/landsat1_store.py`): image = cell + rank · 2²¹. Rank 0 is the cell id, so existing cache files and every earlier use are unchanged; later ranks are cached as `<cell>_r<rank>.npz`. `acquisitions(keys)` gives each image's scene, date, level and night flag.
+- **Walker** (`stack: revisit_next`, needs `world: landsat1` and the compass):
+  - The compass works on cells; the images are keys. An offer shows its cell's acquisition of rank = visits so far.
+  - Cells with every acquisition seen are dropped from the offers and counted (`n_drop_exhausted`). If none are left, the existing fallbacks turn the compass, then offer the nearest cells that are not exhausted.
+  - Memories, the archive, re-embedding and `refresh_archive` all work on images. A revisited cell shows a new image, so refresh never fires there.
+  - Logged: `image_key`, `acq_rank`, `acq_scene`, `acq_date`, `acq_level`, `acq_night`, `acq_sun` per step; `image_key` and `acq_rank` per offer. In `crops.parquet`, `tile_idx` is the image key.
+- **Checks.** v1 on the pass, 60 steps: bit-identical in every column and in the archive. Two eyes on the pass, 60 steps: bit-identical to `e12_two_top4_s0`, **at the same thread count**.
+- **Threads matter.** Three threads (the batch) against the default differ by 1e-8 in progress from step 10, though the same tiles were chosen. `meta.json` now records `torch_threads`.
+- **Start:** cell `479U_839L` (43.068° N, 103.023° W), nearest the centre of `LM01_L1GS_136214_19720725` (the first Landsat 1 scene in Collection 2, 04:00:01 UTC, sun −15°). 434 cells show that scene first.
+- **Smoke walk** `e12_l1_smoke_s0` (two eyes, 100 steps): 1.1 s a step alone, 397 fetches, none failed. 61 revisits, 39 cells, ranks up to 8, 39 night steps, 40 % of offers at rank > 0.
+- **Factorial on the mission:** configs `e12_l1_*`, predictions 111–121, `scripts/hikes_e12.sh start l1`, three walkers side by side with six fetch workers each.

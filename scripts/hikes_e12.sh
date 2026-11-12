@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Experiment 12 (notes/12_two_eye/, brief notes/brief_landsat_pipeline.md E14): the short factorial of the two-eye walker on the e10
-# pass world in sqrt tone, 1,000 steps, seeds 0-1, plus the two replayed-schedule controls. `start smoke` walks the mission-world smoke
-# walk (E16, 500 steps).
+# pass world in sqrt tone, 1,000 steps, seeds 0-1, plus the two replayed-schedule controls (stopped 2026-11-12 after 6 walks). `start l1`
+# walks the same nine conditions on the whole Landsat 1 mission (e12_l1_*, the revisit rule, born in South Dakota).
 #
+#     scripts/hikes_e12.sh start l1          # the mission factorial
 #     scripts/hikes_e12.sh start factorial   # detached, keeps the Mac awake, log in runs/hikes_e12.log, one log per walk in runs/e12_logs/
 #     scripts/hikes_e12.sh stop
 #
@@ -28,7 +29,7 @@ case "${1:-}" in
   start)
     [ -f "$PIDFILE" ] && { echo "already running, group $(cat "$PIDFILE")"; exit 1; }
     mkdir -p runs/e12_logs
-    case "${2:-}" in factorial|smoke) ;; *) echo "usage: $0 start factorial|smoke"; exit 2 ;; esac
+    case "${2:-}" in factorial|l1) ;; *) echo "usage: $0 start factorial|l1"; exit 2 ;; esac
     nohup .venv/bin/python -c 'import os, sys; os.setsid(); os.execvp(sys.argv[1], sys.argv[1:])' caffeinate -i "$0" run "$2" >> "$LOG" 2>&1 < /dev/null &
     echo "started; stop with: scripts/hikes_e12.sh stop"
     exit 0 ;;
@@ -68,17 +69,15 @@ walk() {
 }
 export -f walk
 echo "=== $(date '+%F %T') stage ${2}, $(free_gb) GB free"
-if [ "$2" = factorial ]; then
-  jobs_list=""
-  for s in 0 1; do
-    for c in e12_v1 e12_null e12_grid_mean e12_grid_top4 e12_grid_top1 e12_two_top4 e12_two_top4_g2 e12_two_top4_shifted e12_two_top4_shuffled; do
-      jobs_list+="$c $s"$'\n'
-    done
+prefix=e12_
+[ "$2" = l1 ] && prefix=e12_l1_
+jobs_list=""
+for s in 0 1; do
+  for c in v1 null grid_mean grid_top4 grid_top1 two_top4 two_top4_g2 two_top4_shifted two_top4_shuffled; do
+    jobs_list+="${prefix}${c} $s"$'\n'
   done
-  printf '%s' "$jobs_list" | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
-else
-  walk e12_mission_smoke 0
-fi
+done
+printf '%s' "$jobs_list" | xargs -P 3 -L 1 bash -c 'walk "$0" "$1"'
 echo "=== $(date '+%F %T') stage ${2} done, $(free_gb) GB free"
 kill "$watchdog" 2>/dev/null
 rm -f "$PIDFILE"

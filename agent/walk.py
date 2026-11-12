@@ -171,7 +171,7 @@ def run(cfg: dict, name: str) -> Path:
     T = load_tiles(cfg, dev)
     idx, lat, lon = T.idx, T.lat, T.lon
     t = T.start(cfg["start_lat"], cfg["start_lon"])
-    meta = {"run_id": out.name, "name": name, "seed": seed, "git": git_hash(), "start_tile": t, "n_tiles": T.N, "device": dev, "torch": torch.__version__, "started": time.strftime("%Y-%m-%d %H:%M:%S")}
+    meta = {"run_id": out.name, "name": name, "seed": seed, "git": git_hash(), "start_tile": t, "n_tiles": T.N, "device": dev, "torch": torch.__version__, "torch_threads": torch.get_num_threads(), "started": time.strftime("%Y-%m-%d %H:%M:%S")}
     if T.name != "regional":
         meta.update(world=T.name, pool_size=T.pool_size, start_cell=str(idx.grid_cell[t]), start_latlon=[float(lat[t]), float(lon[t])],
                     start_cover=str(idx.cover[t]), confine_center=cfg.get("confine_center"), confine_radius_km=cfg.get("confine_radius_km"),
@@ -185,6 +185,21 @@ def run(cfg: dict, name: str) -> Path:
     if two:
         assert cfg.get("nav", "classic") == "compass" and cfg.get("policy", "curious") == "curious", "eye grid | two_eye needs nav: compass, policy: curious"
 
+    # the revisit rule (Moe 2026-11-12; data/landsat1_world.py `stack`): stack revisit_next shows a cell's acquisitions in date order, one
+    # more per visit, and stops offering a cell whose stack has run out. earliest_only (the default) is every earlier walk.
+    stack = cfg.get("stack", "earliest_only") == "revisit_next"
+    if stack:
+        assert cfg.get("world") == "landsat1" and cfg.get("nav", "classic") == "compass", "stack: revisit_next needs world: landsat1 and nav: compass"
+        from data.landsat1_store import image_key, split_key
+
+    def key_of(c: int) -> int:
+        """The image a cell shows now: its acquisition of rank = visits so far (stack), or the cell itself."""
+        return int(image_key(c, visits.get(c, 0))) if stack else c
+
+    def last_key(c: int) -> int:
+        """The image a cell showed at its last visit."""
+        return int(image_key(c, visits.get(c, 1) - 1)) if stack else c
+
     def look(ids: list[int], g: torch.Generator, timeout: float | None = None, fixed: bool = False):
         img, is_tv, kept, st = T.get(ids, timeout)
         if not kept:
@@ -193,6 +208,13 @@ def run(cfg: dict, name: str) -> Path:
             return img, kept, st
         off = S.fixed_offsets(kept, K, img.shape[1], crop, img.device) if fixed else None
         return S.patches(img, is_tv, K, crop, g, off), kept, st
+
+    def look_cells(cells: list[int], g: torch.Generator, timeout: float | None = None, fixed: bool = False):
+        """look() at offered cells: each shows its current image (key_of); returns the cells that arrived."""
+        if not stack:
+            return look(cells, g, timeout, fixed)
+        x, kept, st = look([key_of(c) for c in cells], g, timeout, fixed)
+        return x, [int(c) for c in split_key(kept)[0]], st
 
     if cfg.get("rng_mode", "legacy") == "split":
         ss = dict(zip(RNG_STREAMS, np.random.SeedSequence(seed).spawn(len(RNG_STREAMS))))
@@ -262,7 +284,12 @@ def run(cfg: dict, name: str) -> Path:
             return float(r_compass.uniform(0.0, 45.0)) if frame == "random" else float(r_compass.uniform(0.0, 360.0))
 
         def compass_offers(t: int, r: float, theta: float) -> tuple[list[int], dict]:
-            return CP.offers(T.world, t, r, theta, max(snap_tol, snap_floor / r))
+            out, info = CP.offers(T.world, t, r, theta, max(snap_tol, snap_floor / r))
+            if stack:  # a cell whose acquisitions have all been seen is no longer offered
+                keep = [c for c in out if visits.get(c, 0) < T.store.stack_len(c)]
+                info["exhausted"] = len(out) - len(keep)
+                out = keep
+            return out, info
 
         heading = None
         r_now, theta_now = next_radius(0), next_theta(None)
@@ -359,7 +386,11 @@ def run(cfg: dict, name: str) -> Path:
                 theta_now = float(r_compass.uniform(0.0, 360.0))
                 cands, cinfo = compass_offers(t, r_now, theta_now)
             if not cands:  # still nothing: the eight indexed cells nearest to this one
-                cands = [int(c) for c in T.world.pool[T.world.tree.query(np.radians([[lat[t], lon[t]]]), k=9)[1][0]] if c != t][:8]
+                if stack:
+                    near = T.world.pool[T.world.tree.query(np.radians([[lat[t], lon[t]]]), k=200)[1][0]]
+                    cands = [int(c) for c in near if c != t and visits.get(int(c), 0) < T.store.stack_len(int(c))][:8]
+                else:
+                    cands = [int(c) for c in T.world.pool[T.world.tree.query(np.radians([[lat[t], lon[t]]]), k=9)[1][0]] if c != t][:8]
             kinds = ["compass"] * len(cands)
             if offer_stay:
                 cands, kinds = cands + [t], kinds + ["stay"]
@@ -378,11 +409,11 @@ def run(cfg: dict, name: str) -> Path:
                 cands, kinds = [T.random_tile(r_land)], ["empty"]
 
         # -- look (lazy store: candidates that can't be fetched in time are dropped) ----
-        x, kept, fst = look(cands, gen, fixed=fixed_crops) if not random_policy else (None, cands, {})
+        x, kept, fst = look_cells(cands, gen, fixed=fixed_crops) if not random_policy else (None, cands, {})
         n_redraw = 0
         if not random_policy and len(kept) < len(cands):
             if not kept:  # nothing arrived: wait longer rather than stall the walk on an empty choice
-                x, kept, fst2 = look(cands, gen, timeout=120.0, fixed=fixed_crops)
+                x, kept, fst2 = look_cells(cands, gen, timeout=120.0, fixed=fixed_crops)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst2["dropped"]
             while not kept:  # still nothing (e.g. one blind target that can't be fetched): blindly redraw it
@@ -396,7 +427,7 @@ def run(cfg: dict, name: str) -> Path:
                     kinds = ["compass"] * len(cands)
                 else:
                     cands, kinds = [T.random_tile(r_land)], [kinds[0] if kinds[0] in ("bored", "empty") else "redraw"]
-                x, kept, fst2 = look(cands, gen, timeout=120.0, fixed=fixed_crops)
+                x, kept, fst2 = look_cells(cands, gen, timeout=120.0, fixed=fixed_crops)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst["dropped"] + fst2["dropped"]
             kinds = [k for c, k in zip(cands, kinds) if c in set(kept)]
@@ -410,7 +441,7 @@ def run(cfg: dict, name: str) -> Path:
             e = n = g = ez = nz = gz = I = np.full(C, np.nan)
             maxI = np.nan
         elif two:  # walker v2: glance and grid (agent/eyes.py); n is the pooled grid novelty, e the grid surprise (mean over crops)
-            sc = te.score(step, x, cands, set(visits), refresh)
+            sc = te.score(step, x, [key_of(c) for c in cands], set(te.tiles), refresh) if stack else te.score(step, x, cands, set(visits), refresh)
             e, n, g = sc["raw"]["e"], sc["raw"]["grid"], sc["raw"]["g"]
             ez, nz, gz = sc["z"]["e"], sc["z"]["grid"], sc["z"]["g"]
             I, I_long = sc["I"], sc["I_long"]
@@ -423,7 +454,10 @@ def run(cfg: dict, name: str) -> Path:
             g_t, _, _ = S.progress_probe(model, x, float(cfg["lr"]), int(cfg["probe_steps"]))
             e_t = S.recon_err(model, x)
             z_c = S.mean_latent(model, x)
-            seen = [c for c in cands if c in visits] if refresh and arch_z is not None else []
+            if stack:  # a revisited cell shows a new acquisition: only an image already in the archive is refreshed (never, by construction)
+                seen = [key_of(c) for c in cands if key_of(c) in set(arch_tiles)] if refresh and arch_z is not None else []
+            else:
+                seen = [c for c in cands if c in visits] if refresh and arch_z is not None else []
             if seen:  # a fresh look at revisited candidates replaces their stale archive latents
                 xr, _, _ = look(seen, gen, timeout=600.0, fixed=fixed_crops)
                 at = torch.as_tensor(arch_tiles, device=dev)
@@ -458,7 +492,7 @@ def run(cfg: dict, name: str) -> Path:
             for c in range(C):
                 cand_log.append({"step": step, "tile_idx": cands[c], "kind": kinds[c], "e": e[c], "n": n[c], "g": g[c], "e_z": ez[c], "n_z": nz[c], "g_z": gz[c], "I": I[c], "p": p[c], "chosen": c == j,
                                  **({"I_long": I_long[c], "bearing": c_bear[c], "cand_km": c_dist[c]} if compass else {}),
-                                 **{k: v[c] for k, v in extra.items()}})
+                                 **{k: v[c] for k, v in extra.items()}, **({"image_key": key_of(cands[c]), "acq_rank": visits.get(cands[c], 0)} if stack else {})})
         prev, t = t, cands[j]
         came_from = prev
         if not compass:  # the compass walker prefetches exactly its next offers instead (below)
@@ -473,7 +507,7 @@ def run(cfg: dict, name: str) -> Path:
             r_was, theta_was, info_was = r_now, theta_now, cinfo
             if step + 1 < int(cfg["steps"]):
                 r_now, theta_now = next_radius(step + 1), next_theta(heading)
-                T.store.prefetch(compass_offers(t, r_now, theta_now)[0])
+                T.store.prefetch([key_of(c) for c in compass_offers(t, r_now, theta_now)[0]])
 
         # -- train on the chosen tile --------------------------------------------------
         err_before = err_after = np.nan
@@ -484,12 +518,14 @@ def run(cfg: dict, name: str) -> Path:
             rec.update(err_glance_before=tr["err_glance_before"], err_glance_after=tr["err_glance_after"], **te.log_choice(j, sc))
             if log_prev:  # grid error (mean over the 16 crops) on this tile and the one before, after the update; draws no random numbers
                 rec["e_self_after"] = float(te.errors(xj)[0][0])
-                rec["e_prev_after"] = float(te.errors(look([prev], gen, timeout=600.0)[0])[0][0])
-            te.remember(t, xj)
+                rec["e_prev_after"] = float(te.errors(look([last_key(prev) if prev != t else key_of(prev)], gen, timeout=600.0)[0])[0][0])
+            if stack:
+                rec.update(image_key=key_of(t), acq_rank=visits.get(t, 0))
+            te.remember(key_of(t), xj)
             visits[t] = visits.get(t, 0) + 1
         elif not random_policy:
             xs = x[j]  # the K patches the agent just looked at
-            xt = look([t], gen, timeout=600.0)[0][0] if fixed_crops else xs  # training keeps random crops
+            xt = look([key_of(t)], gen, timeout=600.0)[0][0] if fixed_crops else xs  # training keeps random crops
             batch = xt
             if buf_n > 0:
                 ri = torch.randint(0, buf_n, (int(cfg["replay_batch"]),), generator=gen_replay, device=dev)
@@ -505,14 +541,16 @@ def run(cfg: dict, name: str) -> Path:
                 err_after = float(((model(xt) - xt) ** 2).mean())
                 zt = model.encode(xs).mean(0, keepdim=True)
             if log_prev:  # the scoring crops of each tile, so comparable with candidates.parquet; draws no random numbers
-                rec["e_self_after"] = float(S.recon_err(model, look([t], gen, timeout=600.0, fixed=True)[0]))
-                rec["e_prev_after"] = float(S.recon_err(model, look([prev], gen, timeout=600.0, fixed=True)[0]))
+                rec["e_self_after"] = float(S.recon_err(model, look([key_of(t)], gen, timeout=600.0, fixed=True)[0]))
+                rec["e_prev_after"] = float(S.recon_err(model, look([last_key(prev) if prev != t else key_of(prev)], gen, timeout=600.0, fixed=True)[0]))
             # memory: FIFO patch buffer and archive of visited latents (revisits push again)
             for pch in xt:
                 buf[buf_ptr] = pch
                 buf_ptr = (buf_ptr + 1) % len(buf)
                 buf_n = min(buf_n + 1, len(buf))
-            arch_tiles.append(t)
+            if stack:
+                rec.update(image_key=key_of(t), acq_rank=visits.get(t, 0))
+            arch_tiles.append(key_of(t))
             arch_z = zt if arch_z is None else torch.cat([arch_z, zt])
             visits[t] = visits.get(t, 0) + 1
 
@@ -537,7 +575,8 @@ def run(cfg: dict, name: str) -> Path:
         if compass:
             dr = list(info_was["drop"])
             rec.update(r_km=r_was, theta=theta_was, drive_x=float(x_drive), **{f"drive_{k}": v for k, v in drive.state().items() if k != "t"},
-                       n_drop_far=dr.count("far"), n_drop_dup=dr.count("dup"), n_drop_self=dr.count("self"), heading=heading if heading is not None else np.nan)
+                       n_drop_far=dr.count("far"), n_drop_dup=dr.count("dup"), n_drop_self=dr.count("self"), heading=heading if heading is not None else np.nan,
+                       **({"n_drop_exhausted": int(info_was.get("exhausted", 0))} if stack else {}))
         if T.name != "regional":
             rec.update(cover=str(idx.cover[t]), fetch_sec=float(fst.get("wait_sec", 0.0)), n_fetch=int(fst.get("n", 0)),
                        n_cache_hit=int(fst.get("cache_hits", 0)), n_dropped=len(fst.get("dropped", [])), n_redraw=n_redraw,
@@ -561,7 +600,12 @@ def run(cfg: dict, name: str) -> Path:
                   + (f"  fetch {df.fetch_sec.mean():.2f}s  hit {df.n_cache_hit.sum() / max(df.n_fetch.sum(), 1):.2f}  dropped {df.n_dropped.sum()}"
                      if "fetch_sec" in df else ""), flush=True)
 
-    pd.DataFrame(steps_log).to_parquet(out / "steps.parquet")
+    sl = pd.DataFrame(steps_log)
+    if stack and "image_key" in sl:  # the acquisition each step showed: scene, date, level, night
+        a = T.store.acquisitions(sl.image_key.to_numpy())
+        sl = sl.assign(acq_scene=a.scene.to_numpy(), acq_date=a.timestamp.to_numpy(), acq_level=a.level.to_numpy(), acq_night=a.night.to_numpy(),
+                       acq_sun=a.sun_elevation.to_numpy())
+    sl.to_parquet(out / "steps.parquet")
     if not random_policy:
         pd.DataFrame(cand_log).to_parquet(out / "candidates.parquet")
         pd.DataFrame(held_log).to_parquet(out / "heldout.parquet")

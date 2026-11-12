@@ -4,6 +4,10 @@ the eight offers around it, and the drive that sets how far it looks.
     python analysis/e10/film_pass.py e10_pass_5km_sqrt_s0                       # runs/e10_films/<run>.mp4 + contact sheet
     python analysis/e10/film_pass.py e10_pass_5km_sqrt_s0 --steps 300 --sec-per-step 0.3
     python analysis/e10/film_pass.py e10_pass_5km_sqrt_s0 --preview 0 150 299   # PNG frames in runs/e10_films/preview/, no film
+    python analysis/e10/film_pass.py e10_pass_5km_sqrt_s0 --tile-only           # runs/e10_films/<run>_tile.mp4: only the tile, centred on black
+
+--tile-only: each frame is the walker's tile alone (same image, same 720 px), centred on black; same timing, no text, maps or plots,
+no contact sheet. Works with --preview too.
 
 Left: the chosen tile as the walker saw it (128 or 256 px, enlarged). Right, left column: the whole pass, north at the top, every cell at
 its place (the world's own tiles, shrunk), with the track so far and the walker. Right, right column: a local map around the walker,
@@ -104,7 +108,7 @@ class Strip:
         return im
 
 
-def render(run: str, steps: int | None, sec_per_step: float, fps: int, preview: list[int] | None) -> Path:
+def render(run: str, steps: int | None, sec_per_step: float, fps: int, preview: list[int] | None, tile_only: bool = False) -> Path:
     rd = RUNS / run
     cfg = yaml.safe_load((rd / "config.yaml").read_text())
     assert cfg.get("world") == "landsat_pass", f"{run}: not a Landsat pass walk (world: {cfg.get('world')})"
@@ -169,7 +173,7 @@ def render(run: str, steps: int | None, sec_per_step: float, fps: int, preview: 
     caption = f"Landsat 1 MSS · {info.get('date', '')} · path {info.get('path', '')} · {meta['cell_m'] / 1000:.2f} km cells · {meta['render']}, {meta.get('tone', 'linear')}"
 
     FILMS.mkdir(parents=True, exist_ok=True)
-    path = FILMS / f"{run}.mp4"
+    path = FILMS / f"{run}{'_tile' if tile_only else ''}.mp4"
     reps = max(1, int(round(sec_per_step * fps)))
     ff = None
     if not preview:
@@ -198,6 +202,21 @@ def render(run: str, steps: int | None, sec_per_step: float, fps: int, preview: 
         else:
             px, py = ov_xy(lat_t[start], lon_t[start])
         if preview and k not in preview:
+            continue
+
+        if tile_only:  # only the tile, centred on black; the same timing as the full film
+            t = start if k < 0 else int(tiles_at[k])
+            im = Image.new("RGB", (W, H), (0, 0, 0))
+            im.paste(Image.fromarray(np.asarray(tiles[t])).resize((TILE, TILE), Image.Resampling.LANCZOS), ((W - TILE) // 2, 0))
+            if preview:
+                (FILMS / "preview").mkdir(parents=True, exist_ok=True)
+                im.save(FILMS / "preview" / f"{run}_tile_{k:04d}.png")
+                continue
+            buf = im.tobytes()
+            for _ in range(reps * (4 if k < 0 else 1)):  # the birth is held a little longer
+                ff.stdin.write(buf)
+            if k >= 0 and k % 50 == 0:
+                print(f"[film] {run}: step {k}", flush=True)
             continue
 
         im = Image.new("RGB", (W, H), BG)
@@ -267,6 +286,8 @@ def render(run: str, steps: int | None, sec_per_step: float, fps: int, preview: 
     ff.stdin.close()
     ff.wait()
     print(f"[film] {path}: {n} steps, {(n + 4) * reps / fps:.0f} s, {path.stat().st_size / 1e6:.0f} MB", flush=True)
+    if tile_only:  # no contact sheet in this mode
+        return path
     ks = sorted(kept)
     w, h = kept[ks[0]].size
     cols = 4
@@ -286,8 +307,9 @@ def main() -> None:
     ap.add_argument("--sec-per-step", type=float, default=0.3)
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--preview", type=int, nargs="+", help="save these steps as PNG in runs/e10_films/preview/, and no film")
+    ap.add_argument("--tile-only", action="store_true", help="only the walker's tile, centred on black; writes <run>_tile.mp4, no contact sheet")
     a = ap.parse_args()
-    render(a.run, a.steps, a.sec_per_step, a.fps, a.preview)
+    render(a.run, a.steps, a.sec_per_step, a.fps, a.preview, a.tile_only)
 
 
 if __name__ == "__main__":
