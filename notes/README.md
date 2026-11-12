@@ -20,6 +20,8 @@ One folder per experiment, numbered in the order they were run. Each one has a b
 | 08 | `08_character_sheet/` | 2026-11-03 | Which settings are responsible for what, in what the walker sees and how it moves? A character sheet backed by paired walks | Stage 0 done; Done: Stages 0 and 1, seeds 4–7 for seven settings (17 results); Stages 2–3 replaced by the new navigation | round h0311 / `e08_` |
 | 09 | `09_compass/` | 2026-11-08 | Can one drive set how far the walker looks (eight offers at one radius, close when curious, far when bored), and is the rhythm that comes out the walker's or the mapping's? | Stage 2 walked (48 walks): the radius follows the drive and a rhythm comes out, but the loop is open (going far does not restore the drive) and the rhythm is the drive's filter, shared with the Null; character against the Null (preference, clusters) comes from the choice. Stage 3a (larger eye, 24 walks, world-view readout): a 5.3 or 8 km eye does not open the loop (far offers stay duller than near ones even decoupled), the embedding is ordered at continental scale at every eye, and no eye beats colour on land cover. Progress test (12 walks): a drive on learning progress does not make far pay either; it makes a homebody with rare long voyages. Walker v1 frozen (= the compass Reference, tag `walker-v1`) and walked for 15,000 steps: rhythm, preference and clusters last, a taste for texture, contrast and snow grows for 6,000 steps and takes the walker into the high north, novelty does not wear down, and the embedding's ordering by distance dissolves (Tobler ρ 0.16 → −0.02) | `e09_` |
 | 10 | `10_landsat_pass/` | 2026-11-10 | Placeholder: a walk inside one orbital pass of one satellite (the satellite as the first walker). Oldest usable pass: Landsat 1 MSS, 22 Nov 1972, path 183 (Caucasus → South Africa) | infrastructure built; first try: 300 steps of walker v1 at 5.34 km cells (r 7.5–100 km) from the pass's first tile, and a clip (no brief yet) | `e10_` |
+| 11 | `11_landsat1_mission/` | 2026-11-11 | A world made of the whole Landsat 1 mission (1972–78): sources, census, quirks; then the world itself on the Major TOM grid, one acquisition per cell (earliest) | research done; world built (1,466,863 cells), lazy store, quirk columns, portrait (`world.md`) | – |
+| 12 | `12_two_eye/` | 2026-11-12 | Walker v2: a glance at the whole tile and a 4 × 4 grid of crops, each with its own network and memory. Which conditions chase stripes, cloud, brightness? The short factorial on the e10 pass, the death dry run, a smoke walk on the mission world | built; factorial walked | `e12_` |
 
 Not an experiment: `agents_paper/`, the write-up of the agent design (Typst source, figures built by `build_figures.py`, PDF).
 
@@ -160,3 +162,25 @@ All documents in `notes/10_landsat_pass/`:
 - Results: `results/offers_geometry_*.csv`, `results/films/*_contact.png`; films in `runs/e10_films/` (git-ignored)
 - Configs: `configs/10_landsat_pass/e10_pass_v1.yaml` (walker v1 unchanged, 10.68 km world), `e10_pass_5km.yaml` (5.34 km, linear tone: the first try, offers indistinguishable), `e10_pass_5km_sqrt.yaml` (the same in sqrt tone)
 - Runs: `runs/e10_pass_smoke_s0`, `runs/e10_pass_5km_s0`, `runs/e10_pass_5km_sqrt_s0` (300 steps each)
+
+## 11. Landsat 1 mission
+
+All documents in `notes/11_landsat1_mission/`:
+
+- Research (sources, census, quirk probe, rendered tiles, resolution, zoom): `research.md`
+- The world (grid, candidates, selection, store, quirks, portrait): `world.md`
+- Code: `analysis/landsat1/` (`census.py`, `quirk_probe.py`, `render_quirks.py`, `render_zoom.py`, `portrait.py`), `data/landsat1_world.py` (grid, candidates, index), `data/landsat1_store.py` (`Landsat1TileStore`, `world: landsat1`)
+- Data: `data/landsat/landsat1_c2l1_items.parquet` (force-added), `data/landsat/landsat1_c2l1_proj.parquet`, `data/landsat1/` (git-ignored: grid, candidates, scenes, index, baseline, cache)
+- Results and figures: `results/`, `figures/`
+
+## 12. The two-eye walker
+
+All documents in `notes/12_two_eye/`:
+
+- Brief: `notes/brief_landsat_pipeline.md`
+- Expectation: `notes/06_characters/expectations.md`, section "Experiment 12", predictions 96–110
+- Log: `log.md`; report: `observations.md`
+- Code: `agent/eyes.py`, `eye:` in `agent/walk.py` (default `v1`, checked bit-identical); `analysis/e12/` (`pass_quirks.py`, `forget_set.py`, `readouts.py`, `contact_sheet.py`)
+- Configs: `configs/12_two_eye/e12_*.yaml`, forgetting sets `forget_pass.csv`, `forget_mission.csv`; batch `scripts/hikes_e12.sh`
+- Test bed: `data/landsat/LM01_183_19721122/c10680m_256px_cir_sqrt` (with `quirks.parquet`, `crop_quirks.parquet`)
+- Runs: `runs/e12_*`; checks `e12_check_v1_before_s0`, `e12_check_v1_after_s0`, `e12_smoke_two_s0`
