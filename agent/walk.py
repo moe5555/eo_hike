@@ -178,10 +178,19 @@ def run(cfg: dict, name: str) -> Path:
                     **({"pass_world": cfg["pass_world"]} if T.name == "landsat_pass" else {}))
     (out / "meta.json").write_text(json.dumps(meta, indent=2))
 
+    # walker v2 (notes/brief_landsat_pipeline.md, B): eye grid | two_eye (agent/eyes.py); v1 (the default) is every earlier walker
+    eye = cfg.get("eye", "v1")
+    assert eye in ("v1", "grid", "two_eye"), eye
+    two = eye != "v1"
+    if two:
+        assert cfg.get("nav", "classic") == "compass" and cfg.get("policy", "curious") == "curious", "eye grid | two_eye needs nav: compass, policy: curious"
+
     def look(ids: list[int], g: torch.Generator, timeout: float | None = None, fixed: bool = False):
         img, is_tv, kept, st = T.get(ids, timeout)
         if not kept:
             return None, kept, st
+        if two:  # the two-eye walker cuts its own crops and glances from the whole tile (agent/eyes.py); draws no random numbers here
+            return img, kept, st
         off = S.fixed_offsets(kept, K, img.shape[1], crop, img.device) if fixed else None
         return S.patches(img, is_tv, K, crop, g, off), kept, st
 
@@ -260,18 +269,31 @@ def run(cfg: dict, name: str) -> Path:
     visits: dict[int, int] = {}
     came_from = None
 
-    model = opt = None
+    model = opt = te = None
+    forget_log, forget_x, forget_kinds = [], None, None
     if not random_policy:
-        model = ConvAE(tuple(int(c * ae_width) for c in CH), int(LATENT * ae_width)).to(dev)
-        opt = torch.optim.Adam(model.parameters(), lr=float(cfg["lr"]))
+        if two:
+            from agent.eyes import TwoEye
+
+            te = TwoEye(cfg, dev)
+            model = te.grid
+            meta["eye"] = {"eye": eye, "novelty_topk": te.k_top, "w": te.w, "jitter_px": te.jitter, "glance_replay_batch": te.glance_replay}
+        else:
+            model = ConvAE(tuple(int(c * ae_width) for c in CH), int(LATENT * ae_width)).to(dev)
+            opt = torch.optim.Adam(model.parameters(), lr=float(cfg["lr"]))
         if cfg.get("ckpt_init", False):  # e09 world-view readout: the network at step 0; saving draws no random numbers
-            torch.save({"model": model.state_dict(), "step": 0}, out / "ckpt_0000.pt")
+            torch.save({**(te.state() if two else {"model": model.state_dict()}), "step": 0}, out / "ckpt_0000.pt")
         # fixed held-out set: same 200 tiles and crop positions for every run of this crop_px
         hrng = np.random.default_rng(HELDOUT_SEED)
         held_ids = np.sort(hrng.choice(T.heldout_pool, HELDOUT_N, replace=False)).tolist()
         hgen = torch.Generator(device=dev).manual_seed(HELDOUT_SEED)
         held_x, held_kept, _ = look(held_ids, hgen, timeout=600.0)
         meta["heldout_n"] = len(held_kept)
+        if two and cfg.get("forget_set"):  # brief C10: fixed ordinary tiles (sea, sand, field), errors of both eyes every forget_every steps
+            fs = pd.read_csv(ROOT / cfg["forget_set"])
+            forget_x, fkept, _ = look(fs.tile_idx.tolist(), hgen, timeout=600.0)
+            forget_kinds = fs.set_index("tile_idx").kind.reindex(fkept).tolist()
+            forget_ids = fkept
     norms = {k: S.RunningNorm(float(cfg["ema_alpha"])) for k in ("e", "n", "g")}
     buf = torch.zeros(int(cfg["buffer_size"]), 3, S.IN_PX, S.IN_PX, device=dev)
     buf_n, buf_ptr = 0, 0
@@ -283,10 +305,26 @@ def run(cfg: dict, name: str) -> Path:
     t0 = time.time()
 
     def heldout_eval(step):
+        if two:
+            eg, el = te.errors(held_x)
+            held_log.append({"step": step, "heldout_mse": float(eg.mean()), "heldout_mse_glance": float(el.mean())})
+            return
         held_log.append({"step": step, "heldout_mse": float(S.recon_err(model, held_x).mean())})
+
+    def forget_eval(step):
+        eg, el = te.errors(forget_x)
+        forget_log.extend({"step": step, "tile_idx": i, "kind": k, "e_grid": float(a), "e_glance": float(b)}
+                          for i, k, a, b in zip(forget_ids, forget_kinds, eg, el))
 
     def reembed():
         nonlocal arch_z
+        if two:
+            def get(ids):
+                img, kept, _ = look(ids, gen, timeout=600.0)
+                assert len(kept) == len(ids), "visited tile missing from the store"
+                return img
+            te.reembed(get)
+            return
         zs = []
         for i in range(0, len(arch_tiles), 256):
             x, kept, _ = look(arch_tiles[i : i + 256], gen, timeout=600.0, fixed=fixed_crops)
@@ -307,6 +345,8 @@ def run(cfg: dict, name: str) -> Path:
 
     if model is not None:
         heldout_eval(0)
+    if forget_x is not None:
+        forget_eval(0)
 
     for step in range(int(cfg["steps"])):
         ts = time.time()
@@ -369,6 +409,16 @@ def run(cfg: dict, name: str) -> Path:
             j = int(r_choice.integers(C))
             e = n = g = ez = nz = gz = I = np.full(C, np.nan)
             maxI = np.nan
+        elif two:  # walker v2: glance and grid (agent/eyes.py); n is the pooled grid novelty, e the grid surprise (mean over crops)
+            sc = te.score(step, x, cands, set(visits), refresh)
+            e, n, g = sc["raw"]["e"], sc["raw"]["grid"], sc["raw"]["g"]
+            ez, nz, gz = sc["z"]["e"], sc["z"]["grid"], sc["z"]["g"]
+            I, I_long = sc["I"], sc["I_long"]
+            if return_cost:
+                rc = return_cost * np.log1p(np.array([visits.get(c, 0) for c in cands], dtype=np.float64))
+                I, I_long = I - rc, I_long - rc
+            c_bear = CP.initial_bearing(lat[t], lon[t], lat[cands], lon[cands])
+            c_dist = haversine_km(lat[t], lon[t], lat[cands], lon[cands])
         else:
             g_t, _, _ = S.progress_probe(model, x, float(cfg["lr"]), int(cfg["probe_steps"]))
             e_t = S.recon_err(model, x)
@@ -392,8 +442,9 @@ def run(cfg: dict, name: str) -> Path:
                 I_long = float(cfg["w_n"]) * lz["n"] + float(cfg["w_g"]) * lz["g"] + float(cfg["w_e"]) * lz["e"]
                 c_bear = CP.initial_bearing(lat[t], lon[t], lat[cands], lon[cands])
                 c_dist = haversine_km(lat[t], lon[t], lat[cands], lon[cands])
-                if persistence and heading is not None:  # temperament: a pull towards the current heading
-                    I = I + persistence * np.cos(np.radians(c_bear - heading))
+        if not random_policy:
+            if compass and persistence and heading is not None:  # temperament: a pull towards the current heading
+                I = I + persistence * np.cos(np.radians(c_bear - heading))
             logits = I / float(cfg["temperature"])
             p = np.exp(logits - logits.max())
             p /= p.sum()
@@ -401,9 +452,13 @@ def run(cfg: dict, name: str) -> Path:
                 p = np.full(C, 1.0 / C)
             j = int(r_choice.choice(C, p=p))
             maxI = float(I.max())
+            rec.update(p_chosen=float(p[j]), best_offer=bool(j == int(np.argmax(I))))  # brief C8; draws nothing
+            extra = ({"n_glance": sc["raw"]["glance"], "n_glance_z": sc["z"]["glance"], "n_v1": sc["n_v1"], "e_max": sc["e_max"], "e_glance": sc["e_glance"]}
+                     if two else {})
             for c in range(C):
                 cand_log.append({"step": step, "tile_idx": cands[c], "kind": kinds[c], "e": e[c], "n": n[c], "g": g[c], "e_z": ez[c], "n_z": nz[c], "g_z": gz[c], "I": I[c], "p": p[c], "chosen": c == j,
-                                 **({"I_long": I_long[c], "bearing": c_bear[c], "cand_km": c_dist[c]} if compass else {})})
+                                 **({"I_long": I_long[c], "bearing": c_bear[c], "cand_km": c_dist[c]} if compass else {}),
+                                 **{k: v[c] for k, v in extra.items()}})
         prev, t = t, cands[j]
         came_from = prev
         if not compass:  # the compass walker prefetches exactly its next offers instead (below)
@@ -422,7 +477,17 @@ def run(cfg: dict, name: str) -> Path:
 
         # -- train on the chosen tile --------------------------------------------------
         err_before = err_after = np.nan
-        if not random_policy:
+        if two:
+            xj = x[j : j + 1]
+            tr = te.train(step, xj, sc["n_crop"][j], gen, gen_replay)
+            err_before, err_after = tr["err_before"], tr["err_after"]
+            rec.update(err_glance_before=tr["err_glance_before"], err_glance_after=tr["err_glance_after"], **te.log_choice(j, sc))
+            if log_prev:  # grid error (mean over the 16 crops) on this tile and the one before, after the update; draws no random numbers
+                rec["e_self_after"] = float(te.errors(xj)[0][0])
+                rec["e_prev_after"] = float(te.errors(look([prev], gen, timeout=600.0)[0])[0][0])
+            te.remember(t, xj)
+            visits[t] = visits.get(t, 0) + 1
+        elif not random_policy:
             xs = x[j]  # the K patches the agent just looked at
             xt = look([t], gen, timeout=600.0)[0][0] if fixed_crops else xs  # training keeps random crops
             batch = xt
@@ -486,7 +551,9 @@ def run(cfg: dict, name: str) -> Path:
             if s1 % int(cfg["heldout_every"]) == 0:
                 heldout_eval(s1)
             if s1 % int(cfg["ckpt_every"]) == 0:
-                torch.save({"model": model.state_dict(), "step": s1}, out / f"ckpt_{s1:04d}.pt")
+                torch.save({**(te.state() if two else {"model": model.state_dict()}), "step": s1}, out / f"ckpt_{s1:04d}.pt")
+            if forget_x is not None and s1 % int(cfg.get("forget_every", 500)) == 0:
+                forget_eval(s1)
         if s1 % 100 == 0:
             df = pd.DataFrame(steps_log[-100:])
             print(f"[{out.name}] step {s1}  {time.time() - t0:.0f}s  uniq {len(set(r['tile_idx'] for r in steps_log))}  "
@@ -498,10 +565,19 @@ def run(cfg: dict, name: str) -> Path:
     if not random_policy:
         pd.DataFrame(cand_log).to_parquet(out / "candidates.parquet")
         pd.DataFrame(held_log).to_parquet(out / "heldout.parquet")
-        torch.save({"model": model.state_dict(), "step": int(cfg["steps"]), "norms": {k: v.state() for k, v in norms.items()}}, out / "final.pt")
-        reembed()
-        np.savez(out / "archive.npz", z=arch_z.cpu().numpy(), tile_idx=np.array(arch_tiles))
-        daydream(model, arch_z, gen_dream, out / "daydreams" / "final.png", int(cfg["k_nn"]))
+        if two:  # final.pt's "model" is the grid network, so readouts that load a ConvAE from it still work; archive.npz is the shadow
+            torch.save({**te.state(), "step": int(cfg["steps"]), "norms": {k: v.state() for k, v in te.norms.items()}}, out / "final.pt")
+            reembed()
+            np.savez(out / "archive.npz", z=te.mem_v1.cpu().numpy(), tile_idx=np.array(te.tiles))
+            daydream(te.grid, te.mem_crop.flatten(0, 1), gen_dream, out / "daydreams" / "final.png", int(cfg["k_nn"]))
+            te.save_logs(out, T.store)
+            if forget_log:
+                pd.DataFrame(forget_log).to_parquet(out / "forgetting.parquet")
+        else:
+            torch.save({"model": model.state_dict(), "step": int(cfg["steps"]), "norms": {k: v.state() for k, v in norms.items()}}, out / "final.pt")
+            reembed()
+            np.savez(out / "archive.npz", z=arch_z.cpu().numpy(), tile_idx=np.array(arch_tiles))
+            daydream(model, arch_z, gen_dream, out / "daydreams" / "final.png", int(cfg["k_nn"]))
         if land_log:
             pd.DataFrame(land_log).to_parquet(out / "landings.parquet")
     meta.update(finished=time.strftime("%Y-%m-%d %H:%M:%S"), seconds=round(time.time() - t0, 1))

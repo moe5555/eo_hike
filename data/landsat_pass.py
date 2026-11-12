@@ -498,6 +498,18 @@ class PassStore:
     def fetch_all(self, ids, desc: str = "fetch") -> list[int]:
         return []
 
+    def quirks(self, ids) -> pd.DataFrame:
+        """Per-cell quirk shares from quirks.parquet (analysis/e12/pass_quirks.py), if it has been built; else empty."""
+        p = self.dir / "quirks.parquet"
+        q = pd.read_parquet(p) if p.exists() else pd.DataFrame(columns=["tile_idx"])
+        return q[q.tile_idx.isin(list(map(int, ids)))]
+
+    def crop_quirks(self, ids) -> pd.DataFrame:
+        """Per-crop (4 x 4 grid) quirk shares from crop_quirks.parquet (analysis/e12/pass_quirks.py), if built; else empty."""
+        p = self.dir / "crop_quirks.parquet"
+        q = pd.read_parquet(p) if p.exists() else pd.DataFrame(columns=["tile_idx", "crop"])
+        return q[q.tile_idx.isin(list(map(int, ids)))]
+
     def summary(self) -> dict:
         return {"pass_world": str(self.dir.relative_to(ROOT.parent)) if self.dir.is_relative_to(ROOT.parent) else str(self.dir),
                 "n_tiles": self.N, "reads": self.n_reads, "cell_m": self.meta["cell_m"], "tile_px": self.meta["tile_px"], "render": self.meta["render"],
