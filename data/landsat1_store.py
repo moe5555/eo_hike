@@ -38,6 +38,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import sys
 import threading
 import time
 from collections import OrderedDict
@@ -366,6 +367,10 @@ class Landsat1TileStore:
             except Exception as e:  # noqa: BLE001
                 err = e
                 self.stats["retry"] += 1
+                kind = type(e).__name__
+                self.stats[f"err_{kind}"] = self.stats.get(f"err_{kind}", 0) + 1
+                if self.stats["retry"] <= 10 or self.stats["retry"] % 50 == 0:  # into the walk's log, so a stall names its cause
+                    print(f"[store] {time.strftime('%H:%M:%S')} retry {self.stats['retry']} key {i} attempt {a + 1}: {repr(e)[:300]}", file=sys.stderr, flush=True)
                 time.sleep(min(2.0**a, 30.0) * (1 + 0.25 * np.random.default_rng().random()))  # its own generator: no walker stream is touched
         dt = time.time() - t0
         self.fetch_log.append((i, dt, a + 1))
