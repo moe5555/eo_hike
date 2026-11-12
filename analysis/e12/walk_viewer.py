@@ -34,10 +34,14 @@ SEEN = ("green", "red", "nir08")
 DEATHS = ROOT / "notes" / "12_two_eye" / "results" / "deaths.csv"
 
 
-def eye_data(rd: Path, cfg: dict, store) -> dict | None:
-    if cfg.get("eye", "v1") == "v1":
-        return None
+def eye_data(rd: Path, cfg: dict, store, out: Path, px: int, quality: int) -> dict | None:
     s = pd.read_parquet(rd / "steps.parquet").reset_index(drop=True)
+    # with the revisit rule (stack: revisit_next) each step shows an image (cell and acquisition): tiles are written per image key
+    keys = s.image_key.astype(int) if "image_key" in s else None
+    if keys is not None:
+        V.write_tiles(list(dict.fromkeys(keys.tolist())), out / "tiles", px, quality, store)
+    if cfg.get("eye", "v1") == "v1":
+        return None if keys is None else {"only_tiles": 1, "tile": keys.tolist()}
     cr = pd.read_parquet(rd / "crops.parquet")
     ch = cr[cr.chosen].sort_values(["step", "crop"])
     assert len(ch) == 16 * len(s), "crops.parquet: chosen tile rows missing"
@@ -51,17 +55,21 @@ def eye_data(rd: Path, cfg: dict, store) -> dict | None:
     ge = np.load(rd / "glance_err.npy").astype(np.float32)
     gmax = float(np.percentile(ge, 99.5))
     gq = np.clip(np.sqrt(ge / gmax) * 255, 0, 255).astype(np.uint8)  # sqrt scale, one for the walk
-    q = store.quirks(s.tile_idx.unique()) if hasattr(store, "quirks") else pd.DataFrame()
+    ids = keys if keys is not None else s.tile_idx
+    q = store.quirks(ids.unique()) if hasattr(store, "quirks") else pd.DataFrame()
     tq = {}
     if len(q):
         q = q.set_index("tile_idx")
         for k in ("stripe", "at255", "satflag"):
             q[k] = q[[f"{k}_{b}" for b in SEEN]].max(axis=1)
-        qq = q.reindex(s.tile_idx)
+        qq = q.reindex(ids)
         tq = {k: V.rnd(qq[k], 3) for k in ("cloud", "fill", "stripe", "at255", "satflag") if k in qq}
     idx = store.idx
     meta = {}
-    for k in ("timestamp", "level", "tier", "night", "scene", "sun_elevation"):
+    if keys is not None:  # the acquisition each step showed, as the walk logged it
+        meta = {"timestamp": [str(pd.Timestamp(x).date()) for x in s.acq_date], "level": s.acq_level.astype(str).tolist(),
+                "night": [str(bool(x)) for x in s.acq_night], "sun_elevation": V.rnd(s.acq_sun, 1), "rank": s.acq_rank.astype(int).tolist()}
+    for k in ("timestamp", "level", "tier", "night", "scene", "sun_elevation") if keys is None else ():
         if k in idx:
             v = idx.set_index("idx")[k].reindex(s.tile_idx) if "idx" in idx else idx[k].reindex(s.tile_idx)
             meta[k] = [str(pd.Timestamp(x).date()) for x in v] if k == "timestamp" else (V.rnd(v, 1) if k == "sun_elevation" else [str(x) for x in v])
@@ -81,6 +89,7 @@ def eye_data(rd: Path, cfg: dict, store) -> dict | None:
         "ngl": V.rnd(s.n_glance, 4), "ngr": V.rnd(s.n_grid, 4), "nv1": V.rnd(s.n_v1, 4), "prog": V.rnd(s.prog, 6),
         "egl": V.rnd(s.e_glance, 5), "egr": V.rnd(s.e_grid, 5), "egm": V.rnd(s.e_grid_max, 5),
         "p": V.rnd(s.p_chosen, 3), "best": s.best_offer.astype(int).tolist(),
+        "tile": None if keys is None else keys.tolist(),
         "crops": crops, "gerr": base64.b64encode(gq.tobytes()).decode(), "gmax": gmax, "tq": tq, "meta": meta, "deaths": deaths,
     }
 
@@ -112,6 +121,8 @@ SCRIPT = r"""
 <script>
 (function(){
 const E = __EYE__;
+if (E.tile) { S.tile = E.tile; const sm = document.getElementById('summary'); sm.textContent = sm.textContent.replace(/[\d,]+ tiles/, `${new Set(E.tile).size.toLocaleString('en')} images (cell and acquisition)`); }
+if (E.only_tiles) { draw(); return; }
 const ECOL = {glance:'#2a78d6', grid:'#eb6834', prog:'#1baf7a'};
 const gbytes = Uint8Array.from(atob(E.gerr), c => c.charCodeAt(0));
 const tileImg = new Image(); let tileFor = -1;
@@ -171,6 +182,7 @@ function drawEyeInfo(){
   r.push(['surprise: glance / grid mean / grid max', `${fmt(E.egl[i],4)} / ${fmt(E.egr[i],4)} / ${fmt(E.egm[i],4)}`]);
   r.push(['choice probability; best offer', `${fmt(E.p[i],2)}; ${E.best[i]?'yes':'no'}`]);
   if (E.tq.cloud) r.push(['tile quirks: QA cloud / fill / stripe / DN 255 / sat. flag', ['cloud','fill','stripe','at255','satflag'].map(k=>E.tq[k]&&E.tq[k][i]!==null?Math.round(100*E.tq[k][i])+'%':'–').join(' / ')]);
+  if (E.meta.rank) r.push(['acquisition of this cell', `${E.meta.rank[i] + 1}${['st','nd','rd'][E.meta.rank[i]] || 'th'} (rank ${E.meta.rank[i]})`]);
   if (E.meta.timestamp) r.push(['acquisition', `${E.meta.timestamp[i]} ${E.meta.level?E.meta.level[i]:''} ${E.meta.tier?E.meta.tier[i]:''}${E.meta.night&&E.meta.night[i]==='True'?' NIGHT':''} sun ${E.meta.sun_elevation?fmt(E.meta.sun_elevation[i],1):''}°`]);
   if (deathAt[i]) r.push(['death dry run fired', '<b>'+deathAt[i].join(', ')+'</b>']);
   document.getElementById('eyeinfo').innerHTML = r.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('');
@@ -200,13 +212,13 @@ def main() -> None:
     out = Path(a.out) if a.out else rd / "viewer"
     page = V.build(rd.name, out, a.px, a.quality)
     cfg = yaml.safe_load((rd / "config.yaml").read_text())
-    E = eye_data(rd, cfg, open_store(cfg))
+    E = eye_data(rd, cfg, open_store(cfg), out, a.px, a.quality)
     if E is None:
         print(f"[viewer] {page} (v1 walk: the e09 viewer)")
         return
     html = page.read_text(encoding="utf-8")
     blob = json.dumps(E, separators=(",", ":")).replace("</", "<\\/")
-    add = SCRIPT.replace("__EYE__", blob).replace("__CARD__", CARD.replace("`", "\\`"))
+    add = SCRIPT.replace("__EYE__", blob).replace("__CARD__", "" if E.get("only_tiles") else CARD.replace("`", "\\`"))
     assert html.rstrip().endswith("</html>") and "</body>" in html
     html = html[: html.rindex("</body>")] + add + html[html.rindex("</body>") + len("</body>") :]
     html = html.replace(f"<title>{rd.name}: the walk</title>", f"<title>{rd.name}: the two-eye walk</title>")
