@@ -156,6 +156,12 @@ class EndRule(unittest.TestCase):
         self.assertEqual(CL.end_reason(99, 50, 100, 50), "capped")
         self.assertEqual(CL.end_reason(100, 50, 100, 50), "time")  # the clock wins a tie with the cap
 
+    def test_tile_cap(self):
+        self.assertIsNone(CL.end_reason(99, 10, 100, 50, 10**6))  # off unless set
+        self.assertEqual(CL.end_reason(99, 10, 100, 50, 20000, 20000), "tiles")
+        self.assertIsNone(CL.end_reason(99, 10, 100, 50, 19999, 20000))
+        self.assertEqual(CL.end_reason(100, 10, 100, 50, 20000, 20000), "time")
+
     def test_nothing_else_ends_a_walk(self):
         rng = np.random.default_rng(2)
         for _ in range(5000):
@@ -195,7 +201,7 @@ class NoDeath(unittest.TestCase):
         returns = [n for n in ast.walk(loop) if isinstance(n, ast.Return)]
         self.assertEqual(len(returns), 1, "the step loop returns other than through stop_after")  # the test hook, after a checkpoint
         code = ast.unparse(loop)  # the code without its comments
-        self.assertIn("end_reason = CL.end_reason(clk, s1, t_end, cap)", code)
+        self.assertIn("end_reason = CL.end_reason(clk, s1, t_end, cap, len(set(te.tiles)), tile_cap)", code)
         for word in ("death", "die(", "kill", "sys.exit", "exit("):
             self.assertNotIn(word, code.lower())
 

@@ -29,7 +29,7 @@ from agent import clock as CL  # noqa: E402
 from agent.eyes import EDGE  # noqa: E402
 
 GEN1_CAP = 15000
-PARALLEL = 3
+PARALLEL = 2  # walkers side by side on the Mac (three swapped)
 TARGETS = (5000, 10000, 20000)
 
 
@@ -71,6 +71,10 @@ def per_walk(W: dict[str, list[dict]], t_end: int) -> pd.DataFrame:
                 "revisit_share": seen_cell.mean(), "repeat_share": seen_img.mean(), "edge_pull": top_edge.mean(),
                 "r_max_share": (s.r_km >= 0.99 * s.r_km.max()).mean() if s.r_km.max() > 100 else 0.0, "median_move_km": s.dist_km[~wait].median(),
                 "night_share": s.night.mean(), "cloud_mean": s.q_cloud.mean(), "fill_mean": s.q_fill.mean(),
+                # the tile's date against the clock: how far from its own time the walker sees the places it stands on
+                "offset_abs_median_days": s.offset_days.abs().median(), "offset_gt_18d_share": (s.offset_days.abs() > 18).mean(),
+                "offset_gt_365d_share": (s.offset_days.abs() > 365).mean(), "offset_future_share": (s.offset_days > 0).mean(),
+                "dt_mode": s.wait_days[wait].mode().iloc[0] if wait.any() else np.nan,
                 "sec_per_step": s.sec.mean(), "sec_per_step_last500": s.sec.iloc[-500:].mean(), "fetch_sec": s.fetch_sec.mean(),
                 "offers_dropped": int(s.n_dropped.sum()), "offers_total": int(s.n_fetch.sum()), "wall_s": j["seconds"],
                 "share_glance": s.share_glance.mean(), "share_grid": s.share_grid.mean(), "share_prog": s.share_prog.mean(),
@@ -131,22 +135,47 @@ def offer_histogram(W) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def projection(P: pd.DataFrame) -> pd.DataFrame:
-    """Walks and wall time for generation 1 at each N: per condition, from the dry runs' tiles per walk (projected to the end by the
-    clock, capped at 15,000 steps) and seconds per step; three walkers side by side. Range = the dry runs' smallest and largest walk."""
+def wall_rates(phase: str) -> pd.DataFrame:
+    """Wall seconds per step from the walk logs ('step N  Ts' every 100 steps): everything included (fetching, training, the
+    re-embedding every 100 steps, which grows with the number of tiles visited). Intervals across a resume are left out."""
+    rows = []
+    for f in sorted((ROOT / "runs" / phase / "logs").glob("*_w*.log")):
+        cond, walk = f.stem.rsplit("_w", 1)
+        prev = None
+        for line in f.read_text().splitlines():
+            m = line.split()
+            if len(m) > 3 and m[1] == "step" and m[3].endswith("s") and m[2].isdigit():
+                st, sec = int(m[2]), float(m[3][:-1])
+                if prev and st == prev[0] + 100 and sec > prev[1]:
+                    rows.append({"condition": cond, "walk": int(walk), "step": st, "sec_per_step": (sec - prev[1]) / 100})
+                prev = (st, sec)
+            elif "resumed" in line or "start" in line:
+                prev = None
+    return pd.DataFrame(rows)
+
+
+def projection(P: pd.DataFrame, R: pd.DataFrame) -> pd.DataFrame:
+    """Walks and wall time for generation 1 at each N, per condition: tiles per walk from the dry runs (projected to the end by the clock,
+    capped at 15,000 steps), and wall seconds per step under two models fitted to the logs: flat (the median) and linear in the step
+    (re-embedding grows with memory), integrated over each walk. PARALLEL walkers side by side. Range = the dry runs' smallest and largest walk."""
     rows = []
     for cond, g in P.groupby("condition"):
         steps = g.projected_steps_to_t_end.to_numpy(float)
         tiles = steps * g.tiles_per_step.to_numpy(float)
-        sps = g.sec_per_step_last500.to_numpy(float)
+        r = R[R.condition == cond]
+        flat = float(r.sec_per_step.median())
+        b, a = np.polyfit(r.step, r.sec_per_step, 1) if len(r) > 10 else (0.0, flat)
+        b = max(b, 0.0)
         for N in TARGETS:
             mid, lo, hi = N / tiles.mean(), N / tiles.max(), N / tiles.min()
-            st = np.ceil(mid) * steps.mean()
+            n_w = int(np.ceil(mid))
+            L = steps.mean()
             rows.append({"condition": cond, "N": N, "tiles_per_walk_mean": tiles.mean(), "tiles_per_walk_min": tiles.min(), "tiles_per_walk_max": tiles.max(),
-                         "walks_mid": int(np.ceil(mid)), "walks_range": f"{int(np.ceil(lo))}-{int(np.ceil(hi))}", "steps_total": int(st),
-                         "wall_h_at_dryrun_rate": st * sps.mean() / PARALLEL / 3600})
+                         "walks_mid": n_w, "walks_range": f"{int(np.ceil(lo))}-{int(np.ceil(hi))}", "steps_total": int(n_w * L),
+                         "sec_per_step_flat": flat, "sec_per_step_slope_per_1k": b * 1000,
+                         "wall_h_flat": n_w * L * flat / PARALLEL / 3600, "wall_h_linear": n_w * (a * L + b * L * L / 2) / PARALLEL / 3600})
     out = pd.DataFrame(rows)
-    tot = out.groupby("N").wall_h_at_dryrun_rate.sum().rename("wall_h_both_conditions")
+    tot = out.groupby("N")[["wall_h_flat", "wall_h_linear"]].sum().add_suffix("_both").reset_index()
     return out.merge(tot, on="N")
 
 
@@ -225,7 +254,7 @@ def main() -> None:
     W = load(what)
     P = per_walk(W, CL.to_day("1977-12-20"))
     tabs = {"walks": P, "waits_vs_moves": waits_vs_moves(W), "offer_selection": offer_selection(W), "dt": dt_table(W),
-            "offer_histogram": offer_histogram(W), "projection": projection(P)}
+            "offer_histogram": offer_histogram(W), "projection": projection(P, wall_rates(what))}
     for k, v in tabs.items():
         v.to_csv(out / f"{k}.csv", index=False)
     figures(W, out, cov)

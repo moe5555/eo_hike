@@ -2,6 +2,7 @@
 # Brief v2 (notes/brief_landsat_v2_run.md): the dry runs (Gate B, section 6) on the clock world of Landsat 1.
 #
 #     scripts/gen1.sh start dryrun     # curious and Null, start cells 0-2, interleaved, until the clock ends them or 3,000 steps
+#     scripts/gen1.sh start long       # Moe 2026-11-13: one more curious walk (start cell 3) until the clock ends it or 20,000 tiles
 #     scripts/gen1.sh stop
 #
 # Detached, keeps the Mac awake; log runs/gen1_batch.log, one log per walk in runs/<phase>/logs/. PARALLEL walkers side by side (2) with
@@ -29,7 +30,7 @@ stop_batch() {
 case "${1:-}" in
   start)
     [ -f "$PIDFILE" ] && { echo "already running, group $(cat "$PIDFILE")"; exit 1; }
-    case "${2:-}" in dryrun) ;; *) echo "usage: $0 start dryrun"; exit 2 ;; esac
+    case "${2:-}" in dryrun|long) ;; *) echo "usage: $0 start dryrun|long"; exit 2 ;; esac
     mkdir -p runs
     nohup .venv/bin/python -c 'import os, sys; os.setsid(); os.execvp(sys.argv[1], sys.argv[1:])' caffeinate -i "$0" run "$2" >> "$LOG" 2>&1 < /dev/null &
     echo "started; stop with: scripts/gen1.sh stop"
@@ -57,12 +58,13 @@ cap_pid=$!
 watchdog=$!
 
 walk() {
-  local cond=$1 k=$2 phase=$3 steps=$4
+  local cond=$1 k=$2 phase=$3 steps=$4 tiles=${5:-}
   local dir
   dir=runs/${phase}/${cond}/w$(printf '%03d' "$k")
   [ -f "$dir/walk.json" ] && { echo "=== have ${cond} w${k}"; return; }
   local extra=""
   [ -f "$dir/resume.pt" ] && extra="--resume"
+  [ -n "$tiles" ] && extra="$extra --tile-cap $tiles"
   mkdir -p "runs/${phase}/logs"
   echo "=== $(date '+%F %T') start ${cond} w${k} ${extra}"
   if .venv/bin/python -m agent.walk "configs/gen1/${cond}.yaml" --walk "$k" --phase "$phase" --steps "$steps" $extra >> "runs/${phase}/logs/${cond}_w${k}.log" 2>&1; then
@@ -76,8 +78,9 @@ echo "=== $(date '+%F %T') phase ${phase}, $(free_gb) GB free, cache cap ${CAP_G
 jobs_list=""
 case "$phase" in
   dryrun) for k in 0 1 2; do for c in curious null; do jobs_list+="$c $k dryrun 3000"$'\n'; done; done ;;
+  long) jobs_list+="curious 3 long 40000 20000"$'\n' ;;
 esac
-printf '%s' "$jobs_list" | xargs -P "$PARALLEL" -L 1 bash -c 'walk "$0" "$1" "$2" "$3"'
+printf '%s' "$jobs_list" | xargs -P "$PARALLEL" -L 1 bash -c 'walk "$0" "$1" "$2" "$3" "$4"'
 echo "=== $(date '+%F %T') phase ${phase} done, $(free_gb) GB free"
 kill "$watchdog" "$cap_pid" 2>/dev/null
 rm -f "$PIDFILE"

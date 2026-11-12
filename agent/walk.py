@@ -202,6 +202,7 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
         from data.landsat1_store import QUIRK_COLS, image_key, split_key
 
         t_end, cap = CL.to_day(str(cfg["t_end"])), int(cfg["steps"])
+        tile_cap = int(cfg["tile_cap"]) if cfg.get("tile_cap") else None  # optional: end at this many distinct tiles (end reason `tiles`)
         clk = d_cur = int(T.store.days(t)[0])  # the clock starts at the start cell's first acquisition
         cur_key = prev_key = int(image_key(t, 0))
         render_every, ckpt_every = int(cfg.get("render_every", 500)), int(cfg["ckpt_every"])
@@ -210,7 +211,7 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
         (out / "contact").mkdir(exist_ok=True)
         pin = T.store.cache / "pins" / ("_".join(out.resolve().relative_to(RUNS.resolve()).parts) + ".txt")  # data/cache_cap.py never evicts these
         pin.parent.mkdir(parents=True, exist_ok=True)
-        meta["clock"] = {"t_end": CL.to_date(t_end), "cap": cap, "start_idx": t, "start_cell": str(idx.grid_cell[t]), "start_clock": CL.to_date(clk),
+        meta["clock"] = {"t_end": CL.to_date(t_end), "cap": cap, "start_idx": t, "start_cell": str(idx.grid_cell[t]), "start_clock": CL.to_date(clk), "tile_cap": tile_cap,
                          "archive_last": CL.to_date(int(T.store.ck_day.max())), "condition": cfg.get("condition"), "walk_id": cfg.get("walk_id")}
         (out / "meta.json").write_text(json.dumps(meta, indent=2))
 
@@ -738,7 +739,7 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
                      if "fetch_sec" in df else ""), flush=True)
         if clockm:
             # brief v2, 3: the only ways a walk ends, the clock reaching T_end or the step cap. There is no death
-            end_reason = CL.end_reason(clk, s1, t_end, cap)
+            end_reason = CL.end_reason(clk, s1, t_end, cap, len(set(te.tiles)), tile_cap)
             if render_every and (s1 % render_every == 0 or end_reason):
                 render_contact(s1)
             if end_reason:
@@ -835,12 +836,15 @@ def main() -> None:
     ap.add_argument("--phase", default="gen1", help="runs/<phase>/<condition>/w<walk>/ (dryrun | gen1 | smoke | test)")
     ap.add_argument("--resume", action="store_true", help="continue from the walk's last checkpoint (resume.pt)")
     ap.add_argument("--stop-after", type=int, help="tests: end the process after the checkpoint at this step")
+    ap.add_argument("--tile-cap", type=int, help="also end the walk at this many distinct tiles (end reason `tiles`)")
     a = ap.parse_args()
     cfg = yaml.safe_load(Path(a.config).read_text())
     if a.seed is not None:
         cfg["seed"] = a.seed
     if a.steps is not None:
         cfg["steps"] = a.steps
+    if a.tile_cap is not None:
+        cfg["tile_cap"] = a.tile_cap
     if a.walk is not None:
         sl = pd.read_csv(ROOT / cfg["start_list"])
         cfg["start_idx"] = int(sl.idx.iloc[a.walk])
