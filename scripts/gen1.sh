@@ -2,7 +2,7 @@
 # Brief v2 (notes/brief_landsat_v2_run.md): the dry runs (Gate B, section 6) on the clock world of Landsat 1.
 #
 #     scripts/gen1.sh start dryrun     # curious and Null, start cells 0-2, interleaved, until the clock ends them or 3,000 steps
-#     scripts/gen1.sh start long       # Moe 2026-11-13: one more curious walk (start cell 3) until the clock ends it or 20,000 tiles
+#     scripts/gen1.sh start long       # Moe 2026-11-13: curious walks from start cell 3 on, until their pooled distinct tiles reach 20,000
 #     scripts/gen1.sh stop
 #
 # Detached, keeps the Mac awake; log runs/gen1_batch.log, one log per walk in runs/<phase>/logs/. PARALLEL walkers side by side (2) with
@@ -78,9 +78,29 @@ echo "=== $(date '+%F %T') phase ${phase}, $(free_gb) GB free, cache cap ${CAP_G
 jobs_list=""
 case "$phase" in
   dryrun) for k in 0 1 2; do for c in curious null; do jobs_list+="$c $k dryrun 3000"$'\n'; done; done ;;
-  long) jobs_list+="curious 3 long 40000 20000"$'\n' ;;
 esac
-printf '%s' "$jobs_list" | xargs -P "$PARALLEL" -L 1 bash -c 'walk "$0" "$1" "$2" "$3" "$4"'
+if [ "$phase" = long ]; then
+  # Moe 2026-11-13: curious walks on start cells 3, 4, ... (seed = row), PARALLEL at a time, each until the clock ends it, 20,000 tiles
+  # or a 40,000-step guard; a new walk starts only while the pooled tiles (finished walks' union + running walks' count) are below
+  # POOL_N. The last walk always runs to its end.
+  POOL_N=${POOL_N:-20000}
+  k=3
+  pids=()
+  alive() { local n=0 p; for p in "${pids[@]}"; do kill -0 "$p" 2>/dev/null && n=$((n + 1)); done; echo "$n"; }
+  while :; do
+    while [ "$(alive)" -ge "$PARALLEL" ]; do sleep 20; done
+    have=$(.venv/bin/python scripts/pool_tiles.py runs/long/curious 2>/dev/null || echo 0)
+    if [ "$have" -ge "$POOL_N" ]; then echo "=== $(date '+%F %T') pooled ${have} >= ${POOL_N}: no new walk"; break; fi
+    echo "=== $(date '+%F %T') pooled ${have} < ${POOL_N}: walk ${k}"
+    walk curious "$k" long 40000 20000 &
+    pids+=($!)
+    k=$((k + 1))
+    sleep 60  # let the new walk print before the next count
+  done
+  for p in "${pids[@]}"; do wait "$p" 2>/dev/null; done
+else
+  printf '%s' "$jobs_list" | xargs -P "$PARALLEL" -L 1 bash -c 'walk "$0" "$1" "$2" "$3" "$4"'
+fi
 echo "=== $(date '+%F %T') phase ${phase} done, $(free_gb) GB free"
 kill "$watchdog" "$cap_pid" 2>/dev/null
 rm -f "$PIDFILE"
