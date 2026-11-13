@@ -1,0 +1,207 @@
+diff --git a/torch_utils/custom_ops.py b/torch_utils/custom_ops.py
+index 4cc4e43..0962dca 100755
+--- a/torch_utils/custom_ops.py
++++ b/torch_utils/custom_ops.py
+@@ -104,11 +104,13 @@ def get_plugin(module_name, sources, **build_kwargs):
+                     # wait until done and continue.
+                     baton.wait()
+             digest_sources = [os.path.join(digest_build_dir, os.path.basename(x)) for x in sources]
+-            torch.utils.cpp_extension.load(name=module_name, build_directory=build_dir,
++            module = torch.utils.cpp_extension.load(name=module_name, build_directory=build_dir,
+                 verbose=verbose_build, sources=digest_sources, **build_kwargs)
+         else:
+-            torch.utils.cpp_extension.load(name=module_name, verbose=verbose_build, sources=sources, **build_kwargs)
+-        module = importlib.import_module(module_name)
++            module = torch.utils.cpp_extension.load(name=module_name, verbose=verbose_build, sources=sources, **build_kwargs)
++        # eo_hike g1 patch: torch >= 2 returns the module from load() and no longer registers it for importlib
++        if module is None:
++            module = importlib.import_module(module_name)
+ 
+     except:
+         if verbosity == 'brief':
+diff --git a/torch_utils/misc.py b/torch_utils/misc.py
+index 7829f4d..d1ec9c2 100755
+--- a/torch_utils/misc.py
++++ b/torch_utils/misc.py
+@@ -112,7 +112,7 @@ class InfiniteSampler(torch.utils.data.Sampler):
+         assert num_replicas > 0
+         assert 0 <= rank < num_replicas
+         assert 0 <= window_size <= 1
+-        super().__init__(dataset)
++        super().__init__()  # eo_hike g1 patch: torch >= 2.2 Sampler takes no data_source
+         self.dataset = dataset
+         self.rank = rank
+         self.num_replicas = num_replicas
+@@ -139,6 +139,27 @@ class InfiniteSampler(torch.utils.data.Sampler):
+                 order[i], order[j] = order[j], order[i]
+             idx += 1
+ 
++#----------------------------------------------------------------------------
++# eo_hike g1 patch: a seeded weighted sampler (notes/brief_gan_g1.md). Draws dataset indices with probability proportional to their
++# weight, with replacement, forever. Both G1 runs use it (G1-null with every weight 1), so both go through the same code path.
++# The stream is seeded by (seed, start_nimg): a resumed run draws a new, reproducible stream from where it resumed.
++
++class WeightedInfiniteSampler(torch.utils.data.Sampler):
++    def __init__(self, weights, seed=0, start_nimg=0, block=8192):
++        super().__init__()
++        w = np.asarray(weights, dtype=np.float64)
++        assert w.ndim == 1 and len(w) > 0 and np.all(np.isfinite(w)) and np.all(w > 0)
++        self.p = w / w.sum()
++        self.seed = int(seed)
++        self.start_nimg = int(start_nimg)
++        self.block = int(block)
++
++    def __iter__(self):
++        rng = np.random.default_rng([self.seed, self.start_nimg])
++        while True:
++            for i in rng.choice(len(self.p), size=self.block, replace=True, p=self.p):
++                yield int(i)
++
+ #----------------------------------------------------------------------------
+ # Utilities for operating with torch.nn.Module parameters and buffers.
+ 
+diff --git a/torch_utils/ops/grid_sample_gradfix.py b/torch_utils/ops/grid_sample_gradfix.py
+index ca6b341..a8ea326 100755
+--- a/torch_utils/ops/grid_sample_gradfix.py
++++ b/torch_utils/ops/grid_sample_gradfix.py
+@@ -34,10 +34,7 @@ def grid_sample(input, grid):
+ def _should_use_custom_op():
+     if not enabled:
+         return False
+-    if any(torch.__version__.startswith(x) for x in ['1.7.', '1.8.', '1.9']):
+-        return True
+-    warnings.warn(f'grid_sample_gradfix not supported on PyTorch {torch.__version__}. Falling back to torch.nn.functional.grid_sample().')
+-    return False
++    return True  # eo_hike g1 patch: supported on torch >= 1.12 through the new operator API below (as in NVlabs/stylegan3)
+ 
+ #----------------------------------------------------------------------------
+ 
+@@ -62,7 +59,9 @@ class _GridSample2dBackward(torch.autograd.Function):
+     @staticmethod
+     def forward(ctx, grad_output, input, grid):
+         op = torch._C._jit_get_operation('aten::grid_sampler_2d_backward')
+-        grad_input, grad_grid = op(grad_output, input, grid, 0, 0, False)
++        op = op[0]  # eo_hike g1 patch: torch >= 1.12 returns (op, overloads); >= 1.11 takes an output mask (as in NVlabs/stylegan3)
++        output_mask = (ctx.needs_input_grad[1], ctx.needs_input_grad[2])
++        grad_input, grad_grid = op(grad_output, input, grid, 0, 0, False, output_mask)
+         ctx.save_for_backward(grid)
+         return grad_input, grad_grid
+ 
+diff --git a/training/training_loop.py b/training/training_loop.py
+index 14836ad..f355b34 100755
+--- a/training/training_loop.py
++++ b/training/training_loop.py
+@@ -118,6 +118,9 @@ def training_loop(
+     allow_tf32              = False,    # Enable torch.backends.cuda.matmul.allow_tf32 and torch.backends.cudnn.allow_tf32?
+     abort_fn                = None,     # Callback function for determining whether to abort training. Must return consistent results across ranks.
+     progress_fn             = None,     # Callback function for updating training progress. Called for all ranks.
++    sample_weights          = None,     # eo_hike g1 patch: JSON {archive fname: weight}; draws by weight, with replacement (misc.WeightedInfiniteSampler).
++    resume_state            = None,     # eo_hike g1 patch: training-state-*.pt beside resume_pkl: optimisers, kimg, tick, batch index, augment p, RNG.
++    snapshot_fn             = None,     # eo_hike g1 patch: called (rank 0) after every network snapshot with a dict (paths, kimg, augment p, G_ema).
+ ):
+     # Initialize.
+     start_time = time.time()
+@@ -134,7 +137,21 @@ def training_loop(
+     if rank == 0:
+         print('Loading training set...')
+     training_set = dnnlib.util.construct_class_by_name(**training_set_kwargs) # subclass of training.dataset.Dataset
+-    training_set_sampler = misc.InfiniteSampler(dataset=training_set, rank=rank, num_replicas=num_gpus, seed=random_seed)
++    # eo_hike g1 patch: full resume (notes/brief_gan_g1.md, unattended robustness); the state is read here, applied below
++    state = None
++    if resume_state is not None:
++        state = torch.load(resume_state, map_location='cpu', weights_only=False)
++        if rank == 0:
++            print(f'Resuming training state from "{resume_state}" at kimg {state["cur_nimg"] / 1000:.1f}')
++    if sample_weights is not None:  # eo_hike g1 patch: the weighted sampler, weights mapped onto the dataset's own order
++        with open(sample_weights, 'rt') as f:
++            wmap = json.load(f)
++        fnames = [training_set._image_fnames[i] for i in training_set._raw_idx]
++        assert set(fnames) == set(wmap), 'sample_weights must name every image of the dataset exactly'
++        training_set_sampler = misc.WeightedInfiniteSampler([wmap[f] for f in fnames], seed=random_seed,
++                                                            start_nimg=(state['cur_nimg'] if state is not None else 0))
++    else:
++        training_set_sampler = misc.InfiniteSampler(dataset=training_set, rank=rank, num_replicas=num_gpus, seed=random_seed)
+     training_set_iterator = iter(torch.utils.data.DataLoader(dataset=training_set, sampler=training_set_sampler, batch_size=batch_size//num_gpus, **data_loader_kwargs))
+     if rank == 0:
+         print()
+@@ -174,6 +191,8 @@ def training_loop(
+     if (augment_kwargs is not None) and (augment_p > 0 or ada_target is not None):
+         augment_pipe = dnnlib.util.construct_class_by_name(**augment_kwargs).train().requires_grad_(False).to(device) # subclass of torch.nn.Module
+         augment_pipe.p.copy_(torch.as_tensor(augment_p))
++        if state is not None:  # eo_hike g1 patch: the ADA probability as it was at the snapshot
++            augment_pipe.p.copy_(torch.as_tensor(state['augment_p']))
+         if ada_target is not None:
+             ada_stats = training_stats.Collector(regex='Loss/signs/real')
+ 
+@@ -206,6 +225,10 @@ def training_loop(
+             opt = dnnlib.util.construct_class_by_name(module.parameters(), **opt_kwargs) # subclass of torch.optim.Optimizer
+             phases += [dnnlib.EasyDict(name=name+'main', module=module, opt=opt, interval=1)]
+             phases += [dnnlib.EasyDict(name=name+'reg', module=module, opt=opt, interval=reg_interval)]
++    if state is not None:  # eo_hike g1 patch: optimiser states (Gmain/Greg and Dmain/Dreg share one optimiser each)
++        for phase in phases:
++            if phase.name in state['opt']:
++                phase.opt.load_state_dict(state['opt'][phase.name])
+     for phase in phases:
+         phase.start_event = None
+         phase.end_event = None
+@@ -234,7 +257,7 @@ def training_loop(
+     stats_jsonl = None
+     stats_tfevents = None
+     if rank == 0:
+-        stats_jsonl = open(os.path.join(run_dir, 'stats.jsonl'), 'wt')
++        stats_jsonl = open(os.path.join(run_dir, 'stats.jsonl'), 'at' if state is not None else 'wt')  # eo_hike g1 patch: a resumed run appends
+         try:
+             import torch.utils.tensorboard as tensorboard
+             stats_tfevents = tensorboard.SummaryWriter(run_dir)
+@@ -247,12 +270,19 @@ def training_loop(
+         print()
+     cur_nimg = 0
+     cur_tick = 0
++    batch_idx_resume = 0
++    if state is not None:  # eo_hike g1 patch: counters and random state continue from the snapshot
++        cur_nimg, cur_tick, batch_idx_resume = int(state['cur_nimg']), int(state['cur_tick']), int(state['batch_idx'])
++        start_time -= float(state.get('elapsed_sec', 0.0))
++        torch.set_rng_state(state['rng_torch'])
++        torch.cuda.set_rng_state(state['rng_cuda'], device)
++        np.random.set_state(state['rng_numpy'])
+     tick_start_nimg = cur_nimg
+     tick_start_time = time.time()
+     maintenance_time = tick_start_time - start_time
+-    batch_idx = 0
++    batch_idx = batch_idx_resume  # eo_hike g1 patch (0 on a fresh run)
+     if progress_fn is not None:
+-        progress_fn(0, total_kimg)
++        progress_fn(cur_nimg // 1000, total_kimg)
+     while True:
+ 
+         # Fetch training data.
+@@ -362,9 +392,17 @@ def training_loop(
+                 snapshot_data[name] = module
+                 del module # conserve memory
+             snapshot_pkl = os.path.join(run_dir, f'network-snapshot-{cur_nimg//1000:06d}.pkl')
+-            if rank == 0:
+-                with open(snapshot_pkl, 'wb') as f:
++            state_pt = os.path.join(run_dir, f'training-state-{cur_nimg//1000:06d}.pt')
++            if rank == 0:  # eo_hike g1 patch: the pickle written atomically, then the training state beside it (also atomically)
++                with open(snapshot_pkl + '.tmp', 'wb') as f:
+                     pickle.dump(snapshot_data, f)
++                os.replace(snapshot_pkl + '.tmp', snapshot_pkl)
++                torch.save(dict(opt={ph.name: ph.opt.state_dict() for ph in phases if ph.name.endswith(('main', 'both'))},
++                                cur_nimg=cur_nimg, cur_tick=cur_tick + 1, batch_idx=batch_idx,
++                                augment_p=(float(augment_pipe.p.cpu()) if augment_pipe is not None else 0.0),
++                                rng_torch=torch.get_rng_state(), rng_cuda=torch.cuda.get_rng_state(device), rng_numpy=np.random.get_state(),
++                                elapsed_sec=time.time() - start_time, total_kimg=total_kimg), state_pt + '.tmp')
++                os.replace(state_pt + '.tmp', state_pt)
+ 
+         # Evaluate metrics.
+         if (snapshot_data is not None) and (len(metrics) > 0):
+@@ -376,6 +414,9 @@ def training_loop(
+                 if rank == 0:
+                     metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=snapshot_pkl)
+                 stats_metrics.update(result_dict.results)
++        if (snapshot_data is not None) and (rank == 0) and (snapshot_fn is not None):  # eo_hike g1 patch
++            snapshot_fn(dict(run_dir=run_dir, snapshot_pkl=snapshot_pkl, state_pt=state_pt, cur_nimg=cur_nimg, total_kimg=total_kimg, done=done,
++                             augment_p=(float(augment_pipe.p.cpu()) if augment_pipe is not None else 0.0), G_ema=snapshot_data['G_ema']))
+         del snapshot_data # conserve memory
+ 
+         # Collect statistics.

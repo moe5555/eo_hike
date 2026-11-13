@@ -45,7 +45,7 @@ def pinned(cache: Path = CACHE) -> set[str]:
     out: set[str] = set()
     for p in (cache / "pins").glob("*.txt"):
         try:
-            out.update(x for x in p.read_text().split() if x)
+            out.update(x.replace("\\", "/") for x in p.read_text().split() if x)  # Windows pin files carry backslashes (the PC, generation 1)
         except FileNotFoundError:
             continue
     return out
@@ -69,6 +69,8 @@ def enforce(cap_gb: float, cache: Path = CACHE, min_age_s: float = MIN_AGE_S) ->
         try:
             os.remove(cache / rel)
         except FileNotFoundError:
+            continue
+        except OSError:  # Windows: a file open in a walker can't be removed; it is skipped this pass
             continue
         freed += b
         out["evicted"] += 1

@@ -850,7 +850,8 @@ def main() -> None:
     import faulthandler
     import signal
 
-    faulthandler.register(signal.SIGUSR1, all_threads=True)  # kill -USR1 <pid>: every thread's stack into the walk's log
+    if hasattr(signal, "SIGUSR1"):  # POSIX only; Windows has no SIGUSR1 (the PC, generation 1). Changes nothing in the walk
+        faulthandler.register(signal.SIGUSR1, all_threads=True)  # kill -USR1 <pid>: every thread's stack into the walk's log
     ap = argparse.ArgumentParser()
     ap.add_argument("config")
     ap.add_argument("--seed", type=int)
