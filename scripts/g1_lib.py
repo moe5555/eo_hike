@@ -562,6 +562,8 @@ def tick(act: bool = True) -> str | None:
             stage_freeze(st, act)
         elif stage == "walk_readouts":
             stage_simple(st, act, "walk_readouts", ["analysis/gen1/readouts.py", "gen1"], python=PY_WALK, fatal=False)
+            if marked("walk_readouts"):
+                event(f"commit: {commit(['notes/gen1/gen1'], 'generation 1: the walk readouts (tables and figures for notes/gen1_report.md), written by the pipeline')}")
         elif stage == "datasets":
             stage_simple(st, act, "datasets", ["gen/g1_gan.py", "datasets"], attempts=2)
         elif stage == "throughput":
@@ -574,6 +576,11 @@ def tick(act: bool = True) -> str | None:
             stage_simple(st, act, "fid", ["gen/g1_gan.py", "fid"], sg=True, fatal=False, attempts=2)
         elif stage == "gan_readouts":
             stage_simple(st, act, "gan_readouts", ["gen/g1_gan.py", "readouts"], sg=True, fatal=False, attempts=2)
+            if marked("gan_readouts"):
+                for f in ("budget.json", "ess.json", "fid.json", "throughput.json"):
+                    if (G1 / "gan" / f).exists():
+                        shutil.copyfile(G1 / "gan" / f, ROOT / "notes" / "gen1" / "gan" / f)
+                event(f"commit: {commit(['notes/gen1/gan'], 'generation 1: the GAN readouts (tables, small figures, budget, ESS, FID), written by the pipeline')}")
         elif stage == "final":
             mark("final")
         stage = next((s for s in STAGES if not marked(s)), "done")

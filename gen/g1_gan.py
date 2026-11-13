@@ -403,7 +403,7 @@ def cmd_throughput(P: Paths, kimg: int = 28, warm: int = 8) -> None:
 def cmd_budget(P: Paths) -> None:
     thr = json.loads((P.gan / "throughput.json").read_text())
     ds = json.loads((P.ds / "datasets.json").read_text())
-    rt = ROOT / "runs" / "g1" / "test" / "readout_timing.json"
+    rt = ROOT / "runs" / "g1" / "phase_a" / "readout_timing.json"  # measured in Phase A on the TEST snapshots (gen/g1_tests.py readouts)
     readout_est_h = json.loads(rt.read_text())["projected_h"] if rt.exists() else 3.0
     readout_h = max(2.0, 1.5 * readout_est_h)
     ds_h = ds["seconds"] / 3600
@@ -605,7 +605,8 @@ def cmd_readouts(P: Paths, n_samples: int = N_SAMPLES, video_s: int = 60) -> Non
             Image.fromarray(im).save(sd / f"seed{s:05d}.png")
         timing[f"{cond}_samples_s"] = round(time.time() - t1, 1)
         sheet([sd / f"seed{s:05d}.png" for s in list(SAMPLE_SEEDS)[:256]], run / "samples_contact256.png", cols=16)
-        shutil.copyfile(run / "samples_contact256.png", out / f"{cond}_samples_contact256.png") if not P.test else None
+        if not P.test:  # the copy in the notes: 1024 px JPEG (git stays small); the full 2048 px PNG stays in runs/
+            Image.open(run / "samples_contact256.png").resize((1024, 1024), Image.Resampling.BOX).save(out / f"{cond}_samples_contact256.jpg", quality=90)
         # training set
         meta = pd.read_parquet(P.ds / f"{cond}_metadata.parquet")
         T = read_pngs([P.pkg / cond / "tiles" / f"{x}.png" for x in meta.tile])
