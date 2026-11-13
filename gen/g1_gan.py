@@ -645,10 +645,14 @@ def cmd_readouts(P: Paths, n_samples: int = N_SAMPLES, video_s: int = 60) -> Non
         nr = min(len(ft), n_samples)
         div = {"unweighted": prec_recall(torch, ft[np.sort(rng.choice(len(ft), nr, replace=False))], fs)}
         if cond == "curious":
-            draw = rng.choice(len(ft), nr, replace=True, p=w / w.sum())
-            u, m = np.unique(draw, return_counts=True)
+            # draws by weight, with replacement, until the reference holds as many distinct tiles as the unweighted one (so both
+            # manifolds are estimated from the same number of points); each counts in recall as often as it was drawn
+            draw = rng.choice(len(ft), 50 * nr, replace=True, p=w / w.sum())
+            first = np.flatnonzero(~pd.Series(draw).duplicated().to_numpy())
+            cut = first[nr - 1] + 1 if len(first) >= nr else len(draw)
+            u, m = np.unique(draw[:cut], return_counts=True)
             div["weighted"] = prec_recall(torch, ft[u], fs, real_mult=m.astype(float))
-            div["weighted"]["distinct_drawn"] = len(u)
+            div["weighted"].update(distinct_drawn=len(u), draws=int(cut))
         timing[f"{cond}_diversity_s"] = round(time.time() - t1, 1)
         # colour and texture statistics: training (unweighted and weighted) against samples
         cs_t, cs_s = colour_stats(T), colour_stats(S)

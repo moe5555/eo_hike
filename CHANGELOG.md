@@ -2,6 +2,56 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-13, evening: generation 1 moves to the PC. The world rebuilt and checked, the walks running, the pipeline and Phase A tested
+
+- **What changed.**
+  - **Device:** the PC. Quadro RTX 5000 (16 GB), driver 596.71, CUDA 13.2, Windows 11 Pro, i9-10980XE, 128 GB RAM (`runs/g1/device.txt`).
+    - The walker's `.venv` was synced to `uv.lock` (it lacked rasterio).
+    - The GAN side runs in `.venv-sg` (torch 2.14 + cu130, matching nvcc 13.2 for the plugins).
+  - **The world, rebuilt from git** (`runs/g1/world_check.md`):
+    - The first build failed the start-list check: 4 of 500 rows differed, though all 14 `clock.json` values matched. PROJ differs between macOS and Windows in the last bit, which reorders cells with tied latitudes in `index`.
+    - Moe pushed the Mac's `grid.parquet`. Rebuilt from it, `clock.json` matches on all 14 values and the start list is identical (`git diff --exit-code`: 0).
+    - The cache filled under the wrong labels was emptied.
+  - **Windows fixes, none in the walk logic:**
+    - `agent/walk.py`: the SIGUSR1 faulthandler hook is skipped where the signal doesn't exist.
+    - `data/cache_cap.py`: Windows pin paths (backslashes) are normalised, so pins match again; files open in a walker are skipped instead of crashing the cap.
+  - **The walks run on CPU with 3 threads,** the Mac's setting for the dry runs and the q calibration. The CPU and CUDA runs diverged within 50 smoke steps.
+  - **The pipeline:**
+    - `scripts/g1_pipeline.py` (a thin loop) and `scripts/g1_lib.py` (stages, state, STATUS; hot-reloaded) cover walks → packages → freeze (`g1-paths`) → walk readouts → datasets → throughput → budget (`g1-start`) → training → FID → GAN readouts.
+    - `scripts/g1_job.py` records exit codes.
+    - It runs under a scheduled task (S4U, registered by Moe as admin: startup, logon, every 15 min).
+    - Generation-1 walks curious w000 and Null w000 started at 16:20 and 16:21.
+  - **New code:**
+    - `scripts/g1_package.py`: the handoff packages, with the render check against a fresh, empty-cache store.
+    - `scripts/g1_verify.py`: package verification.
+    - `gen/g1_gan.py`: datasets, τ for ESS = 0.5 N, throughput, budget, resumable training, FID, readouts.
+    - `gen/g1_tests.py`: the Phase A tests.
+    - `analysis/gen1/readouts.py gen1`: the walk readouts, plus matched clock stretches, package era, last-50 strips and the numbers for 143–151.
+  - **StyleGAN2-ADA** (NVlabs d72cc7d) with one documented diff, `scripts/stylegan2ada_g1.patch`:
+    - torch-2 custom ops, the sampler base class, and `grid_sample_gradfix` as in StyleGAN3;
+    - scipy 1.18's `sqrtm`;
+    - the seeded weighted sampler;
+    - full resume (optimisers, kimg, tick, batch index, augment p, RNG; `stats.jsonl` appended);
+    - a snapshot callback.
+  - **Phase A tests, all passed** (on TEST packages of 200 tiles from the running walks' first checkpoint; deleted afterwards; results in `runs/g1/phase_a/`):
+    - weighted sampler, 100k draws (χ² z 0.76);
+    - kill/resume: Adam's step counters and the batch index equal an uninterrupted run, and kimg and augment p continue;
+    - the STOP file stops a run after a snapshot;
+    - both CUDA plugins compile;
+    - FID with Inception cached (~6 min per fid50k_full);
+    - full-size readouts (80 s per run);
+    - the supervisor's watchdog (give up after 3 attempts, restart killed or stalled jobs), disk guard and status.
+  - **Found and fixed by the tests:**
+    - FID crashed on scipy 1.18;
+    - the resume check had to survive snapshot retention;
+    - the weighted precision/recall reference had fewer distinct points than the unweighted one, which inflated precision by construction. It now draws until both hold the same number of distinct tiles.
+- **Why this approach.**
+  - The rule was to prove the world is the Mac's before walking. The cell order is part of the world: it decides start cells and the held-out set. So a matching `clock.json` was not enough.
+  - Everything that can fail in Phase B was made to fail once here, as the GAN brief asks.
+- **What I expect.**
+  - Both first walks reach 1977 near step 5,000 with roughly 4,500–5,000 unique tiles. Both conditions then need w001, and possibly w002, against prediction 143 (curious two walks) and 144 (the Null one long walk).
+  - The pipeline then runs unattended: about 60 h of GAN work after the walks.
+
 ## 2026-11-13, afternoon: Gate B decided. The briefs, CHARTER, configs and predictions for generation 1
 
 - **What changed.**
