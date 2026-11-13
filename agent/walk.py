@@ -40,7 +40,8 @@ HELDOUT_N, HELDOUT_SEED = 200, 12345
 # candidate. They hold their places so that a future draw there shifts nothing else.
 # Experiment 09 appends "compass" (the rotation of the eight bearings) and "radius" (jitter); a child's stream depends only on its position,
 # so appending leaves every earlier stream, and every classic walk, unchanged.
-RNG_STREAMS = ("start", "neighbours", "offers", "landing", "choice", "init", "crops", "replay", "daydream", "compass", "radius")
+RNG_STREAMS = ("start", "neighbours", "offers", "landing", "choice", "init", "crops", "replay", "daydream", "compass", "radius", "time")
+# "time" (Moe 2026-11-13): the draw that thins the time offer (time_offer_p < 1); appended, so every earlier stream is unchanged
 
 
 class RegionalTiles:
@@ -203,6 +204,14 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
 
         t_end, cap = CL.to_day(str(cfg["t_end"])), int(cfg["steps"])
         tile_cap = int(cfg["tile_cap"]) if cfg.get("tile_cap") else None  # optional: end at this many distinct tiles (end reason `tiles`)
+        # the thinned time offer (Moe 2026-11-13, notes/gen1/time_offer_rule.md): when a later pass exists, it is offered with probability
+        # time_offer_p (1 = always, the brief's rule; draws nothing then). The same for the Null: a property of the horizon, not of the choice
+        q_time = float(cfg.get("time_offer_p", 1.0))
+        time_ok = True
+        # lingering (Moe 2026-11-13): once the clock reaches linger_from, the walk may stay as many steps as it spent, on average, per year
+        # of clock before (its own pace); then it ends (end reason `linger`). Off unless linger_from is set
+        linger_from = CL.to_day(str(cfg["linger_from"])) if cfg.get("linger_from") else None
+        linger_entry = linger_len = linger_end = None
         clk = d_cur = int(T.store.days(t)[0])  # the clock starts at the start cell's first acquisition
         cur_key = prev_key = int(image_key(t, 0))
         render_every, ckpt_every = int(cfg.get("render_every", 500)), int(cfg["ckpt_every"])
@@ -212,6 +221,7 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
         pin = T.store.cache / "pins" / ("_".join(out.resolve().relative_to(RUNS.resolve()).parts) + ".txt")  # data/cache_cap.py never evicts these
         pin.parent.mkdir(parents=True, exist_ok=True)
         meta["clock"] = {"t_end": CL.to_date(t_end), "cap": cap, "start_idx": t, "start_cell": str(idx.grid_cell[t]), "start_clock": CL.to_date(clk), "tile_cap": tile_cap,
+                         "time_offer_p": q_time, "linger_from": cfg.get("linger_from"),
                          "archive_last": CL.to_date(int(T.store.ck_day.max())), "condition": cfg.get("condition"), "walk_id": cfg.get("walk_id")}
         (out / "meta.json").write_text(json.dumps(meta, indent=2))
 
@@ -222,14 +232,15 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
             return int(image_key(c, CL.closest_rank(T.store.days(c), clk)))
         return int(image_key(c, visits.get(c, 0))) if stack else c
 
-    def clock_offers(cands: list[int], kinds: list[str]) -> tuple[list[int], list[str], list[int], bool]:
+    def clock_offers(cands: list[int], kinds: list[str]) -> tuple[list[int], list[str], list[int], bool, bool]:
         """brief v2, 2: each compass offer shown at its acquisition closest to the clock, plus the time offer at the current cell (its
-        first acquisition after max(clock, the date now seen), next pass only), when there is one. Returns cells, kinds, image keys."""
+        first acquisition after max(clock, the date now seen), next pass only), when there is one and this step's thinning draw lets it
+        through (time_ok). Returns cells, kinds, image keys, whether a later pass exists, whether it is offered."""
         keys = [key_of(c) for c in cands]
         r = CL.time_offer(T.store.days(t), clk, d_cur)
-        if r is not None:
+        if r is not None and time_ok:
             cands, kinds, keys = cands + [t], kinds + ["time"], keys + [int(image_key(t, r))]
-        return cands, kinds, keys, r is not None
+        return cands, kinds, keys, r is not None, r is not None and time_ok
 
     def last_key(c: int) -> int:
         """The image a cell showed at its last visit."""
@@ -253,11 +264,11 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
 
     if cfg.get("rng_mode", "legacy") == "split":
         ss = dict(zip(RNG_STREAMS, np.random.SeedSequence(seed).spawn(len(RNG_STREAMS))))
-        r_offer, r_land, r_choice, r_compass, r_radius = (np.random.default_rng(ss[k]) for k in ("offers", "landing", "choice", "compass", "radius"))
+        r_offer, r_land, r_choice, r_compass, r_radius, r_time = (np.random.default_rng(ss[k]) for k in ("offers", "landing", "choice", "compass", "radius", "time"))
         torch.manual_seed(int(ss["init"].generate_state(1)[0]))
         gen, gen_replay, gen_dream = (torch.Generator(device=dev).manual_seed(int(ss[k].generate_state(1)[0])) for k in ("crops", "replay", "daydream"))
     else:
-        r_offer = r_land = r_choice = r_compass = r_radius = np.random.default_rng(seed)
+        r_offer = r_land = r_choice = r_compass = r_radius = r_time = np.random.default_rng(seed)
         torch.manual_seed(seed)
         gen = gen_replay = gen_dream = torch.Generator(device=dev).manual_seed(seed)
     random_policy = cfg.get("policy", "curious") == "random"
@@ -429,7 +440,8 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
         return {"step": s1, "t": t, "clk": clk, "d_cur": d_cur, "cur_key": cur_key, "prev_key": prev_key, "came_from": came_from, "heading": heading,
                 "r_now": r_now, "theta_now": theta_now, "visits": visits, "te": te, "drive": drive, "norms": norms, "long_norms": long_norms,
                 "held_log": held_log, "forget_log": forget_log, "land_log": land_log,
-                "rng": {"offer": r_offer, "land": r_land, "choice": r_choice, "compass": r_compass, "radius": r_radius},
+                "rng": {"offer": r_offer, "land": r_land, "choice": r_choice, "compass": r_compass, "radius": r_radius, "time": r_time},
+                "linger": (linger_entry, linger_len, linger_end),
                 "torch_gen": {"crops": gen.get_state(), "replay": gen_replay.get_state(), "daydream": gen_dream.get_state()},
                 "torch_rng": torch.get_rng_state(), "elapsed": time.time() - t0, "meta": meta}
 
@@ -442,6 +454,8 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
         te.crop_quirk_fn = lambda keys: np.stack([T.store.crop_quirk_rows(k) for k in keys])
         held_log[:], forget_log[:], land_log[:] = R["held_log"], R["forget_log"], R["land_log"]
         r_offer, r_land, r_choice, r_compass, r_radius = (R["rng"][k] for k in ("offer", "land", "choice", "compass", "radius"))
+        r_time = R["rng"].get("time", r_time)
+        linger_entry, linger_len, linger_end = R.get("linger", (None, None, None))
         gen.set_state(R["torch_gen"]["crops"])
         gen_replay.set_state(R["torch_gen"]["replay"])
         gen_dream.set_state(R["torch_gen"]["daydream"])
@@ -462,6 +476,8 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
         ts = time.time()
         faulthandler.dump_traceback_later(900, exit=False)  # a step stalled for 15 min writes every thread's stack to the log (re-armed each step)
         # -- candidates ------------------------------------------------------------
+        if clockm and q_time < 1.0:  # this step's thinning draw: the time offer (if a later pass exists) comes through with probability q
+            time_ok = bool(r_time.random() < q_time)
         if compass:
             cands, cinfo = compass_offers(t, r_now, theta_now)
             n_turn = 0
@@ -479,7 +495,7 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
             if offer_stay:
                 cands, kinds = cands + [t], kinds + ["stay"]
             if clockm:
-                cands, kinds, ckeys, time_offered = clock_offers(cands, kinds)
+                cands, kinds, ckeys, time_exists, time_offered = clock_offers(cands, kinds)
         elif force_teleport:
             cands, kinds = [best_landing(step) if land_k else T.random_tile(r_land)], ["bored"]
             force_teleport = False
@@ -509,7 +525,7 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
                 theta_now = float(r_compass.uniform(0.0, 360.0))
                 cands, cinfo = compass_offers(t, r_now, theta_now)
                 cands = cands or [T.random_tile(r_land)]
-                cands, kinds, ckeys, time_offered = clock_offers(cands, ["compass"] * len(cands))
+                cands, kinds, ckeys, time_exists, time_offered = clock_offers(cands, ["compass"] * len(cands))
                 x, kept, fst2 = look(ckeys, gen, timeout=120.0)
                 fst["wait_sec"] += fst2["wait_sec"]
                 fst["dropped"] = fst["dropped"] + fst2["dropped"]
@@ -714,7 +730,7 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
             slot = [k for k in range(CP.N_BEARINGS) if int(cinfo["cell"][k]) == t and cinfo["drop"][k] == ""] if kinds[j] == "compass" else []
             rec.update(clock_before=CL.to_date(clk_before), clock=CL.to_date(clk), clock_day=clk, tile_date=CL.to_date(d_cur), tile_day=d_cur,
                        offset_days=d_cur - clk, offer_kind=kinds[j], compass_slot=slot[0] if slot else -1,
-                       wait_days=float(clk - clk_before) if kinds[j] == "time" else np.nan, n_offers=C, time_offered=bool(time_offered),
+                       wait_days=float(clk - clk_before) if kinds[j] == "time" else np.nan, n_offers=C, time_exists=bool(time_exists), time_offered=bool(time_offered),
                        time_available="time" in kinds, night=bool(T.store.night_of(cur_key)), cloud_cover=float(q[1]),
                        **{f"q_{k}": float(v) for k, v in zip(QUIRK_COLS, q)})
         steps_log.append(rec)
@@ -739,7 +755,15 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
                      if "fetch_sec" in df else ""), flush=True)
         if clockm:
             # brief v2, 3: the only ways a walk ends, the clock reaching T_end or the step cap. There is no death
-            end_reason = CL.end_reason(clk, s1, t_end, cap, len(set(te.tiles)), tile_cap)
+            if linger_from is not None and linger_entry is None and clk >= linger_from:  # the clock has reached the last period: how long it may stay
+                linger_entry = s1
+                years = (linger_from - CL.to_day(meta["clock"]["start_clock"])) / 365.25
+                linger_len = int(round(s1 / years))
+                linger_end = s1 + linger_len
+                meta["clock"].update(linger_entry_step=s1, linger_entry_clock=CL.to_date(clk), linger_steps=linger_len)
+                print(f"[{out.name}] step {s1}: the clock reached {CL.to_date(linger_from)} ({CL.to_date(clk)}); it may linger {linger_len} steps "
+                      f"(its pace: {s1} steps over {years:.2f} years of clock)", flush=True)
+            end_reason = CL.end_reason(clk, s1, t_end, cap, len(set(te.tiles)), tile_cap, linger_end)
             if render_every and (s1 % render_every == 0 or end_reason):
                 render_contact(s1)
             if end_reason:
@@ -796,7 +820,8 @@ def run(cfg: dict, name: str, out: Path | None = None, resume: bool = False, sto
                 "start_cell": meta["clock"]["start_cell"], "start_clock": meta["clock"]["start_clock"], "end_clock": CL.to_date(clk),
                 "steps": len(sl), "end_reason": end_reason, "unique_tiles": int(sl.image_key.nunique()), "unique_cells": int(sl.tile_idx.nunique()),
                 "waits": int((sl.offer_kind == "time").sum()), "t_end": CL.to_date(t_end), "cap": cap,
-                "night_share": float(acq.night.mean()), "seconds": round(time.time() - t0, 1), "git": meta["git"]}
+                "night_share": float(acq.night.mean()), "seconds": round(time.time() - t0, 1), "git": meta["git"],
+                "time_offer_p": q_time, "linger_from": cfg.get("linger_from"), "linger_entry_step": linger_entry, "linger_steps": linger_len}
         meta["walk"] = walk
         (out / "walk.json").write_text(json.dumps(walk, indent=2))
         pin.unlink(missing_ok=True)
@@ -838,6 +863,8 @@ def main() -> None:
     ap.add_argument("--stop-after", type=int, help="tests: end the process after the checkpoint at this step")
     ap.add_argument("--tile-cap", type=int, help="also end the walk at this many distinct tiles (end reason `tiles`)")
     ap.add_argument("--t-end", help="the clock date that ends the walk (end reason `time`), instead of the config's t_end")
+    ap.add_argument("--time-offer-p", type=float, help="probability that an existing time offer is offered on a step (thinning; default 1)")
+    ap.add_argument("--linger-from", help="once the clock reaches this date, the walk may stay its own steps-per-year, then ends (`linger`)")
     a = ap.parse_args()
     cfg = yaml.safe_load(Path(a.config).read_text())
     if a.seed is not None:
@@ -848,6 +875,10 @@ def main() -> None:
         cfg["tile_cap"] = a.tile_cap
     if a.t_end is not None:
         cfg["t_end"] = a.t_end
+    if a.time_offer_p is not None:
+        cfg["time_offer_p"] = a.time_offer_p
+    if a.linger_from is not None:
+        cfg["linger_from"] = a.linger_from
     if a.walk is not None:
         sl = pd.read_csv(ROOT / cfg["start_list"])
         cfg["start_idx"] = int(sl.idx.iloc[a.walk])

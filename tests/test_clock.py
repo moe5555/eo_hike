@@ -156,6 +156,12 @@ class EndRule(unittest.TestCase):
         self.assertEqual(CL.end_reason(99, 50, 100, 50), "capped")
         self.assertEqual(CL.end_reason(100, 50, 100, 50), "time")  # the clock wins a tie with the cap
 
+    def test_linger(self):
+        self.assertIsNone(CL.end_reason(99, 10, 100, 50))  # off unless set
+        self.assertEqual(CL.end_reason(99, 30, 100, 50, linger_end=30), "linger")
+        self.assertIsNone(CL.end_reason(99, 29, 100, 50, linger_end=30))
+        self.assertEqual(CL.end_reason(100, 30, 100, 50, linger_end=30), "time")  # the clock's end wins
+
     def test_tile_cap(self):
         self.assertIsNone(CL.end_reason(99, 10, 100, 50, 10**6))  # off unless set
         self.assertEqual(CL.end_reason(99, 10, 100, 50, 20000, 20000), "tiles")
@@ -201,7 +207,7 @@ class NoDeath(unittest.TestCase):
         returns = [n for n in ast.walk(loop) if isinstance(n, ast.Return)]
         self.assertEqual(len(returns), 1, "the step loop returns other than through stop_after")  # the test hook, after a checkpoint
         code = ast.unparse(loop)  # the code without its comments
-        self.assertIn("end_reason = CL.end_reason(clk, s1, t_end, cap, len(set(te.tiles)), tile_cap)", code)
+        self.assertIn("end_reason = CL.end_reason(clk, s1, t_end, cap, len(set(te.tiles)), tile_cap, linger_end)", code)
         for word in ("death", "die(", "kill", "sys.exit", "exit("):
             self.assertNotIn(word, code.lower())
 
@@ -269,7 +275,8 @@ class Walks(unittest.TestCase):
                 if prev is None:
                     continue
                 d = self.store.days(prev.tile_idx)
-                self.assertEqual(r.time_offered, CL.time_offer(d, prev.clock_day, prev.tile_day) is not None, f"step {r.step}")
+                self.assertEqual(r.time_exists, CL.time_offer(d, prev.clock_day, prev.tile_day) is not None, f"step {r.step}")
+                self.assertEqual(r.time_offered, r.time_exists)  # time_offer_p 1: nothing thinned
 
     def test_the_null_draws_uniformly(self):
         _, c, _ = self.logs(self.null)
@@ -308,6 +315,22 @@ class Walks(unittest.TestCase):
             np.testing.assert_array_equal(ca.I.to_numpy(), cb.I.to_numpy())
         else:
             self.skipTest("an offer was dropped on a fetch timeout")
+
+
+
+@unittest.skipUnless(WALKS, "WALK_TESTS=1 runs short real walks")
+class ThinnedWalk(unittest.TestCase):
+    """The thinned time offer (Moe 2026-11-13): offered only where a later pass exists, and then with probability time_offer_p."""
+
+    def test_thinning(self):
+        run = walk("null", "t_thin", 120, {"time_offer_p": 0.5})
+        s = pd.read_parquet(run / "steps.parquet")
+        self.assertFalse((s.time_offered & ~s.time_exists).any(), "a time offer where no later pass exists")
+        n = int(s.time_exists.sum())
+        self.assertGreater(n, 10, "too few steps with a later pass to test")
+        k = int(s.time_offered.sum())
+        self.assertLess(abs(k - 0.5 * n), 3.3 * (0.25 * n) ** 0.5, f"{k} of {n} offered at p 0.5")
+        self.assertTrue((s.offer_kind[~s.time_offered] != "time").all())
 
 
 if __name__ == "__main__":

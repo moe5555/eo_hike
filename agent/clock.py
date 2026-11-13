@@ -17,7 +17,7 @@ from __future__ import annotations
 import numpy as np
 
 EPOCH = np.datetime64("1970-01-01", "D")
-END_REASONS = ("time", "capped", "tiles")
+END_REASONS = ("time", "capped", "tiles", "linger")
 
 
 def closest_rank(days: np.ndarray, t: int) -> int:
@@ -38,13 +38,17 @@ def time_offer(days: np.ndarray, t: int, d_c: int) -> int | None:
     return i if i < len(days) else None
 
 
-def end_reason(t: int, steps_done: int, t_end: int, cap: int, n_tiles: int = 0, tile_cap: int | None = None) -> str | None:
-    """'time' at the first step where t >= t_end, 'tiles' at the first step where the walk has stood on tile_cap distinct tiles (off unless
-    tile_cap is set; Moe 2026-11-13, a long curious walk), 'capped' when the step cap is reached first, else None. The only ways a walk ends."""
+def end_reason(t: int, steps_done: int, t_end: int, cap: int, n_tiles: int = 0, tile_cap: int | None = None,
+               linger_end: int | None = None) -> str | None:
+    """'time' at the first step where t >= t_end; 'tiles' at the first step where the walk has stood on tile_cap distinct tiles (off unless
+    tile_cap is set; Moe 2026-11-13); 'linger' when the steps it may stay in the last period are used up (off unless linger_end is set;
+    Moe 2026-11-13); 'capped' when the step cap is reached first; else None. The only ways a walk ends."""
     if t >= t_end:
         return "time"
     if tile_cap is not None and n_tiles >= tile_cap:
         return "tiles"
+    if linger_end is not None and steps_done >= linger_end:
+        return "linger"
     if steps_done >= cap:
         return "capped"
     return None
