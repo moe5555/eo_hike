@@ -837,6 +837,7 @@ def main() -> None:
     ap.add_argument("--resume", action="store_true", help="continue from the walk's last checkpoint (resume.pt)")
     ap.add_argument("--stop-after", type=int, help="tests: end the process after the checkpoint at this step")
     ap.add_argument("--tile-cap", type=int, help="also end the walk at this many distinct tiles (end reason `tiles`)")
+    ap.add_argument("--t-end", help="the clock date that ends the walk (end reason `time`), instead of the config's t_end")
     a = ap.parse_args()
     cfg = yaml.safe_load(Path(a.config).read_text())
     if a.seed is not None:
@@ -845,6 +846,8 @@ def main() -> None:
         cfg["steps"] = a.steps
     if a.tile_cap is not None:
         cfg["tile_cap"] = a.tile_cap
+    if a.t_end is not None:
+        cfg["t_end"] = a.t_end
     if a.walk is not None:
         sl = pd.read_csv(ROOT / cfg["start_list"])
         cfg["start_idx"] = int(sl.idx.iloc[a.walk])

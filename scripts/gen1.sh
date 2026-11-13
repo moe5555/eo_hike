@@ -2,7 +2,8 @@
 # Brief v2 (notes/brief_landsat_v2_run.md): the dry runs (Gate B, section 6) on the clock world of Landsat 1.
 #
 #     scripts/gen1.sh start dryrun     # curious and Null, start cells 0-2, interleaved, until the clock ends them or 3,000 steps
-#     scripts/gen1.sh start long       # Moe 2026-11-13: curious walks from start cell 3 on, until their pooled distinct tiles reach 20,000
+#     scripts/gen1.sh start long       # Moe 2026-11-13: curious walks from start cell 3 on, each until its clock enters 1977 (or 20,000
+#                                      # tiles), until their pooled distinct tiles reach 20,000
 #     scripts/gen1.sh stop
 #
 # Detached, keeps the Mac awake; log runs/gen1_batch.log, one log per walk in runs/<phase>/logs/. PARALLEL walkers side by side (2) with
@@ -58,13 +59,14 @@ cap_pid=$!
 watchdog=$!
 
 walk() {
-  local cond=$1 k=$2 phase=$3 steps=$4 tiles=${5:-}
+  local cond=$1 k=$2 phase=$3 steps=$4 tiles=${5:-} t_end=${6:-}
   local dir
   dir=runs/${phase}/${cond}/w$(printf '%03d' "$k")
   [ -f "$dir/walk.json" ] && { echo "=== have ${cond} w${k}"; return; }
   local extra=""
   [ -f "$dir/resume.pt" ] && extra="--resume"
   [ -n "$tiles" ] && extra="$extra --tile-cap $tiles"
+  [ -n "$t_end" ] && extra="$extra --t-end $t_end"
   mkdir -p "runs/${phase}/logs"
   echo "=== $(date '+%F %T') start ${cond} w${k} ${extra}"
   if .venv/bin/python -m agent.walk "configs/gen1/${cond}.yaml" --walk "$k" --phase "$phase" --steps "$steps" $extra >> "runs/${phase}/logs/${cond}_w${k}.log" 2>&1; then
@@ -80,10 +82,11 @@ case "$phase" in
   dryrun) for k in 0 1 2; do for c in curious null; do jobs_list+="$c $k dryrun 3000"$'\n'; done; done ;;
 esac
 if [ "$phase" = long ]; then
-  # Moe 2026-11-13: curious walks on start cells 3, 4, ... (seed = row), PARALLEL at a time, each until the clock ends it, 20,000 tiles
+  # Moe 2026-11-13: curious walks on start cells 3, 4, ... (seed = row), PARALLEL at a time, each until its clock enters 1977, 20,000 tiles
   # or a 40,000-step guard; a new walk starts only while the pooled tiles (finished walks' union + running walks' count) are below
   # POOL_N. The last walk always runs to its end.
   POOL_N=${POOL_N:-20000}
+  LONG_T_END=${LONG_T_END:-1977-01-01}  # Moe 2026-11-13: a long walk ends when its clock enters the final year (end reason time)
   k=3
   pids=()
   alive() { local n=0 p; for p in "${pids[@]}"; do kill -0 "$p" 2>/dev/null && n=$((n + 1)); done; echo "$n"; }
@@ -92,7 +95,7 @@ if [ "$phase" = long ]; then
     have=$(.venv/bin/python scripts/pool_tiles.py runs/long/curious 2>/dev/null || echo 0)
     if [ "$have" -ge "$POOL_N" ]; then echo "=== $(date '+%F %T') pooled ${have} >= ${POOL_N}: no new walk"; break; fi
     echo "=== $(date '+%F %T') pooled ${have} < ${POOL_N}: walk ${k}"
-    walk curious "$k" long 40000 20000 &
+    walk curious "$k" long 40000 20000 "$LONG_T_END" &
     pids+=($!)
     k=$((k + 1))
     sleep 60  # let the new walk print before the next count
