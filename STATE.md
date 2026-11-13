@@ -1,52 +1,60 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-12.
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-13.
 
 # Where we are, in thesis terms
 ## RQ1:
 How do practices of moving without a predetermined destination, like wayfaring or the dérive, translate to an untasked, step-wise traversal of the planetary image, already cut into scenes, scan lines and tiles?
 
-- The world is now the archive of one instrument: Landsat 1's whole mission on the Major TOM grid (1,466,863 cells). Each cell is a stack of acquisitions; a revisit moves one acquisition later in time. Moving through the image is now also moving through the archive's dates.
-- The walk begins where the archive begins: the first scene, a night pass over South Dakota, 25 Jul 1972 (authored). That origin shapes the first 100 steps: the two-eye walkers escape the night by revisiting cells, the one way to a daylight image nearby (e12, finding 6).
-- After that the walkers mostly move on to new cells; they live in the satellite's first months (mean acquisition year 1972.0–1972.1) and, at 1,000 steps, mostly in North America.
+- The world is the archive of one instrument, Landsat 1 (1972–78), with every acquisition of every cell, one product per date. Each wanderer has its own clock. Moving sideways shows each place at its acquisition closest to the clock; the time offer waits for the satellite's next pass.
+- The archive shapes the traversal:
+  - from mid-1974, only ~422,000 of 1.47 M cells will ever be imaged again;
+  - there is a winter gap, November 1976 to January 1977;
+  - from April 1977, the green band is uncalibrated.
+- The clock climbs in stairs: most steps offer no wait at all. How fast a walk crosses the mission depends on where it starts: in Quebec, a time offer comes in 75 % of the Null's steps; in Rondônia, in 10 %.
 
 ## RQ2:
 Which paths do algorithms driven by novelty, learning progress and boredom cut through the computational planetary image, and how much of their attention follows the terrain, how much the idiosyncrasies of their perception, and how much the artefacts of the instrument, where data and phenomenon come apart?
 
-- Walker v2 splits perception into a glance at the whole tile and a grid of details, and logs how much each made every choice (e12). The two are separable: with equal weights the glance carries ~40 % of interest at the choice, the grid ~37 %, progress ~23 %.
-- Terrain: every curious walker prefers clear, dark tiles (hints against the Null for all seven conditions). An apparent preference for a cell's earlier acquisitions is mostly place memory (unvisited cells are rank 0); with memory held fixed, v1 leans to earlier dates and the two-eye walker to later ones among fresh cells: no shared taste for date.
-- Perception: what reaches the choice depends on the eye. One crop deciding (top-1) makes the grid chase stripes; the glance does not.
-- The instrument: stripes, saturation, black fill and night are measured per tile and per crop, never shown. Stripes draw the detail-eye; fill draws at tile level (and drew the glance to the pass's black edges); night, which is a red detector field (nir08 ~209 DN with no sun), is fled by every two-eye walker. The death dry run splits the same way: max-grid surprise fires on artefacts (86 %), glance surprise on weather (100 % cloud or bright).
-- All of this is two seeds per condition: hints, not leads.
+- Hints from the dry runs (3 start cells, curious against the Null; `notes/dryrun_report.md`):
+  - **The curious walker lives far from its own time.** The median gap between its tile's date and its clock is 379–1,343 days (Null 0–1,078), and it is offered a wait less often than the Null on every start cell.
+  - **Waits are for learning, moves for novelty.** At waits the progress z is 1.09, against 0.44 at moves.
+  - **Clear over cloud,** for moves and waits (as in e12). The Null shows no gap.
+- Interest at the choice: glance 0.37–0.39, grid 0.34–0.36, progress 0.25–0.29.
+- The lost green band of 1977 is an apparatus finding. Whether novelty seeks or flees it is not yet seen.
+- All of this is three start cells, one seed each: hints, not leads.
 
 ## RQ3:
-What do GANs trained recursively on these paths construct, and do their worlds drift across generations towards the planet or towards the apparatus?
+What do GANs trained recursively on these paths construct, and do their worlds drift across generations towards the planet or towards the apparatus, depending on whether paths are curated by whole places or by fragments, compared with a recursive loop without intrinsic motivation?
 
-- Not started. The logs now support the planned conditions: tile weights from pooled novelty at the visit, top crops per step for a "curious collage", and per-image quirk shares for reading drift towards the apparatus.
+- Not started. GAN training is TBD (Moe, CHARTER). The walks log what a dataset needs: tiles per step, top crops, novelty at the visit, and quirks per tile and crop.
 
 # Decisions taken since the last update, and why
-- **World: the whole Landsat 1 mission** (Moe, 2026-11-12), not one pass and not Major TOM. The single pass forced every long step along a 185 km strip and onto its edge.
-- **Selection: a stack per cell**, earliest first, each revisit the next acquisition (one per day); a cell whose stack has run out is no longer offered (Moe).
-- **All processing levels, night scenes in, interior missing data kept**; no full-tile rule for now (Moe).
-- **Start: the archive's first scene** (night, South Dakota, cell `479U_839L`) (Moe, after checking that Dallas's "first light" image is the sixth scene of the first daylight pass).
-- **Eye: CIR, sqrt tone, one global stretch** from 2,000 random cells (the brief). The e10 256 px pass was rebuilt in sqrt tone as the test bed.
-- **Walker v2's defaults** as the brief proposed, with one change: the top-k training crops are cycled to 16, so pooling does not change how much the walker learns per step.
-- **Reproducibility:** walks are bit-identical only at the same thread count; `meta.json` records it.
+- **Brief v2 (`notes/brief_landsat_v2_run.md`):** the clock, the time offer (next pass only), the end at T_end or the cap. There is no death (Moe; CHARTER).
+- **Curious = walker v2, two eyes top-4** (`e12_l1_two_top4`); the Null is the same walker drawing uniformly (Moe, 2026-11-12).
+- **Cache: cap + LRU** (Moe). 12 GB on the Mac; tiles visited by running walks are pinned.
+- **The long phase** (Moe, 2026-11-13): curious walks on start cells 3, 4, …, each until its clock enters 1977 or 20,000 tiles, pooled to 20,000 tiles. It is running.
+- **The uncalibrated green band** is read as missing (a black channel) — my default, for Moe to confirm.
+- Two walkers side by side on the Mac: three made it swap.
 
-# Waiting for Moe
-- Keep the night start, or start in daylight? It shapes the first 100 steps of every walk.
-- Which surprise source the death rule uses: max grid (death by the apparatus) or glance (death by weather).
-- Whether the nir08 night signal should be looked into (what it is), or left as material.
-- The full-tile rule: deferred; fill is tracked in the readouts.
+# Waiting for Moe (Gate B, `notes/dryrun_report.md` "For review")
+- T_end for generation 1: 1977-12-20 (the brief; no curious dry run reached it in 3,000 steps), 1977-01-01 (as in the long phase), or other.
+- The step cap (15,000) and N (5,000 / 10,000 / 20,000 per condition).
+- The lost green band: keep it as missing, leave those products out, or something else.
+- Longer walks: Moe asked (2026-11-13) whether waiting could be made less likely, so a walk lasts 7,000–10,000 steps. My advice:
+  - this turns walk length into a setting (the CHARTER: "a result, not a setting");
+  - if wanted, thin the time offer in the horizon (offered with probability q, the same for the Null) rather than penalise it in the choice.
+- Moe's expectations for generation 1 (slot in `expectations.md`).
+- Approval to start section 7.
 
 # Backlog, in order
-1. A size cap with LRU eviction for the Landsat 1 cache (18 walks filled 16 GB; 14 GB free on the Mac).
-2. Seeds 2–3 for the mission factorial's key conditions (Null, v1, two eyes top-4, grid top-1), so hints can become leads.
-3. Build the death rule (after Moe's choice of source) and the replication milestone: 4 seeds plus a long Null on this world, with the Tobler and cluster readouts.
-4. A Landsat dataset builder for the GAN (gen/v3_datasets.py assumes Major TOM at 10 m), on the PC.
-5. Open checks of the research note (missing ~14k items, L1GS offset distribution, memory effect, impulse noise, 6-bit combs).
+1. Gate B decisions → generation-1 walks (curious and Null interleaved, pooled to N), manifest, `notes/gen1_report.md`.
+2. Read the long phase when it ends (predictions 140–142).
+3. Separate what draws the curious walker to old acquisitions: look, season, level, or sparse regions (finding 2 of the dry runs).
+4. A Landsat dataset builder for the GAN, on the PC (when the GAN training is specified).
+5. Open checks of the research note (missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs).
 
 # Next milestone and its risk
-- **Replication in the final world:** 4 seeds plus a long Null, with the death rule and the Tobler and cluster readouts.
+- **Generation one as a prototype:** walks to N for each condition (Gate B decisions first).
 - **Risks:**
-  - Disk: the Mac's cache will not hold long walks without a cap, so long walks may need the PC.
-  - The death rule's source is still open.
-  - Two of the defining behaviours (the night escape, the stay in North America) are set by the authored start. Every finding has to keep them apart from what the walker brings.
+  - Walk length depends on the start region, so a pool comes from few walks, and one stalled walk can dominate it.
+  - The 1977 green-band loss changes how the archive's last months look, in the walker's eye and in any GAN's.
+  - The Mac's memory allows two walkers at a time.

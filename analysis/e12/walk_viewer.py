@@ -56,8 +56,13 @@ def eye_data(rd: Path, cfg: dict, store, out: Path, px: int, quality: int) -> di
     gmax = float(np.percentile(ge, 99.5))
     gq = np.clip(np.sqrt(ge / gmax) * 255, 0, 255).astype(np.uint8)  # sqrt scale, one for the walk
     ids = keys if keys is not None else s.tile_idx
-    q = store.quirks(ids.unique()) if hasattr(store, "quirks") else pd.DataFrame()
     tq = {}
+    clock_walk = "clock_day" in s  # brief v2: the clock walker logged each tile's quirks (the cache may have evicted the files since)
+    q = pd.DataFrame() if clock_walk or not hasattr(store, "quirks") else store.quirks(ids.unique())
+    if clock_walk:
+        for k in ("stripe", "at255", "satflag"):
+            s[f"q_{k}"] = s[[f"q_{k}_{b}" for b in SEEN]].max(axis=1)
+        tq = {k: V.rnd(s[f"q_{k}"], 3) for k in ("cloud", "fill", "stripe", "at255", "satflag")}
     if len(q):
         q = q.set_index("tile_idx")
         for k in ("stripe", "at255", "satflag"):
@@ -73,8 +78,11 @@ def eye_data(rd: Path, cfg: dict, store, out: Path, px: int, quality: int) -> di
         if k in idx:
             v = idx.set_index("idx")[k].reindex(s.tile_idx) if "idx" in idx else idx[k].reindex(s.tile_idx)
             meta[k] = [str(pd.Timestamp(x).date()) for x in v] if k == "timestamp" else (V.rnd(v, 1) if k == "sun_elevation" else [str(x) for x in v])
+    if clock_walk:  # the clock, the offer taken, the wait, the tile's date against the clock
+        meta.update(clock=s.clock.astype(str).tolist(), offer=s.offer_kind.astype(str).tolist(), wait=V.rnd(s.wait_days, 0),
+                    offset=s.offset_days.astype(int).tolist(), toff=s.time_offered.astype(int).tolist())
     deaths = []
-    if DEATHS.exists():
+    if DEATHS.exists() and "_s" in rd.name:
         d = pd.read_csv(DEATHS)
         name = rd.name
         cond, seed = name.rsplit("_s", 1)
@@ -182,6 +190,8 @@ function drawEyeInfo(){
   r.push(['surprise: glance / grid mean / grid max', `${fmt(E.egl[i],4)} / ${fmt(E.egr[i],4)} / ${fmt(E.egm[i],4)}`]);
   r.push(['choice probability; best offer', `${fmt(E.p[i],2)}; ${E.best[i]?'yes':'no'}`]);
   if (E.tq.cloud) r.push(['tile quirks: QA cloud / fill / stripe / DN 255 / sat. flag', ['cloud','fill','stripe','at255','satflag'].map(k=>E.tq[k]&&E.tq[k][i]!==null?Math.round(100*E.tq[k][i])+'%':'–').join(' / ')]);
+  if (E.meta.clock) r.push(['clock; offer taken', `<b>${E.meta.clock[i]}</b>; ${E.meta.offer[i]==='time' ? '<b>WAIT</b> (Δt ' + fmt(E.meta.wait[i],0) + ' d)' : E.meta.offer[i]}${E.meta.toff[i] ? '' : ' · no time offer this step'}`]);
+  if (E.meta.offset) r.push(['tile date − clock', `${E.meta.offset[i] > 0 ? '+' : ''}${E.meta.offset[i]} days`]);
   if (E.meta.rank) r.push(['acquisition of this cell', `${E.meta.rank[i] + 1}${['st','nd','rd'][E.meta.rank[i]] || 'th'} (rank ${E.meta.rank[i]})`]);
   if (E.meta.timestamp) r.push(['acquisition', `${E.meta.timestamp[i]} ${E.meta.level?E.meta.level[i]:''} ${E.meta.tier?E.meta.tier[i]:''}${E.meta.night&&E.meta.night[i]==='True'?' NIGHT':''} sun ${E.meta.sun_elevation?fmt(E.meta.sun_elevation[i],1):''}°`]);
   if (deathAt[i]) r.push(['death dry run fired', '<b>'+deathAt[i].join(', ')+'</b>']);
@@ -210,7 +220,7 @@ def main() -> None:
     a = ap.parse_args()
     rd = Path(a.run).resolve()
     out = Path(a.out) if a.out else rd / "viewer"
-    page = V.build(rd.name, out, a.px, a.quality)
+    page = V.build(str(rd.relative_to(V.RUNS.resolve())), out, a.px, a.quality)  # nested runs too (runs/dryrun/curious/w002)
     cfg = yaml.safe_load((rd / "config.yaml").read_text())
     E = eye_data(rd, cfg, open_store(cfg), out, a.px, a.quality)
     if E is None:

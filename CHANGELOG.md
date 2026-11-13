@@ -2,6 +2,37 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-13: brief v2 to Gate B. The clock world, the dry runs, and the long phase
+
+- **What changed.**
+  - **Built (Gate A, tag `gen1-gateA`):**
+    - **The clock world** (`data/landsat1_world.py clock`): every cell's acquisitions, one product per date (the highest level, ties by product ID); 31.8 M acquisitions; start pool 250,218 cells; a seeded start list of 500 (`startlist`).
+    - **The clock** (`agent/clock.py`; `stack: clock` in `agent/walk.py`):
+      - offers are shown at the acquisition closest to the clock;
+      - the time offer is the next pass at the current cell;
+      - the end rule is the clock reaching T_end, or the step cap.
+    - **Walks** run as `--walk K --phase P`. Checkpoints with resume every 1,000 steps (bit-identical, tested), contact sheets every 500 steps, `walk.json`. There is no death path.
+    - **The cache cap** (`data/cache_cap.py`): LRU by mtime; tiles visited by running walks are pinned (Moe: cap + LRU).
+    - **Tests:** 26 in `tests/test_clock.py`.
+  - **Dry runs (Gate B):** curious and Null on start cells 0–2. Report: `notes/dryrun_report.md`; tables and figures in `notes/gen1/dryrun/`. Predictions 122–131 scored.
+  - **Fixed on the way:**
+    - fresh and cached tiles rendered differently (float32 against float16; e12 walks too);
+    - a lock deadlock in the store;
+    - three walkers swapping on the Mac (now two side by side, smaller in-RAM caches);
+    - GDAL_CACHEMAX passed as a string, which failed every read for 40 minutes (my bug);
+    - the MTL's NULL calibration of band 4, which made every scene from April 1977 on fail. The band is now read as missing.
+  - **Rerun:** three dry runs that had lost offers to that last bug; the old runs are in `runs/dryrun_prefix/`.
+  - **CHARTER:** the spec file was renamed to `notes/brief_landsat_v2_run.md` to match the CHARTER, and GAN training in milestone 3 is marked TBD (Moe).
+  - **The long phase (Moe, 2026-11-13):** curious walks on start cells 3, 4, … Each walk ends when its clock enters 1977 (`--t-end`) or at 20,000 tiles (new optional end reason `tiles`, off by default). Walks continue until 20,000 pooled tiles (`scripts/gen1.sh start long`, `scripts/pool_tiles.py`). Predictions 140–142.
+- **Why this approach.**
+  - The brief: the architecture is frozen, and time is the only new mechanism.
+  - Every fix was made at the cause, with a test where one could be written.
+  - Walks that met a bug were rerun rather than patched.
+- **What I expect.**
+  - Gate B needs Moe's decisions: T_end (no curious dry run reached 1977-12-20), the step cap, N, and how to show the lost green band (`notes/dryrun_report.md`, "For review").
+  - The long phase takes about 6–12 h on the Mac.
+  - The two hints to test with more start cells: the curious walker lives far from its clock, and it waits to learn rather than to see something new.
+
 ## 2026-11-12, evening: the mission factorial read
 
 - **What changed.**

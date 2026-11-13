@@ -258,3 +258,36 @@ Already seen, so not predicted: in 50-step smoke walks from start 0 (Rondônia, 
 129. **Compute.** 1–2.5 s a step with three walkers side by side, rising with memory size. Projected wall time for generation 1 at N = 10,000 under 72 h.
 130. **No edge pull** of the top crop: 0.70–0.80 (chance 0.75), as 119.
 131. **Nothing breaks.** No crash; under 1 % of offers dropped; the cache stays under its cap (12 GB) with no pinned tile evicted.
+
+Scored 2026-11-13 in `notes/dryrun_report.md`: 4 right (125, 127, 128, 129), 1 mostly right (130), 1 partly (126), 4 wrong (122, 123, 124, 131). Not foreseen: the coverage collapse of 1973–74 and the winter gap of 1976–77; the curious walker living far from its clock; the lost green band from April 1977; curious walks stalling in late 1977.
+
+## Brief v2, section 7: generation 1 (added 2026-11-13, before any generation-1 walk; Gate B, waiting for Moe's approval)
+
+Parameters, pending Moe:
+- **T_end:** 1977-12-20 (the brief). Open, because no curious dry run reached it in 3,000 steps.
+- **Step cap:** 15,000.
+- **N:** proposed 10,000 distinct tiles per condition.
+- **The lost green band:** NaN, a black channel (the default).
+
+If Moe changes T_end or N, predictions 132, 133 and 139 are restated before the walks.
+
+Moe's expectations for generation 1: *(to be added by Moe)*.
+
+Mine, from the dry runs (a hint in all three pairs is the bar for "holds"):
+
+132. **Walks needed:** at N = 10,000, at most 4 curious walks and at most 8 Null walks. At least one curious walk is capped.
+133. **The walker lives far from its time** (finding 2 of the dry runs holds): median |tile date − clock| is higher for curious than for the Null on at least 3 of every 4 start cells walked by both.
+134. **Fewer time offers:** the share of steps with a time offer available is lower for curious than for the Null on at least 3 of every 4 shared start cells.
+135. **Waits for learning:** pooled over curious walks, the progress z at waits exceeds that at moves, and the grid-novelty z at waits is below that at moves.
+136. **Clear over cloud:** in every curious walk, the chosen compass tiles are less cloudy than the offered ones. Pooled over the Null, |chosen − offered| < 0.02.
+137. **Interest shares** at the curious walker's choice: glance 0.35–0.40, grid 0.33–0.38, progress 0.24–0.31.
+138. **The lost green band:** where walks offer tiles from April 1977 on, the curious walker selects tiles without a green channel more than the Null does (selz above the Null's range). They look unlike anything before. Low confidence.
+139. **Revisits:** lower for curious than for the Null on at least 3 of every 4 shared start cells.
+
+## The long phase (added 2026-11-13, 08:40, minutes after its walks restarted at 08:32, nothing of them read; Moe)
+
+Curious walks on start cells 3, 4, … (seed = row). Each ends when its clock enters 1977 (`--t-end 1977-01-01`), at 20,000 tiles, or at a 40,000-step guard. Walks continue until their pooled distinct tiles reach 20,000. There is no Null.
+
+140. **Length:** every walk enters 1977 within 500–2,500 steps (dry runs: 801–1,137). 20,000 pooled tiles need 20–40 walks and take 6–12 h with two side by side.
+141. **No walk alone reaches 20,000 tiles,** and none reaches the 40,000-step guard.
+142. **Far from its time:** in at least 2 of every 3 long walks, the median |tile date − clock| is above 365 days.
