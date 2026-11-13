@@ -1,0 +1,17 @@
+condition,what,n,p0,p5,p25,p50,p75,p95,p100
+curious,clock_at_first_encounter,10000,1972-07-29,1974-01-01,1975-10-04,1976-02-12,1976-05-25,1977-06-25,1977-06-25
+curious,tile_date,10000,1972-07-29,1972-08-21,1973-03-26,1973-12-24,1974-03-25,1976-06-27,1978-01-07
+curious,tiles_with_date_in_1972,1180,,,,,,,
+curious,tiles_with_date_in_1973,4044,,,,,,,
+curious,tiles_with_date_in_1974,3035,,,,,,,
+curious,tiles_with_date_in_1975,494,,,,,,,
+curious,tiles_with_date_in_1976,1034,,,,,,,
+curious,tiles_with_date_in_1977,211,,,,,,,
+null,clock_at_first_encounter,10000,1972-07-29,1973-02-07,1974-02-23,1975-11-14,1976-05-10,1977-07-17,1977-07-17
+null,tile_date,10000,1972-07-26,1972-09-05,1973-03-24,1974-01-01,1974-05-27,1976-10-17,1977-10-31
+null,tiles_with_date_in_1972,986,,,,,,,
+null,tiles_with_date_in_1973,3976,,,,,,,
+null,tiles_with_date_in_1974,3367,,,,,,,
+null,tiles_with_date_in_1975,555,,,,,,,
+null,tiles_with_date_in_1976,873,,,,,,,
+null,tiles_with_date_in_1977,243,,,,,,,

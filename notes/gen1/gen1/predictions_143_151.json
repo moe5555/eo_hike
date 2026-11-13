@@ -1,0 +1,140 @@
+{
+ "q": 0.1,
+ "N": 10000,
+ "curious": {
+  "walks": [
+   {
+    "walk_id": "curious_w000",
+    "steps": 8575,
+    "end_reason": "linger",
+    "end_clock": "1977-06-09",
+    "unique_tiles": 6943,
+    "linger_entry_step": 6995,
+    "linger_steps": 1580
+   },
+   {
+    "walk_id": "curious_w001",
+    "steps": 3746,
+    "end_reason": "linger",
+    "end_clock": "1977-06-25",
+    "unique_tiles": 2999,
+    "linger_entry_step": 3051,
+    "linger_steps": 695
+   },
+   {
+    "walk_id": "curious_w002",
+    "steps": 5989,
+    "end_reason": "linger",
+    "end_clock": "1977-07-23",
+    "unique_tiles": 5196,
+    "linger_entry_step": 4883,
+    "linger_steps": 1106
+   }
+  ],
+  "thinning_offered_over_exists": 0.09687379390196835,
+  "p_wait_given_offered": 0.11354581673306773,
+  "offset_abs_median_days": 612.0,
+  "z_prog_waits": 0.9136942565898624,
+  "z_prog_moves": 0.4112247356823566,
+  "z_grid_waits": 0.6695564166038183,
+  "z_grid_moves": 0.6646687501536265,
+  "dryrun_p_wait_given_offer": [
+   0.2098765432098765,
+   0.193103448275862,
+   0.0700934579439252
+  ],
+  "package": {
+   "cut": {
+    "walk_id": "curious_w002",
+    "step": 308,
+    "clock": "1972-09-28",
+    "encounter_row": 12632,
+    "encounters": 12633,
+    "unique_tiles_total_all_walks": 14182,
+    "encounters_total_all_walks": 18313
+   },
+   "last_clock": "1977-06-25",
+   "first_clock": "1972-07-29",
+   "share_tiles_clock_ge_1977": 0.1835,
+   "ess_counts_share": 0.8363081748152806,
+   "tiles": 10000,
+   "from_1977_04": 212,
+   "green_channel_black": 241,
+   "share_from_1977_04": 0.0212,
+   "share_green_channel_black": 0.0241
+  }
+ },
+ "null": {
+  "walks": [
+   {
+    "walk_id": "null_w000",
+    "steps": 8989,
+    "end_reason": "linger",
+    "end_clock": "1977-07-17",
+    "unique_tiles": 6455,
+    "linger_entry_step": 7333,
+    "linger_steps": 1656
+   },
+   {
+    "walk_id": "null_w001",
+    "steps": 2617,
+    "end_reason": "linger",
+    "end_clock": "1977-02-01",
+    "unique_tiles": 1969,
+    "linger_entry_step": 2132,
+    "linger_steps": 485
+   },
+   {
+    "walk_id": "null_w002",
+    "steps": 6799,
+    "end_reason": "linger",
+    "end_clock": "1977-08-26",
+    "unique_tiles": 5204,
+    "linger_entry_step": 5544,
+    "linger_steps": 1255
+   }
+  ],
+  "thinning_offered_over_exists": 0.09653465346534654,
+  "p_wait_given_offered": 0.1339031339031339,
+  "offset_abs_median_days": 625.0,
+  "z_prog_waits": -0.3503769008180206,
+  "z_prog_moves": -0.0036562646989514577,
+  "z_grid_waits": -0.31897056483207864,
+  "z_grid_moves": 0.011408003281381168,
+  "dryrun_p_wait_given_offer": [],
+  "package": {
+   "cut": {
+    "walk_id": "null_w002",
+    "step": 2144,
+    "clock": "1976-03-03",
+    "encounter_row": 13753,
+    "encounters": 13754,
+    "unique_tiles_total_all_walks": 13411,
+    "encounters_total_all_walks": 18408
+   },
+   "last_clock": "1977-07-17",
+   "first_clock": "1972-07-29",
+   "share_tiles_clock_ge_1977": 0.1692,
+   "ess_counts_share": 0.7302266501968656,
+   "tiles": 10000,
+   "from_1977_04": 220,
+   "green_channel_black": 264,
+   "share_from_1977_04": 0.022,
+   "share_green_channel_black": 0.0264
+  }
+ },
+ "clear_over_cloud": [
+  {
+   "condition": "curious",
+   "cloud_offered": 0.21424160944719692,
+   "cloud_chosen": 0.1545785684642324,
+   "diff": -0.059663040982964516
+  },
+  {
+   "condition": "null",
+   "cloud_offered": 0.2136922893595269,
+   "cloud_chosen": 0.22201828497377585,
+   "diff": 0.00832599561424896
+  }
+ ]
+}
