@@ -1,0 +1,74 @@
+{
+ "passed": true,
+ "same_start_list": true,
+ "start_list_sha256_committed": "6f655057739f080154fbec5b459ba61ca732bc806c3f079be0d161a3bf6bb7b7",
+ "N": 10000,
+ "packages": {
+  "curious": {
+   "package": "E:\\Moe\\eo_hike-1\\paths\\g1\\curious",
+   "problems": [],
+   "condition": "curious",
+   "label": "generation 1",
+   "files_checked": 10002,
+   "n_png": 10000,
+   "n_tiles_rows": 10000,
+   "n_unique_encounter_tiles": 10000,
+   "start_rows": 3,
+   "walks": [
+    "curious_w000",
+    "curious_w001",
+    "curious_w002"
+   ],
+   "encounters": 12633,
+   "encounters_missing_components": 0,
+   "render_check": {
+    "passed": true,
+    "n": 20
+   },
+   "start_list": {
+    "path": "configs/gen1/start_list.csv",
+    "seed": 20261112,
+    "sha256": "6f655057739f080154fbec5b459ba61ca732bc806c3f079be0d161a3bf6bb7b7",
+    "first_rows": [
+     "156D_664L",
+     "280U_59R",
+     "577U_514L"
+    ]
+   },
+   "passed": true
+  },
+  "null": {
+   "package": "E:\\Moe\\eo_hike-1\\paths\\g1\\null",
+   "problems": [],
+   "condition": "null",
+   "label": "generation 1",
+   "files_checked": 10002,
+   "n_png": 10000,
+   "n_tiles_rows": 10000,
+   "n_unique_encounter_tiles": 10000,
+   "start_rows": 3,
+   "walks": [
+    "null_w000",
+    "null_w001",
+    "null_w002"
+   ],
+   "encounters": 13754,
+   "encounters_missing_components": 0,
+   "render_check": {
+    "passed": true,
+    "n": 20
+   },
+   "start_list": {
+    "path": "configs/gen1/start_list.csv",
+    "seed": 20261112,
+    "sha256": "6f655057739f080154fbec5b459ba61ca732bc806c3f079be0d161a3bf6bb7b7",
+    "first_rows": [
+     "156D_664L",
+     "280U_59R",
+     "577U_514L"
+    ]
+   },
+   "passed": true
+  }
+ }
+}
