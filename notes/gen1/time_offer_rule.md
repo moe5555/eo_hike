@@ -48,4 +48,17 @@ What follows from the spread, at q = 0.10 and under the scaling assumption: the 
 
 ## The first walk
 
-*To be filled: its start cell, q = 0.10, and its outcome against predictions 143–157 (`notes/06_characters/expectations.md`).*
+*Generation 1, on the PC, 2026-11-13 (report: `notes/gen1_report.md`; predictions 143–151).*
+
+- **Curious w000:**
+  - started at start cell 0 (156D_664L, Rondônia) with the clock at 1972-07-29; q = 0.10;
+  - reached 1977 at step 6,995, with 5,672 distinct tiles (start tile included). The calibration predicted 549 / q = 5,490: within 3 %;
+  - lingered its own 6,995 / 4.43 = 1,580 steps;
+  - ended by `linger` at step 8,575, clock 1977-06-09, with 6,944 tiles: below the target range of 8,000–15,000.
+- **Lingering added 1.21–1.25 × the tiles to 1977** in all six walks (1.22 assumed).
+- **The scaling held for start cell 0 only.** Start cells 1 and 2 reached 1977 with 2,422 and 4,280 tiles, against 4,850 and 9,900 from their q = 1 dry runs: 43–50 %. The clock's pace per step is not simply proportional to q across start cells.
+- **So each condition needed three wanderers to reach N = 10,000.** All six walks ended by `linger`; none came near the guard.
+- **The time offer came through on 9.7 % of the steps where a later pass existed** (both conditions, as built).
+  - Waits fell to about 0.3 % of steps: 57 curious, 47 Null.
+  - When offered, the curious walker took a wait about as often as the Null (0.114 against 0.134).
+- **Set by hand:** q, the linger rule, T_end, the guard. **Emerged:** the walk lengths, the departure from scaling at start cells 1–2, and how rarely either walker waited.
