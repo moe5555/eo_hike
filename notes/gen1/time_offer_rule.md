@@ -42,6 +42,10 @@ What changes in the readouts, and what does not:
 
 Median 906 over 11 walks, a spread of about 5×. The assumption: the clock's progress per step scales with *q*, so q ≈ 906 / 10,000 ≈ **0.09**. It moved from 0.092 to 0.091 as walks were added. To be finalised when the long phase ends.
 
+**Final, for generation 1 (2026-11-13, Gate B): q = 0.10.** Moe's target changed from "1977 at about 10,000 tiles" to "the walk *ends* at roughly 8,000–15,000 unique tiles", so lingering counts too. Lingering adds about 1 / 4.45 of the steps before it (the start clocks are in July–August 1972, 4.45 years before 1977-01-01), so a walk ends at about 1.22 × its tiles to 1977. The median end is then 1.22 × 906 / q. Aiming at the geometric middle of the range, √(8,000 × 15,000) ≈ 11,000, gives q ≈ 0.10. The long phase isn't needed for this and stays paused.
+
+What follows from the spread, at q = 0.10 and under the scaling assumption: the 11 walks would end at about 5,900–29,000 tiles. Start cell 0 (dry run w000: 549 tiles to 1977 at q = 1) would end near 6,700, below N = 10,000, so a second wanderer from start cell 1 (w001: 485 at q = 1, about 5,900) is likely needed. Prediction 143 checks this.
+
 ## The first walk
 
-*To be filled: its start cell, q, and its outcome against predictions 143–.*
+*To be filled: its start cell, q = 0.10, and its outcome against predictions 143–157 (`notes/06_characters/expectations.md`).*

@@ -2,6 +2,48 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-13, afternoon: Gate B decided. The briefs, CHARTER, configs and predictions for generation 1
+
+- **What changed.**
+  - **Moe's decisions at Gate B:**
+    - q = 0.10;
+    - lingering from 1977-01-01, T_end 1977-12-20, the 40,000-step guard;
+    - N = 10,000, one walk per condition (a second only if the first ends short);
+    - only the package is cut at N;
+    - nothing is cut from the data, the lost green band included;
+    - the era confound is a stated limitation;
+    - the quirk observer on GAN samples is deferred.
+  - **`notes/brief_landsat_v2_run.md`:**
+    - §§2–4 carry the thinned time offer, lingering, the guard and the end reasons;
+    - §7 the one-walk rule and the era readout;
+    - the handoff:
+      - N, cutting the package rather than the walk;
+      - 128 px described as the grid eye's resolution, not "as the walker saw it";
+      - `I` named, and the Null's interest kept;
+      - the render check done on the Mac;
+      - checksums only in git;
+      - the era confound.
+  - **`notes/brief_gan_g1.md`:**
+    - the same decisions;
+    - the start tile's weight, and a fallback if ESS = 0.5 N can't be reached;
+    - diversity against weighted and unweighted references;
+    - quirk readout 2 deferred (samples saved);
+    - the era confound as a limitation.
+  - **CHARTER:** horizon (thinning), the ending (lingering, guard, walk length partly a setting), the Null, the premises, milestone 3 (two GANs).
+  - **Configs** `configs/gen1/{curious,null}.yaml`:
+    - `time_offer_p: 0.10`, `linger_from: "1977-01-01"`, `steps: 40000`;
+    - `linger_from` is quoted: a YAML date would have crashed the walk's first `meta.json` write (`json.dumps` without `default=str`).
+  - **`notes/gen1/time_offer_rule.md`:** q finalised at 0.10.
+  - **`notes/06_characters/expectations.md`:** predictions 132–139 superseded; 143–151 (walks) and 152–157 (GANs) written.
+  - **Not run:** no walk under the new configs (Moe: the work moves to the PC).
+- **Why this approach.**
+  - q now targets the walk's end (8,000–15,000 tiles), so lingering is counted in: about 1.22 × 906 / q ≈ 11,000 at q = 0.10.
+  - Cutting the package rather than the walk keeps every walk whole for the RQ2 report.
+  - Weighted and unweighted references keep the diversity comparison from favouring the Null by construction.
+- **What I expect.**
+  - Curious needs two walks to reach 10,000 tiles; the Null needs one, which runs to the guard (143–144).
+  - The Null's package ends before mid-1974 while the curious package reaches 1977 (145). The era confound will be the largest single difference between the two GANs' training sets.
+
 ## 2026-11-13: brief v2 to Gate B. The clock world, the dry runs, and the long phase
 
 - **What changed.**

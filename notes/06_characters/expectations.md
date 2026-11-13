@@ -291,3 +291,35 @@ Curious walks on start cells 3, 4, … (seed = row). Each ends when its clock en
 140. **Length:** every walk enters 1977 within 500–2,500 steps (dry runs: 801–1,137). 20,000 pooled tiles need 20–40 walks and take 6–12 h with two side by side.
 141. **No walk alone reaches 20,000 tiles,** and none reaches the 40,000-step guard.
 142. **Far from its time:** in at least 2 of every 3 long walks, the median |tile date − clock| is above 365 days.
+
+## Generation 1 under the Gate B decisions (added 2026-11-13, afternoon, before any generation-1 walk; nothing below has been run)
+
+Parameters (Moe, Gate B, 2026-11-13; `notes/brief_landsat_v2_run.md` §§2, 3, 7 and the handoff; configs `configs/gen1/curious.yaml`, `null.yaml`):
+- **q = 0.10** (thinned time offer, the same for the Null), calibrated so a curious walk ends at roughly 8,000–15,000 unique tiles (`notes/gen1/time_offer_rule.md`).
+- **Lingering** from 1977-01-01; **T_end** 1977-12-20; **step guard** 40,000.
+- **N = 10,000** unique tiles per condition. One walk per condition; a second wanderer only if the first ends short of N. Every walk runs to its end; only the package is cut at N.
+- **The lost green band** stays (a black green channel). Nothing is cut from the data.
+- **The era confound** is a stated limitation, not matched.
+
+Predictions 132–139 assumed q = 1 and many walks per condition. They are superseded and will not be scored. Moe delegated the expectations for generation 1 to me (2026-11-13). Mine follow, from the dry runs and the 11 q = 1 curious walks. With one walk per condition, every curious-against-Null item is a single pair: a hint at most.
+
+### The walks
+
+143. **Curious needs two walks.** Curious w000 (start cell 0) ends by `linger` at 5,000–9,000 unique tiles; its tiles to 1977 are 4,000–8,000 (549 / q = 5,490 if the clock's pace scales with q). w001 brings the pool to 10,000. Neither curious walk is capped.
+144. **The Null needs one walk and runs long.** Null w000 is capped at 40,000 steps (or ends by `linger` after step 30,000), with at least 25,000 unique tiles. Its package is cut before step 15,000.
+145. **The era confound is large.** The Null package's last clock date is before 1974-07-01. The curious package reaches 1977: at least 5 % of its tiles are encountered with the clock ≥ 1977-01-01.
+146. **Thinning works as built.** In both conditions, steps where the time offer came through / steps where a later pass existed = 0.08–0.12. For curious, P(wait | offered) is within a factor of 2 of its dry-run value.
+147. **The lost green band enters only the curious package:** 1–10 % of its tiles are from April 1977 on (no green channel). None in the Null package.
+148. **Far from its time:** the curious walk's median |tile date − clock| is above 365 days and above the Null's.
+149. **Waits for learning:** in the curious walks, the progress z at waits is higher than at moves.
+150. **Clear over cloud:** the curious walker's chosen compass tiles are less cloudy than those offered; for the Null, |chosen − offered| < 0.02.
+151. **Revisits use up ESS:** with encounter counts alone as weights, the curious package's ESS is 0.78–0.88 N (dry runs: 0.81–0.85).
+
+### The GANs (first set, before the walks; Phase A on the PC may restate them, dated, before Phase B)
+
+152. **Weights at ESS = 0.5 N:** τ = 2–4.5 (dry runs: 2.3–3.9); the top 10 % of tiles hold 0.24–0.32 of the weight and the top 1 % hold 0.05–0.08; max/median weight 20–45.
+153. **The heaviest 64 tiles** are darker and more striped than the curious package as a whole, and not cloudier (e12's taste for clear, dark tiles and the eye's pull towards stripes). Low confidence.
+154. **Quirks in the samples** (scored once Moe has decided the observer on samples): both GANs produce rare quirks (fill wedges, stripes) less often than their training sets have them. G1-curious flattens them less than G1-null. Low confidence.
+155. **The 1977 colour cast:** G1-curious produces green-less tiles at 0.5–2× their weighted share in its training set; G1-null produces none.
+156. **Diversity:** G1-curious has lower recall than G1-null against its unweighted training set. Against the weighted reference, at least half of that gap disappears.
+157. **Augmentation and memorisation:** final ADA p is 0.2–0.6 for both, higher for G1-curious. Neither GAN copies tiles: the median nearest-neighbour distance from samples to training tiles is at least the training set's own median. G1-curious sits closer to its heaviest tiles than to its lightest.

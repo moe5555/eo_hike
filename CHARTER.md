@@ -12,10 +12,15 @@ A wanderer is a state machine, consisting of the following elements:
 - **Horizon:** the possibilities of where to go next.
   - Eight compass offers. Their radius is set by the drive: the more interesting the current tile, the closer the offers. Each cell is shown at the acquisition closest to the clock (an exact tie goes to the earlier pass). Moving sideways never moves the clock.
   - A ninth offer, the **time offer**: the next acquisition at the current cell after both the clock and the current tile's date. Taking it means waiting for the satellite to return, and it advances the clock to that date. Next pass only: boredom widens the offers in space, never in time.
+  - The time offer is **thinned**: when a later pass exists, it comes through with probability q (generation 1: q = 0.10), the same for the Null. A jump in time can't be undone, so offering it less often lets the wanderer explore one period more rather than exploit one tile through time. When it comes through, it is scored and drawn like any other offer, with no bonus and no penalty. Every finding about time names q.
   - The wanderer draws one offer (temperature 0.5).
-- **The ending:** there is no death. The walk ends when the dates run out, at the first step where the clock is within Landsat 1's last 18-day cycle (clock ≥ the archive's last acquisition minus 18 days). A step cap guards against walks that rarely wait; a walk that hits the cap is reported as such. Walk length is a result, not a setting.
+- **The ending:** there is no death. The walk ends at whichever comes first:
+  - **lingering is used up:** when the clock first reaches 1977-01-01, the walk may stay as many more steps as it spent, on average, per year of clock before (its own pace);
+  - **the dates run out:** the clock is within Landsat 1's last 18-day cycle (clock ≥ the archive's last acquisition minus 18 days, 1977-12-20);
+  - **the step guard** (40,000), for walks that rarely wait; a walk that hits it is reported as such.
+  - Walk length is now partly a setting: q is calibrated so that a curious walk ends at roughly 8,000–15,000 unique tiles (Moe, 2026-11-13). How long a given walk lasts, where it waits and where it lingers remain results.
 
-The wanderers' paths are compared with null walks of the same dataset, so we can isolate which setting of the wanderer does what. The compass Null chooses uniformly over all available offers, the time offer included, and starts from the same ordered list of start cells as the wanderers. We are interested in developing wanderers that exhibit emergent behaviour/patterns that differ from the random control group. Ideally, these behaviours let us claim something meaningful about the intrinsic drives, and/or the visited satellite imagery. No behaviour may be engineered to look meaningful, and every finding must state which parts were set by hand and which emerged.
+The wanderers' paths are compared with null walks of the same dataset, so we can isolate which setting of the wanderer does what. The compass Null chooses uniformly over all available offers, the time offer included when it comes through (thinned at the same q), and starts from the same ordered list of start cells as the wanderers. We are interested in developing wanderers that exhibit emergent behaviour/patterns that differ from the random control group. Ideally, these behaviours let us claim something meaningful about the intrinsic drives, and/or the visited satellite imagery. No behaviour may be engineered to look meaningful, and every finding must state which parts were set by hand and which emerged.
 
 ## The world
 - **Landsat 1 MSS, the whole mission** (July 1972 – January 1978), on the Major TOM grid.
@@ -71,7 +76,7 @@ Current thesis structure, subject to change:
 - State dated predictions in `expectations.md` before every run. Report afterwards which ones were right and which wrong, and why.
 - Every claim has a control: at minimum the compass Null, and the schedule controls where relevant. Leads and results follow the existing rule (four seeds).
   - Two seeds give only a hint, and a hint is weak evidence. With no effect at all, both seeds fall outside the Null's two-seed range on the same side about 1 time in 3. Never call a hint a lead.
-- Keep authored and emergent apart. Every finding says what was set by hand (premises: the radius rule, the end rule, the time offer, the drive filter, the glance/grid weight) and what emerged. Artistic premises are not "fixed" or optimised away.
+- Keep authored and emergent apart. Every finding says what was set by hand (premises: the radius rule, the end rule and lingering, the time offer and its thinning q, the drive filter, the glance/grid weight) and what emerged. Artistic premises are not "fixed" or optimised away.
 - Nothing in the walker may smuggle in an objective (no rewards for terrain, latitude, aesthetics, date).
 - Compare walkers over matching clock dates, and always report clock date next to step count.
 - Metrics are proxies. Prefer an experiment that answers a research question over better calibration. Only calibrate when it blocks a research question.
@@ -97,7 +102,7 @@ Hand-in is currently 11 February 2027 (being clarified with my advisor). Plan to
    - the cache cap;
    - a coverage curve (cells available against date);
    - smoke walks.
-3. **Generation one as a prototype:** walks to N for each condition, three GANs trained on the PC. *(GAN training: TBD, not yet specified.)*
+3. **Generation one as a prototype:** one walk per condition (more only if the first ends short of N = 10,000 tiles), then two GANs (curious weighted, Null unweighted) trained on the PC per `notes/brief_gan_g1.md`.
 4. **Replication in the final world:** 4 seeds per condition plus the Null, with the Tobler and cluster readouts and the terrain covariates.
 5. **The recursion end to end:** once I've decided the time rule for synthetic worlds, at least 3 generations, with and without novelty-driven sampling.
 6. **Full recursion runs,** with analysis tables and figures for Chapter 8.

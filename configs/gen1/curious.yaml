@@ -8,8 +8,10 @@ seed: 0               # set by --walk (seed = the walk's row in the start list)
 # brief v2, 2-3: the clock
 stack: clock                  # every cell shows its acquisition closest to the clock (ties: the earlier); the current cell offers its next pass (time offer)
 start_list: configs/gen1/start_list.csv   # data/landsat1_world.py startlist: 500 cells with an acquisition in the first 18-day cycle, seeded, ordered
-t_end: 1977-12-20             # the archive's last acquisition (1978-01-07) minus 18 days: the walk ends at the first step with clock >= t_end (Moe confirms at Gate B)
-steps: 15000                  # the step cap: a walk not ended by the clock stops here, flagged capped (dry runs: --steps 3000)
+t_end: 1977-12-20             # the archive's last acquisition (1978-01-07) minus 18 days: the walk ends at the first step with clock >= t_end (Moe, Gate B, 2026-11-13)
+steps: 40000                  # the step guard: a walk not ended otherwise stops here, flagged capped (Moe 2026-11-13; dry runs: --steps 3000)
+time_offer_p: 0.10            # q, the thinned time offer: a later pass comes through with this probability, the same for the Null (Moe 2026-11-13; notes/gen1/time_offer_rule.md)
+linger_from: "1977-01-01"     # once the clock reaches this date, the walk may stay its own steps per year of clock, then ends (`linger`) (Moe 2026-11-13)
 ckpt_every: 1000              # encoders (ckpt_*.pt) and the state to resume from (resume.pt), logs flushed to parts/
 render_every: 500             # a contact sheet of the last 500 steps (contact/*.jpg)
 fetch_workers: 6              # cells read at once from Planetary Computer, per walker (three walkers side by side)
