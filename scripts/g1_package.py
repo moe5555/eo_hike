@@ -67,23 +67,34 @@ def png_bytes(tile256: np.ndarray) -> bytes:
     return buf.getvalue()
 
 
-def walks_of(runs: Path, cond: str) -> list[Path]:
-    """Finished walks of a condition in walk order (w000, w001, ...). A gap or an unfinished walk before a finished one is an error."""
+def walks_of(runs: Path, cond: str, partial: bool = False) -> list[Path]:
+    """Finished walks of a condition in walk order (w000, w001, ...). A gap or an unfinished walk before a finished one is an error.
+    partial (TEST packages only): running walks count too, with the steps flushed at their checkpoints (parts/)."""
     ds = sorted((runs / cond).glob("w[0-9][0-9][0-9]"))
-    fin = [d for d in ds if (d / "walk.json").exists()]
+    fin = [d for d in ds if (d / "walk.json").exists() or (partial and list((d / "parts").glob("steps_*.parquet")))]
     assert fin, f"no finished walk in {runs / cond}"
     assert [int(d.name[1:]) for d in fin] == list(range(len(fin))), f"walks not consecutive from w000: {[d.name for d in fin]}"
     return fin
 
 
-def encounters(runs: Path, cond: str) -> tuple[pd.DataFrame, list[dict]]:
+def load_walk(d: Path, partial: bool) -> tuple[dict, pd.DataFrame]:
+    if (d / "walk.json").exists():
+        return json.loads((d / "walk.json").read_text()), pd.read_parquet(d / "steps.parquet")
+    assert partial
+    m = json.loads((d / "meta.json").read_text())
+    s = pd.concat([pd.read_parquet(f) for f in sorted((d / "parts").glob("steps_*.parquet"))], ignore_index=True)
+    c = m["clock"]
+    return {"walk_id": c["walk_id"], "start_idx": c["start_idx"], "start_cell": c["start_cell"], "start_clock": c["start_clock"],
+            "steps": len(s), "end_reason": "PARTIAL (running)", "time_offer_p": c["time_offer_p"], "git": m.get("git")}, s
+
+
+def encounters(runs: Path, cond: str, partial: bool = False) -> tuple[pd.DataFrame, list[dict]]:
     from data.landsat1_store import image_key
     from agent import clock as CL
 
     rows, walks = [], []
-    for d in walks_of(runs, cond):
-        w = json.loads((d / "walk.json").read_text())
-        s = pd.read_parquet(d / "steps.parquet")
+    for d in walks_of(runs, cond, partial):
+        w, s = load_walk(d, partial)
         walks.append({**w, "dir": str(d.relative_to(ROOT)) if d.is_relative_to(ROOT) else str(d)})
         start_key = int(image_key(int(w["start_idx"]), 0))
         rows.append(pd.DataFrame({"walk_id": [w["walk_id"]], "step": [-1], "clock": [w["start_clock"]], "image_key": [start_key],
@@ -180,7 +191,7 @@ def render_check(t: pd.DataFrame, tiles_dir: Path) -> dict:
             "tiles": out}
 
 
-def build(cond: str, runs: Path, out_root: Path, n: int, label: str | None) -> Path:
+def build(cond: str, runs: Path, out_root: Path, n: int, label: str | None, partial: bool = False) -> Path:
     from data.landsat1_store import Landsat1ClockStore
 
     t0 = time.time()
@@ -188,7 +199,8 @@ def build(cond: str, runs: Path, out_root: Path, n: int, label: str | None) -> P
     if out.exists():
         shutil.rmtree(out)  # never repaired: rebuilt whole from the walk logs
     out.mkdir(parents=True)
-    e, walks = encounters(runs, cond)
+    assert not partial or label == "TEST", "partial walks only make TEST packages"
+    e, walks = encounters(runs, cond, partial)
     c, cut_info = cut(e, n)
     store = Landsat1ClockStore()
     grid_cell = store.idx.grid_cell.to_numpy()
@@ -238,8 +250,9 @@ def main() -> None:
     ap.add_argument("--out", default=str(ROOT / "paths" / "g1"))
     ap.add_argument("--n", type=int, default=N_DEFAULT)
     ap.add_argument("--label")
+    ap.add_argument("--partial", action="store_true", help="TEST packages only: include running walks' checkpointed steps")
     a = ap.parse_args()
-    build(a.cond, Path(a.runs), Path(a.out), a.n, a.label)
+    build(a.cond, Path(a.runs), Path(a.out), a.n, a.label, a.partial)
 
 
 if __name__ == "__main__":

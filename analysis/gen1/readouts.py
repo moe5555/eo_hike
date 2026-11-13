@@ -2,6 +2,8 @@
 
     python analysis/gen1/readouts.py dryrun       # runs/dryrun/<condition>/w*/ -> notes/gen1/dryrun/ (tables .csv, figures .png)
     python analysis/gen1/readouts.py coverage     # the coverage curve of the world (cells with an acquisition, against date)
+    python analysis/gen1/readouts.py gen1         # runs/gen1/ -> notes/gen1/gen1/: the same readouts, plus matched clock stretches, the era
+                                                  # of each package, the last 50 steps, and the numbers behind predictions 143-151
 
 Every table reports the clock next to the step. Definitions (named, so the report can quote them):
 - wait: a step that took the time offer. P(wait | offered) is over the steps where the time offer was available (fetched); the Null's
@@ -242,6 +244,130 @@ def figures(W, out: Path, cov: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+# -- generation 1 (brief v2, section 7) -------------------------------------------------------------------------------------------
+PKG = ROOT / "paths" / "g1"
+GREEN_LOST = "1977-04-01"  # from April 1977 the green band is uncalibrated in the MTL (STATE.md): read as missing, a black channel
+
+
+def matched_clock(W, months: int = 6) -> pd.DataFrame:
+    """Both walkers over the same stretches of clock (half-years): steps, waits, offers, the offset from the clock, cloud, interest."""
+    rows = []
+    for cond, ws in W.items():
+        s = pd.concat([w["s"].assign(walk=w["walk"]["walk_id"]) for w in ws], ignore_index=True)
+        c = pd.to_datetime(s.clock)
+        b = c.dt.year.astype(str) + np.where(c.dt.month <= months, "-H1", "-H2")
+        for k, g in s.groupby(b):
+            rows.append({"clock_stretch": k, "condition": cond, "steps": len(g), "step_first": int(g.step.min()), "step_last": int(g.step.max()),
+                         "unique_tiles": int(g.image_key.nunique()), "wait_share": (g.offer_kind == "time").mean(), "time_exists_share": g.time_exists.mean(),
+                         "time_offered_share": g.time_offered.mean(), "offset_abs_median_days": g.offset_days.abs().median(), "cloud_chosen": g.q_cloud.mean(),
+                         "night_share": g.night.mean(), "z_glance": g.z_glance.mean(), "z_grid": g.z_grid.mean(), "z_prog": g.z_prog.mean(),
+                         "median_move_km": g.dist_km[g.offer_kind != "time"].median()})
+    return pd.DataFrame(rows).sort_values(["clock_stretch", "condition"])
+
+
+def package_era() -> tuple[pd.DataFrame, dict]:
+    """The era of each package (the stated limitation): clock and tile-date distributions of the N packaged tiles, side by side."""
+    rows, enc = [], {}
+    for cond in ("curious", "null"):
+        if not (PKG / cond / "encounters.parquet").exists():
+            continue
+        e = pd.read_parquet(PKG / cond / "encounters.parquet")
+        t = pd.read_parquet(PKG / cond / "tiles.parquet")
+        first = e.drop_duplicates("image_key")
+        clk, td = pd.to_datetime(first.clock), pd.to_datetime(t.date)
+        enc[cond] = e
+        for name, v in (("clock_at_first_encounter", clk), ("tile_date", td)):
+            rows.append({"condition": cond, "what": name, "n": len(v), **{f"p{q}": v.quantile(q / 100).strftime("%Y-%m-%d") for q in (0, 5, 25, 50, 75, 95, 100)}})
+        for y in range(1972, 1978):
+            rows.append({"condition": cond, "what": f"tiles_with_date_in_{y}", "n": int((td.dt.year == y).sum())})
+    return pd.DataFrame(rows), enc
+
+
+def green_less(cond: str) -> dict:
+    """Package tiles from April 1977 on, and tiles whose rendered green channel (B of the CIR view) is black throughout."""
+    from PIL import Image
+
+    t = pd.read_parquet(PKG / cond / "tiles.parquet")
+    dark = np.array([np.asarray(Image.open(PKG / cond / "tiles" / f"{x}.png"))[..., 2].max() == 0 for x in t.tile])
+    return {"tiles": len(t), "from_1977_04": int((pd.to_datetime(t.date) >= GREEN_LOST).sum()), "green_channel_black": int(dark.sum()),
+            "share_from_1977_04": float((pd.to_datetime(t.date) >= GREEN_LOST).mean()), "share_green_channel_black": float(dark.mean())}
+
+
+def strips(W, out: Path) -> None:
+    """For each condition, the last 50 steps of its first walk, rendered from the store (the walker's 256 px view at 128 px), 10 x 5."""
+    from PIL import Image
+
+    from data.landsat1_store import Landsat1ClockStore
+
+    st = Landsat1ClockStore()
+    for cond, ws in W.items():
+        s = ws[0]["s"].tail(50)
+        ims = [Image.fromarray(st.get_lowres(int(k))).resize((128, 128), Image.Resampling.BOX) for k in s.image_key]
+        sheet = Image.new("RGB", (10 * 128, 5 * 128))
+        for i, im in enumerate(ims):
+            sheet.paste(im, ((i % 10) * 128, (i // 10) * 128))
+        sheet.save(out / f"last50_{cond}_{ws[0]['walk']['walk_id']}.png")
+
+
+def gen1_extras(W, P: pd.DataFrame, out: Path) -> None:
+    m = matched_clock(W)
+    m.to_csv(out / "matched_clock.csv", index=False)
+    era, enc = package_era()
+    era.to_csv(out / "package_era.csv", index=False)
+    dpath = ROOT / "notes" / "gen1" / "dryrun" / "walks.csv"
+    dry = pd.read_csv(dpath) if dpath.exists() else None
+    pred: dict = {"q": 0.10, "N": 10_000}
+    for cond, ws in W.items():
+        s = pd.concat([w["s"] for w in ws], ignore_index=True)
+        ex, of, wait = s.time_exists.astype(bool), s.time_offered.astype(bool), s.offer_kind == "time"
+        pred[cond] = {"walks": [{k: w["walk"].get(k) for k in ("walk_id", "steps", "end_reason", "end_clock", "unique_tiles", "linger_entry_step", "linger_steps")}
+                                for w in ws],
+                      "thinning_offered_over_exists": float(of.sum() / max(ex.sum(), 1)), "p_wait_given_offered": float(wait[of].mean()) if of.any() else None,
+                      "offset_abs_median_days": float(s.offset_days.abs().median()),
+                      "z_prog_waits": float(s.z_prog[wait].mean()) if wait.any() else None, "z_prog_moves": float(s.z_prog[~wait].mean()),
+                      "z_grid_waits": float(s.z_grid[wait].mean()) if wait.any() else None, "z_grid_moves": float(s.z_grid[~wait].mean())}
+        if dry is not None:
+            pred[cond]["dryrun_p_wait_given_offer"] = dry[dry.condition == cond].p_wait_given_offer.tolist()
+        if cond in enc:
+            e = enc[cond]
+            first = e.drop_duplicates("image_key")
+            man = json.loads((PKG / cond / "manifest.json").read_text())
+            cnt = e.image_key.value_counts().to_numpy(float)
+            pred[cond]["package"] = {"cut": man["cut"], "last_clock": str(first.clock.max()), "first_clock": str(first.clock.min()),
+                                     "share_tiles_clock_ge_1977": float((pd.to_datetime(first.clock) >= "1977-01-01").mean()),
+                                     "ess_counts_share": float(cnt.sum() ** 2 / (cnt ** 2).sum() / len(cnt)), **green_less(cond)}
+    sel = offer_selection(W)
+    comp = sel[sel.kind == "compass"][["condition", "cloud_offered", "cloud_chosen"]].copy()
+    comp["diff"] = comp.cloud_chosen - comp.cloud_offered
+    pred["clear_over_cloud"] = comp.to_dict("records")
+    (out / "predictions_143_151.json").write_text(json.dumps(pred, indent=1, default=str))
+    try:
+        strips(W, out)
+    except Exception as e:  # noqa: BLE001  a missing tile must not lose the tables
+        print(f"strips failed: {e!r}")
+    if enc:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 3.6), sharey=True)
+        col = {"curious": "#c2622d", "null": "#5b6770"}
+        bins = pd.date_range("1972-07-01", "1978-02-01", freq="MS")
+        for cond, e in enc.items():
+            first = e.drop_duplicates("image_key")
+            t = pd.read_parquet(PKG / cond / "tiles.parquet")
+            axs[0].hist(pd.to_datetime(first.clock), bins=bins, histtype="step", lw=1.4, color=col[cond], label=cond)
+            axs[1].hist(pd.to_datetime(t.date), bins=bins, histtype="step", lw=1.4, color=col[cond], label=cond)
+        axs[0].set_title("clock at first encounter (packaged tiles)")
+        axs[1].set_title("tile date (packaged tiles)")
+        axs[0].set_ylabel("tiles per month")
+        axs[0].legend(frameon=False)
+        fig.tight_layout()
+        fig.savefig(out / "package_era.png", dpi=130)
+        plt.close(fig)
+
+
 def main() -> None:
     what = sys.argv[1]
     out = ROOT / "notes" / "gen1" / what
@@ -251,6 +377,9 @@ def main() -> None:
     if what == "coverage":
         print(cov.iloc[::10].to_string())
         return
+    global GEN1_CAP
+    if what == "gen1":
+        GEN1_CAP = 40000  # the generation-1 guard (Moe, Gate B)
     W = load(what)
     P = per_walk(W, CL.to_day("1977-12-20"))
     tabs = {"walks": P, "waits_vs_moves": waits_vs_moves(W), "offer_selection": offer_selection(W), "dt": dt_table(W),
@@ -258,6 +387,8 @@ def main() -> None:
     for k, v in tabs.items():
         v.to_csv(out / f"{k}.csv", index=False)
     figures(W, out, cov)
+    if what == "gen1":
+        gen1_extras(W, P, out)
     pd.set_option("display.width", 250)
     for k, v in tabs.items():
         print(f"\n## {k}\n{v.round(3).to_string(index=False)}")
