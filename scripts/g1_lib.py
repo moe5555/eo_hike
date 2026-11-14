@@ -124,6 +124,24 @@ def alive(pid: int | None, needle: str | None = None) -> bool:
         return False
 
 
+def job_alive(name: str, j: dict) -> bool:
+    """A job's process is alive only if the job has no exit record since it started and the process with its pid was created when
+    the job started (Windows reuses pids: on 2026-11-14 a finished chunk's stale pid matched the next chunk's python, and the stall
+    check killed the new chunk)."""
+    if not j.get("started"):
+        return False
+    ex = job_exit(name)
+    if ex is not None and ex["ended"] >= j["started"]:
+        return False
+    if not alive(j.get("pid"), "g1_job.py"):
+        return False
+    try:
+        t0 = time.mktime(time.strptime(j["started"], "%Y-%m-%d %H:%M:%S"))
+        return abs(psutil.Process(int(j["pid"])).create_time() - t0) < 120
+    except (psutil.NoSuchProcess, psutil.AccessDenied, ValueError):
+        return False
+
+
 def kill_tree(pid: int) -> None:
     try:
         p = psutil.Process(int(pid))
@@ -170,7 +188,7 @@ def run_job(st: dict, name: str, cmd: list[str], log: Path, *, python: str = PY_
     j = st["jobs"].setdefault(name, {"attempts": 0, "pid": None})
     if j.get("result") == "ok":
         return "ok"
-    if alive(j.get("pid"), "g1_job.py"):
+    if job_alive(name, j):
         if stall_s and log.exists() and time.time() - log.stat().st_mtime > stall_s and act:
             event(f"job {name}: no output for {stall_s / 60:.0f} min; killed")
             kill_tree(j["pid"])
@@ -507,7 +525,7 @@ def stage_train_alternating(st: dict, act: bool, b: dict) -> None:
     if not live:
         mark("train", {c: "ok" if done[c] else ("stopped" if stopped[c] else "failed") for c in CONDS})
         return
-    running = [k for k, j in st["jobs"].items() if k.startswith("train_") and alive(j.get("pid"), "g1_job.py")]
+    running = [k for k, j in st["jobs"].items() if k.startswith("train_") and job_alive(k, j)]
     if running:  # one chunk at a time; check its stall
         name = running[0]
         log = LOGS / f"{name}.log"
@@ -610,7 +628,7 @@ def status(st: dict, stage: str) -> None:
     jobs = [(k, v) for k, v in st["jobs"].items() if not k.startswith("walk_")]
     if jobs:
         L += ["## Jobs", "", "| job | result | attempts | seconds |", "|---|---|---|---|"]
-        L += [f"| {k} | {v.get('result', 'running' if alive(v.get('pid'), 'g1_job.py') else '-')} | {v.get('attempts')} | {v.get('seconds', '')} |" for k, v in jobs]
+        L += [f"| {k} | {v.get('result', 'running' if job_alive(k, v) else '-')} | {v.get('attempts')} | {v.get('seconds', '')} |" for k, v in jobs]
         L.append("")
     ev = EVENTS_F.read_text(encoding="utf-8", errors="replace").splitlines()[-12:] if EVENTS_F.exists() else []
     L += ["## Last events", "", "```", *ev, "```", ""]
@@ -629,7 +647,7 @@ def tick(act: bool = True) -> str | None:
     if kf.exists():
         for name in kf.read_text().split():
             j = st["jobs"].get(name)
-            if j and alive(j.get("pid"), "g1_job.py"):
+            if j and job_alive(name, j):
                 kill_tree(j["pid"])
                 event(f"job {name} killed on request (runs/g1/KILL_JOBS)")
             if j is not None:

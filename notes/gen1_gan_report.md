@@ -30,6 +30,7 @@ Brief: `notes/brief_gan_g1.md`. Predictions 152–157: `notes/06_characters/expe
 
   - The run that is behind trains next. Each chunk resumes from the last snapshot pair: networks plus optimiser states, kimg, tick, batch index, augment p and RNG.
   - Resume is exact. In Phase A, and in a chunk test on the real dataset, Adam's step counters and the batch index equalled an uninterrupted run (`runs/g1/phase_a/`).
+  - **One spurious restart (2026-11-14 19:14):** Windows reused a finished chunk's pid for the next chunk's process. The supervisor took the old job for alive and stalled, and killed the new chunk (curious, to 1,600 kimg) about a minute in. It resumed from snapshot 1,204 (attempt 2), so no kimg were lost or repeated past the snapshot. Fixed in the supervisor: a job counts as alive only with no exit record since its start and a process created when it started.
 - **Budget:** datasets 0.06 h + training 56.8 h + readouts allowed 2.0 h ≤ 60 h, at 25.67 s/kimg per run and 53.3 wall seconds per kimg of both.
   - The GPU ran at a 1,200 MHz core clock (2,100 max) and about 95 W of 230 W throughout, probably a driver power setting. It was not changed; the budget was measured at this speed.
 - **After training:**
