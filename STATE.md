@@ -73,3 +73,6 @@ t ends (predictions 140–142).
   - With one walk per condition, every curious-against-Null result is a single pair: a hint, never a lead.
   - A 40,000-step Null walk takes about 17–19 h at the Mac's rate (likely less on the PC).
   - The PC needs the world index, start list and store access for the walks. Disk on the Mac is at 97 % (15 GB free).
+
+# GAN generation 1: the measured budget (the pipeline, 2026-11-14 01:52)
+- 3,840 kimg per run, mode alternating, 25.67 s/kimg per run; tau 3.665 at ESS 0.5 N; training starts now (tag g1-start). Details: runs/g1/gan/budget.json.

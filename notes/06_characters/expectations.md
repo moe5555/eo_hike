@@ -323,3 +323,11 @@ Predictions 132–139 assumed q = 1 and many walks per condition. They are super
 155. **The 1977 colour cast:** G1-curious produces green-less tiles at 0.5–2× their weighted share in its training set; G1-null produces none.
 156. **Diversity:** G1-curious has lower recall than G1-null against its unweighted training set. Against the weighted reference, at least half of that gap disappears.
 157. **Augmentation and memorisation:** final ADA p is 0.2–0.6 for both, higher for G1-curious. Neither GAN copies tiles: the median nearest-neighbour distance from samples to training tiles is at least the training set's own median. G1-curious sits closer to its heaviest tiles than to its lightest.
+
+## Generation 1, GAN Phase A measured (added 2026-11-14 01:52 by the pipeline on the PC, before G1 training; nothing trained yet)
+
+Measured, not predicted (gen/g1_gan.py; runs/g1/gan/):
+- **Weights at ESS = 0.5 N:** tau = 3.665; ESS = 5000 (0.500 N); limit with encounter counts alone 0.836 N; top 1 % of tiles 0.056 of the weight, top 10 % 0.237; max/median 69.9.
+- **Throughput:** 25.67 s/kimg per run, mode alternating in chunks of 400 kimg (cfg auto, 128 px; the probes: runs/g1/gan/probe.json); custom ops: {'curious': {'bias_act_plugin': 'ok', 'upfirdn2d_plugin': 'ok'}}.
+- **Budget:** 3,840 kimg per run (the same for both): datasets 0.06 h + training 56.8 h + readouts allowed 2.0 h <= 60 h.
+- Predictions 152-157 stand as written; they are scored against these measurements in the GAN report.
