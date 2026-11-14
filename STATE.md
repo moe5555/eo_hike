@@ -1,78 +1,69 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-13, afternoon (Gate B decided).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-14, 02:00 (generation 1 on the PC: walks done and reported, packages frozen, GAN training started; to be rewritten when the GANs finish).
 
 # Where we are, in thesis terms
 ## RQ1:
 How do practices of moving without a predetermined destination, like wayfaring or the dérive, translate to an untasked, step-wise traversal of the planetary image, already cut into scenes, scan lines and tiles?
 
-- The world is the archive of one instrument, Landsat 1 (1972–78), with every acquisition of every cell, one product per date. Each wanderer has its own clock. Moving sideways shows each place at its acquisition closest to the clock; the time offer waits for the satellite's next pass.
-- The archive shapes the traversal:
-  - from mid-1974, only ~422,000 of 1.47 M cells will ever be imaged again;
-  - there is a winter gap, November 1976 to January 1977;
-  - from April 1977, the green band is uncalibrated.
-- The clock climbs in stairs: most steps offer no wait at all. How fast a walk crosses the mission depends on where it starts: in Quebec, a time offer comes in 75 % of the Null's steps; in Rondônia, in 10 %.
+- **The world** is the archive of one instrument, Landsat 1 (1972–78), with every acquisition of every cell, one product per date. It was rebuilt on the PC and proven identical to the Mac's world: `clock.json` exact, and the seeded start list identical once the Mac's cell grid was used. A Windows PROJ difference in the last bit had reordered cells (`runs/g1/world_check.md`).
+- **The archive shapes the traversal:**
+  - from mid-1974, only ~422,000 of 1.47 M cells are ever imaged again;
+  - there is a winter gap from November 1976 to January 1977;
+  - from April 1977 the green band is uncalibrated.
+- **Under the thinned time offer (q = 0.10) the wanderers became movers** (generation 1, `notes/gen1_report.md`). A wait came through on 1.5–4.3 % of steps, and waits were 0.3 % of steps (57 curious, 47 Null).
+  - Both walkers' clocks crossed the mission at the same pace.
+  - Each walk lingered its own year's steps in 1977 and ended by `linger`.
+- **"Far from its own time" is the archive.** Every walker's tiles lie further from its clock as the clock advances: about 0 days in 1972, about 800 days in 1976, 1,000–1,450 days in 1977. The cause is the closest-acquisition rule meeting the coverage collapse after mid-1974. Curious and Null are alike (pooled median 612 against 625 days).
 
 ## RQ2:
 Which paths do algorithms driven by novelty, learning progress and boredom cut through the computational planetary image, and how much of their attention follows the terrain, how much the idiosyncrasies of their perception, and how much the artefacts of the instrument, where data and phenomenon come apart?
 
-- Hints from the dry runs (3 start cells, curious against the Null; `notes/dryrun_report.md`):
-  - **The curious walker lives far from its own time.** The median gap between its tile's date and its clock is 379–1,343 days (Null 0–1,078), and it is offered a wait less often than the Null on every start cell.
-  - **Waits are for learning, moves for novelty.** At waits the progress z is 1.09, against 0.44 at moves.
-  - **Clear over cloud,** for moves and waits (as in e12). The Null shows no gap.
-- Interest at the choice: glance 0.37–0.39, grid 0.34–0.36, progress 0.25–0.29.
-- The lost green band of 1977 is an apparatus finding. Whether novelty seeks or flees it is not yet seen.
-- All of this is three start cells, one seed each: hints, not leads.
+- **Generation 1:** three walks per condition, start cells 0–2; hints, not leads. Report: `notes/gen1_report.md`.
+  - **Clear over cloud** (the most consistent hint). Curious compass choices have cloud 0.155 against 0.214 offered; the Null shows no gap. It holds in all three pairs and in every matched clock stretch but the first.
+  - **Waits for learning.** At curious waits the progress z is 0.91, against 0.41 at moves (57 waits).
+  - **The curious walker revisits less and covers more cells per step** than the Null, in every pair.
+  - **Interest at the choice:** glance 0.38, grid 0.35, progress 0.26, stable since the dry runs.
+  - **The dry-run hint "the curious walker lives far from its time" did not survive a matched comparison** (see RQ1).
+- **The curious package's heaviest tiles are an apparatus-heavy tail.** The heaviest 64 (by weight at ESS 0.5 N) against the package as a whole:
+  - stripes 0.121 against 0.067; fill ×4; night ×4; cloud 0.214 against 0.153; saturation flags 0.24 against 0.14 (`notes/gen1/gan/weights_vs_quirks.csv`).
+  - The top 10 % are slightly darker, less cloudy and more striped than the package.
+- **The lost green band of 1977:** about 2 % of tiles in both packages.
 
 ## RQ3:
 What do GANs trained recursively on these paths construct, and do their worlds drift across generations towards the planet or towards the apparatus, depending on whether paths are curated by whole places or by fragments, compared with a recursive loop without intrinsic motivation?
 
-- Not started. The GAN brief is written (`notes/brief_gan_g1.md`): two StyleGAN2-ADA models on the PC, G1-curious (tiles weighted by interest at encounter, ESS held at 0.5 N) against G1-null (unweighted), N = 10,000 each, about 72 h unattended.
-- Its input is the two path packages defined in the handoff section of `notes/brief_landsat_v2_run.md`.
-- The comparison carries an era confound, accepted by Moe: the two packages can come from different stretches of the mission (prediction 145 expects the Null's to end before mid-1974).
+- **Generation 1 is training** (started 2026-11-14 01:54, tag `g1-start`):
+  - G1-curious, weighted by interest at encounter (τ = 3.665 for ESS = 0.5 N), against G1-null, unweighted;
+  - N = 10,000 each, StyleGAN2-ADA cfg auto at 128 px, 3,840 kimg each.
+- **The era confound is small:** both packages cover nearly the same clock and tile-date range (`notes/gen1/gen1/package_era.csv`).
+- **Results:** the GAN report, after about 60 h.
 
 # Decisions taken since the last update, and why
-- **Gate B (Moe, 2026-11-13):**
-  - **The thinned time offer, q = 0.10,** the same for the Null. A jump in time can't be undone, so offering it less often lets the wanderer explore a period rather than exploit one tile through time. q is calibrated so that a curious walk ends at roughly 8,000–15,000 tiles (`notes/gen1/time_offer_rule.md`).
-  - **The ending:** lingering from 1977-01-01 (the walk's own steps per year of clock), T_end 1977-12-20, a 40,000-step guard. Walk length is now partly a setting; the CHARTER says so.
-  - **N = 10,000, one walk per condition.** A second wanderer runs only if the first ends short. Walks run to their end; only the package is cut at N.
-  - **Nothing is cut from the data,** the lost green band of 1977 included (a black channel).
-  - **The era confound** between the packages is a stated limitation, not matched.
-  - **The quirk observer on GAN samples is deferred.** The e12 detectors need raw values and QA bands, and samples are 8-bit CIR images. Phase B saves the samples; the readout runs once Moe decides.
-- **Mine, as defaults:**
-  - the GAN weights use `I` (the choice's interest), not `I_long`;
-  - the Null's interest is kept in its package as a control;
-  - diversity is measured against the weighted and the unweighted reference;
-  - only checksums and manifests go into git;
-  - the render check runs on the Mac;
-  - a start tile with no logged interest gets the package's median weight.
-- **Written:** the v2 brief (§§2, 3, 4, 7 and the handoff), the GAN brief, the CHARTER (horizon, ending, Null, premises, milestone 3), `configs/gen1/{curious,null}.yaml`, predictions 143–157.
-- **The long phase stays paused** (~10,400 pooled tiles, w011/w012 checkpointed). q no longer needs it.
+- **Moe, 2026-11-13:**
+  - pushed `data/landsat/landsat1_c2l1_proj.parquet` and then `data/landsat1/grid.parquet` to git, so the PC could rebuild the world exactly (option 1 of the world check);
+  - registered the pipeline as an S4U scheduled task and paused Windows Update to 18 Dec.
+- **Mine, within the run instruction:**
+  - **The walks run on CPU with 3 threads**, the Mac's setting for the dry runs and the q calibration. CPU and CUDA walks diverge within 50 steps.
+  - **GAN training in alternating chunks of 400 kimg**, the GAN brief's fallback, instead of concurrent runs.
+    - Probes: one run alone 25.4 s/kimg; both concurrently 88–91 s/kimg each; concurrently with half-size rounds, no first tick in 45 min (`runs/g1/gan/probe.json`).
+    - Resume is exact: Adam step counters and batch index equal an uninterrupted run (`runs/g1/phase_a/`).
+    - The run that is behind trains next, so both runs are never more than one chunk apart and end at the same kimg.
+  - **FID only after training**, on the kept snapshots (960, 1,920, 2,880, 3,840 kimg), as a training-health signal.
+  - **Diversity in pixel space (32 × 32)**, with weighted and unweighted references holding the same number of distinct tiles.
+  - **Colour and texture statistics on samples, labelled as such**; the quirk observer stays deferred.
+  - **StyleGAN2-ADA patches in one diff** (`scripts/stylegan2ada_g1.patch`): torch 2, scipy 1.18, the weighted sampler, full resume, the snapshot callback.
 
 # Waiting for Moe
-- **The observer for quirks on GAN samples** (deferred; see the GAN brief, readout 2).
-- **Approval to start the generation-1 walks** on the PC (section 7). Nothing has run under the new configs.
-- **Whether to finish or drop the long phase** (predictions 140–142).
+- **The quirk observer on GAN samples** (deferred; 5,000 samples per GAN will be saved).
+- **Whether waiting matters enough to revisit q** for later generations. Under q = 0.10, waits are rare (finding 2 of the walk report).
+- **The long phase** (predictions 140–142): finish or drop.
 
 # Backlog, in order
-1. **Generation-1 walks on the PC:**
-   - curious w000 and Null w000 side by side, then curious w001 if needed;
-   - the path packages, frozen at `g1-paths`;
-   - `notes/gen1_report.md`, scoring predictions 143–151.
-2. **The GAN brief, Phase A then B** (predictions 152–157, plus the measured ones).
-3. **Separate what draws the curious walker to old acquisitions:** look, season, level, or sparse regions (finding 2 of the dry runs).
-4. **Open checks of the research note:** missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
-
-t ends (predictions 140–142).
-3. Separate what draws the curious walker to old acquisitions: look, season, level, or sparse regions (finding 2 of the dry runs).
-4. A Landsat dataset builder for the GAN, on the PC (when the GAN training is specified).
-5. Open checks of the research note (missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs).
+1. **GAN Phase B runs unattended:** training, then FID, then readouts. Then the GAN report (predictions 152–157), this file, and the CHANGELOG.
+2. **What draws the curious walker to old acquisitions:** now largely explained by the archive (walk report, finding 3). Close it, or recast it as an RQ1 readout.
+3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **Generation one as a prototype:** the walks, then the two GANs, both on the PC.
+- **Generation 1 GANs** finish around 2026-11-16 at 11:00; readouts take about an hour after that.
 - **Risks:**
-  - The calibration of q assumes the clock's pace scales with q, which is untested. The curious walk may end far outside 8,000–15,000 tiles.
-  - With one walk per condition, every curious-against-Null result is a single pair: a hint, never a lead.
-  - A 40,000-step Null walk takes about 17–19 h at the Mac's rate (likely less on the PC).
-  - The PC needs the world index, start list and store access for the walks. Disk on the Mac is at 97 % (15 GB free).
-
-# GAN generation 1: the measured budget (the pipeline, 2026-11-14 01:52)
-- 3,840 kimg per run, mode alternating, 25.67 s/kimg per run; tau 3.665 at ESS 0.5 N; training starts now (tag g1-start). Details: runs/g1/gan/budget.json.
+  - Alternating mode restarts each run about 10 times. Each restart is tested, but a crash in one chunk costs up to 40 kimg; the watchdog allows 3 restarts per chunk.
+  - One training seed per condition, one path per condition: every GAN comparison is a hint.
