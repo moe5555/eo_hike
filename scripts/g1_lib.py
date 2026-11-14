@@ -14,6 +14,10 @@ Stages, in order, each finished by a marker in runs/g1/markers/<stage>.done:
   train          gen/g1_gan.py train curious | null, concurrently; restarted from the latest snapshot at most 3 times per run
   fid            gen/g1_gan.py fid (fid50k_full on the kept snapshots: a training-health signal only); not fatal
   gan_readouts   gen/g1_gan.py readouts (samples, memorisation, diversity, colour and texture statistics, film assets)
+  latent_walks   agent/latent_walk.py (notes/brief_g1_latent_walks.md; Moe 2026-11-14): calibrate curious and null, then a fresh curious
+                 wanderer in G1-curious and a fresh Null wanderer in G1-null, concurrently (G on the GPU, eyes on CPU, 3 threads each), to
+                 N = 10,000 tiles; resumed from resume.pt after a crash; not fatal
+  latent_readouts analysis/gen1/latent_readouts.py (tables and figures to notes/gen1/latent/; committed); not fatal
   final          the final STATUS.md
 """
 
@@ -43,10 +47,11 @@ SG_BAT = str(ROOT / "scripts" / "sg.bat")
 TICK_S = 60
 N = 10_000
 CONDS = ("curious", "null")
-STAGES = ("walks", "packages", "freeze", "walk_readouts", "datasets", "throughput", "budget", "train", "fid", "gan_readouts", "final")
+STAGES = ("walks", "packages", "freeze", "walk_readouts", "datasets", "throughput", "budget", "train", "fid", "gan_readouts", "latent_walks", "latent_readouts", "final")
 MAX_RESTARTS = 3
 WALK_STALL_S = 45 * 60          # a walk prints every 100 steps (~1 min); 45 min of silence is a stall
-JOB_STALL_S = {"train": 40 * 60}
+JOB_STALL_S = {"train": 40 * 60, "latent": 45 * 60}  # a latent walk prints every 100 steps (~1 min on the GPU)
+LATENT_ENV = {"OMP_NUM_THREADS": "3", "MKL_NUM_THREADS": "3", "PYTHONUNBUFFERED": "1", "PYTHONFAULTHANDLER": "1"}
 MIN_FREE_WALK_GB = 30
 MIN_FREE_GAN_GB = 20            # notes/brief_gan_g1.md: below 20 GB, stop gracefully after the next snapshot
 MAX_GIT_GROWTH_MB = 1000
@@ -457,6 +462,26 @@ def stage_simple(st: dict, act: bool, stage: str, cmd: list[str], *, python: str
             mark(stage, {"failed": True})
 
 
+def stage_latent_walks(st: dict, act: bool) -> None:
+    """Calibrate both GANs (the angle range), then both latent walks concurrently. A failed calibration or walk is logged; the stage is
+    marked done (with what failed) when nothing is running any more."""
+    res = {}
+    for cond in CONDS:
+        nc, nw = f"latent_cal_{cond}", f"latent_walk_{cond}"
+        rc = run_job(st, nc, ["cmd", "/c", SG_BAT, "agent/latent_walk.py", "calibrate", cond], LOGS / f"{nc}.log", python=PY_WALK,
+                     env=LATENT_ENV, attempts=2, act=act)
+        if rc != "ok":
+            res[cond] = "calibration " + rc
+            continue
+        res[cond] = run_job(st, nw, ["cmd", "/c", SG_BAT, "agent/latent_walk.py", "walk", cond], LOGS / f"{nw}.log", python=PY_WALK,
+                            env=LATENT_ENV, attempts=MAX_RESTARTS + 1, act=act, stall_s=JOB_STALL_S["latent"])
+    if all(r in ("ok", "failed", "calibration failed") for r in res.values()):
+        bad = {c: r for c, r in res.items() if r != "ok"}
+        if bad:
+            event(f"stage latent_walks: not every walk finished: {bad} (not fatal)")
+        mark("latent_walks", {"failed": bad} if bad else None)
+
+
 def gan_kimg(cond: str) -> int:
     """kimg of a run's latest complete snapshot pair (pickle + training state)."""
     run = G1 / "gan" / cond
@@ -575,6 +600,13 @@ def status(st: dict, stage: str) -> None:
             L += ["", f"Latest fakes: runs/g1/gan/<run>/latest_fakes.png. {g.get('note', '')}", ""]
         except (json.JSONDecodeError, OSError):
             pass
+    lat = [(c, LOGS / f"latent_walk_{c}.log") for c in CONDS if (LOGS / f"latent_walk_{c}.log").exists()]
+    if lat:
+        L += ["## Latent walks (notes/brief_g1_latent_walks.md)", ""]
+        for c, lg in lat:
+            last = [x for x in tail(lg, 40).splitlines() if x.startswith("[latent")]
+            L.append(f"- {c}: {last[-1] if last else 'started'}")
+        L.append("")
     jobs = [(k, v) for k, v in st["jobs"].items() if not k.startswith("walk_")]
     if jobs:
         L += ["## Jobs", "", "| job | result | attempts | seconds |", "|---|---|---|---|"]
@@ -654,6 +686,12 @@ def tick(act: bool = True) -> str | None:
                     if (G1 / "gan" / f).exists():
                         shutil.copyfile(G1 / "gan" / f, ROOT / "notes" / "gen1" / "gan" / f)
                 event(f"commit: {commit(['notes/gen1/gan'], 'generation 1: the GAN readouts (tables, small figures, budget, ESS, FID), written by the pipeline')}")
+        elif stage == "latent_walks":
+            stage_latent_walks(st, act)
+        elif stage == "latent_readouts":
+            stage_simple(st, act, "latent_readouts", ["analysis/gen1/latent_readouts.py"], python=PY_SG, fatal=False)
+            if marked("latent_readouts"):
+                event(f"commit: {commit(['notes/gen1/latent'], 'generation 1: the latent walk readouts (tables and figures), written by the pipeline')}")
         elif stage == "final":
             mark("final")
         stage = next((s for s in STAGES if not marked(s)), "done")

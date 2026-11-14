@@ -331,3 +331,16 @@ Measured, not predicted (gen/g1_gan.py; runs/g1/gan/):
 - **Throughput:** 25.67 s/kimg per run, mode alternating in chunks of 400 kimg (cfg auto, 128 px; the probes: runs/g1/gan/probe.json); custom ops: {'curious': {'bias_act_plugin': 'ok', 'upfirdn2d_plugin': 'ok'}}.
 - **Budget:** 3,840 kimg per run (the same for both): datasets 0.06 h + training 56.8 h + readouts allowed 2.0 h <= 60 h.
 - Predictions 152-157 stand as written; they are scored against these measurements in the GAN report.
+
+## G1 latent walks (added 2026-11-14, before any latent walk; brief `notes/brief_g1_latent_walks.md`; Moe's decisions of 2026-11-14)
+
+A fresh curious wanderer walks G1-curious, a fresh Null wanderer walks G1-null: z-sphere, eight offers in a random plane at an angle set by the drive, snapshots (960, 1,920, 2,880, 3,840 kimg) as time, q = 0.10, N = 10,000 tiles. One walk per GAN: hints, never leads. Mine:
+
+158. **Calibration:** a 15 km step corresponds to α_min between 2° and 15° on both GANs; G1-curious needs the smaller angle (its training tiles changed more per step: the curious walker's moves were shorter, 16 km against 18–20 km median, but its tiles more varied). Low confidence on the order.
+159. **Time:** both walkers reach the last snapshot (3,840 kimg) before step 1,500; when a later snapshot is offered, the curious walker takes it about as often as the Null (within a factor of 1.5), as in the real walks (0.114 against 0.134).
+160. **Movement:** both spend most steps near α_min (median α < 1.5 α_min). At the end, the curious walk is closer to its start on the sphere (smaller angle from z0) than the Null's. Low confidence.
+161. **Clear over cloud, in a GAN's world:** the curious walker chooses offers with a lower white share (pixels at or near 255 in all channels; a colour statistic, not the cloud detector) than it is offered; for the Null, |chosen − offered| < 0.01.
+162. **Stripes:** the curious walker chooses offers with higher row roughness (banding along rows) than offered; the Null shows no gap. Low confidence.
+163. **Interest at the curious choice:** glance 0.34–0.42, grid 0.32–0.40, progress 0.20–0.32 (the real walks: 0.38 / 0.35 / 0.26).
+
+*Note, 2026-11-14 evening, still before any latent walk.* After 158–163 were written, Moe chose the calibration observer: colour character (mean and spread per CIR channel), not 32 × 32 pixel layout. Test calibrations on intermediate snapshots, which are not the ones the walks will use, gave α_min 17.3° (curious, 1,204 kimg) and 13.9° (Null, 920 kimg). The pixel observer, logged alongside, would have given 74° and 36°. CPU test walks of 50–120 steps showed that in 512 dimensions the angle from the start passes 70° within about 50 steps and sits near 90° after about 100. So "closer to its start at the end" (160) will be decided near 90°. These are tests, not results. 158–163 stay as written and are scored as written; 158 was stated for the pixel observer, and the report says so.

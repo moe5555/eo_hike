@@ -19,3 +19,6 @@ third_party/
 !data/landsat1_world.py
 !data/landsat1_store.py
 !data/cache_cap.py
+
+# path packages (generation 1: ~540 MB; manifests and checksums are copied to notes/gen1/packages/)
+paths/
