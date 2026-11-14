@@ -342,6 +342,9 @@ def train(cond: str, P: Paths, total_kimg: int, run: Path | None = None, snap_ti
         st = stats_tail(run)
         spk = st.get("sec_per_kimg")
         left = max(int(total_kimg) - k, 0)
+        if train_mode(P).get("mode") == "alternating" and tag == "":  # both runs share the GPU in turn: the other run's kimg count too
+            other = [c for c in CONDS if c != cond][0]
+            left += max(int(total_kimg) - _latest_kimg(P.run(other)), 0)
         wjson(run / "run_status.json", {**st, "kimg": k, "target": int(total_kimg), "snapshot": f"network-snapshot-{k:06d}.pkl",
                                         "eta": f"{left * spk / 3600:.1f} h" if spk else "?", "augment_p": round(info["augment_p"], 4),
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S"), "tag": tag})
