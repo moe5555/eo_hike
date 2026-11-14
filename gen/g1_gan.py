@@ -307,6 +307,9 @@ def train(cond: str, P: Paths, total_kimg: int, run: Path | None = None, snap_ti
     desc, args = sgtrain.setup_training_loop_kwargs(gpus=1, snap=snap_ticks, metrics=[], seed=SEED, data=str(z), cond=False, mirror=False,
                                                     cfg="auto", kimg=int(total_kimg), aug="ada", augpipe="bgc")
     args.image_snapshot_ticks = None  # the 8 x 8 grid at fixed latents is written by the snapshot callback instead
+    if os.environ.get("G1_BATCH_GPU"):  # the per-round split of the batch (memory only): batch size, gamma, mbstd groups of 4 unchanged
+        args.batch_gpu = int(os.environ["G1_BATCH_GPU"])
+        assert args.batch_size % args.batch_gpu == 0 and args.batch_gpu % 4 == 0
     args.run_dir = str(run)
     args.sample_weights = str(P.ds / f"{cond}_weights.json") if weights else None
     pair = latest_pair(run)
@@ -346,6 +349,7 @@ def train(cond: str, P: Paths, total_kimg: int, run: Path | None = None, snap_ti
 
     _cur = {"kimg": (int(torch.load(pair[1], weights_only=False)["cur_nimg"]) // 1000) if pair else 0}
     args.snapshot_fn = on_snapshot
+    args.progress_fn = lambda cur, total: _cur.update(kimg=cur)  # every tick: a chunk stops at the first tick past its boundary
     dnnlib.util.Logger(file_name=str(run / "log.txt"), file_mode="a", should_flush=True)
     print(f"=== {time.strftime('%Y-%m-%d %H:%M:%S')} {cond}: {desc}, total {total_kimg} kimg, "
           + (f"resume from {pair[0].name}" if pair else "fresh") + f"; weights {'on' if weights else 'off'}")
@@ -364,33 +368,53 @@ def train(cond: str, P: Paths, total_kimg: int, run: Path | None = None, snap_ti
     return "aborted"
 
 
-def cmd_train(cond: str, P: Paths) -> None:
+def cmd_train(cond: str, P: Paths, until: int | None = None) -> None:
+    """until: alternating mode (the brief's fallback when concurrency is ruled out): train to `until` kimg, snapshot, exit 0."""
     b = json.loads((P.gan / "budget.json").read_text())
-    r = train(cond, P, int(b["kimg"]))
-    log(f"{cond}: {r}")
-    sys.exit(0 if r in ("finished", "stopped") else 1)
+    if b.get("batch_gpu"):
+        os.environ["G1_BATCH_GPU"] = str(b["batch_gpu"])
+    r = train(cond, P, int(b["kimg"]), stop_after_kimg=until)
+    log(f"{cond}: {r}" + (f" (chunk to {until} kimg)" if until else ""))
+    ok = r in ("finished", "stopped") or (until is not None and r == "aborted" and _latest_kimg(P.run(cond)) >= until)
+    sys.exit(0 if ok else 1)
+
+
+def _latest_kimg(run: Path) -> int:
+    lp = latest_pair(run)
+    return int(lp[0].stem.split("-")[-1]) if lp else 0
+
+
+def train_mode(P: Paths) -> dict:
+    """runs/g1/gan/train_mode.json, set from the throughput probes (gen/g1_probe.py): concurrent (the brief's preference) or
+    alternating (its fallback), and the per-round batch split. Default: concurrent, the repo's split."""
+    f = P.gan / "train_mode.json"
+    return json.loads(f.read_text()) if f.exists() else {"mode": "concurrent", "batch_gpu": None}
 
 
 def cmd_throughput(P: Paths, kimg: int = 28, warm: int = 8) -> None:
-    """Both runs concurrently, as the real runs will go, from fresh networks for `kimg`; sec/kimg over the ticks after `warm` kimg."""
+    """The runs as they will go (concurrently, or one alone in alternating mode), from fresh networks for `kimg`; sec/kimg over the
+    ticks after `warm` kimg; the set-up time to the first tick (what each chunk switch costs in alternating mode)."""
     out = P.gan / "throughput"
     if out.exists():
         shutil.rmtree(out)
+    mode = train_mode(P)
+    env = {**os.environ, **({"G1_BATCH_GPU": str(mode["batch_gpu"])} if mode.get("batch_gpu") else {})}
     procs = {}
-    for c in CONDS:
+    for c in (CONDS if mode["mode"] == "concurrent" else ("curious",)):
         (out / c).mkdir(parents=True)
         procs[c] = subprocess.Popen([sys.executable, __file__, "_train_into", c, str(out / c), str(kimg)] + (["--test"] if P.test else []),
-                                    cwd=ROOT, stdout=open(out / f"{c}.log", "w"), stderr=subprocess.STDOUT)
+                                    cwd=ROOT, env=env, stdout=open(out / f"{c}.log", "w"), stderr=subprocess.STDOUT)
     t0 = time.time()
     rc = {c: p.wait() for c, p in procs.items()}
-    res = {"kimg": kimg, "warm_kimg": warm, "wall_s": round(time.time() - t0, 1), "rc": rc, "runs": {}}
-    for c in CONDS:
+    res = {"kimg": kimg, "warm_kimg": warm, "wall_s": round(time.time() - t0, 1), "rc": rc, "runs": {}, **mode}
+    for c in procs:
         L = [json.loads(x) for x in (out / c / "stats.jsonl").read_text().splitlines() if x.strip()] if (out / c / "stats.jsonl").exists() else []
         spk = [x["Timing/sec_per_kimg"]["mean"] for x in L if x["Progress/kimg"]["mean"] > warm]
         logtxt = (out / c / "log.txt").read_text(errors="replace") if (out / c / "log.txt").exists() else ""
         ops = {name: ("ok" if f'Setting up PyTorch plugin "{name}"... Done.' in logtxt else "FAILED (slow reference ops)")
                for name in ("bias_act_plugin", "upfirdn2d_plugin")}
-        res["runs"][c] = {"sec_per_kimg": float(np.mean(spk)) if spk else None, "ticks_measured": len(spk), "custom_ops": ops,
+        setup = next((x["Timing/total_sec"]["mean"] for x in L), None)
+        res["runs"][c] = {"sec_per_kimg": float(np.mean(spk)) if spk else None, "ticks_measured": len(spk), "custom_ops": ops, "setup_s": setup,
                           "peak_gpu_mem_gb": max((x.get("Resources/peak_gpu_mem_gb", {}).get("mean", 0) for x in L), default=None),
                           "fallback_warnings": [w for w in ("conv2d_gradfix not supported", "grid_sample_gradfix not supported", "Falling back") if w in logtxt]}
     res["sec_per_kimg_concurrent"] = max((r["sec_per_kimg"] or float("inf")) for r in res["runs"].values())
@@ -407,12 +431,18 @@ def cmd_budget(P: Paths) -> None:
     readout_est_h = json.loads(rt.read_text())["projected_h"] if rt.exists() else 3.0
     readout_h = max(2.0, 1.5 * readout_est_h)
     ds_h = ds["seconds"] / 3600
-    spk = thr["sec_per_kimg_concurrent"] * 1.03  # 3 % for snapshots, the fakes grids and maintenance between ticks
     train_h = BUDGET_H - ds_h - readout_h
+    if thr.get("mode") == "alternating":  # one run at a time: each kimg is paid twice, plus a set-up at every chunk switch
+        chunk = int(thr.get("chunk_kimg", 400))
+        setup = float(thr["runs"]["curious"]["setup_s"] or 300)
+        spk = 2 * thr["sec_per_kimg_concurrent"] * 1.03 + 2 * setup / chunk  # wall seconds per kimg of both runs
+    else:
+        spk = thr["sec_per_kimg_concurrent"] * 1.03  # 3 % for snapshots, the fakes grids and maintenance between ticks
     kimg = int(train_h * 3600 / spk // KIMG_STEP * KIMG_STEP)
     b = {"kimg": kimg, "budget_h": BUDGET_H, "datasets_h": round(ds_h, 2), "readouts_h_allowed": round(readout_h, 2), "readouts_h_estimated": readout_est_h,
          "training_h": round(kimg * spk / 3600, 2), "sec_per_kimg_concurrent": thr["sec_per_kimg_concurrent"], "sec_per_kimg_with_margin": round(spk, 3),
-         "runs": thr["runs"], "under_2000_kimg": kimg < 2000, "kept_snapshots": sorted(keep_set(kimg)), "snapshot_every_kimg": 4 * SNAP_TICKS,
+         "runs": thr["runs"], "under_2000_kimg": kimg < 2000, "mode": thr.get("mode", "concurrent"), "batch_gpu": thr.get("batch_gpu"),
+         "chunk_kimg": thr.get("chunk_kimg"), "kept_snapshots": sorted(keep_set(kimg)), "snapshot_every_kimg": 4 * SNAP_TICKS,
          "computed": time.strftime("%Y-%m-%d %H:%M:%S")}
     if kimg < 2000:
         b["limitation"] = (f"{kimg} kimg per run, under the brief's ~2,000: a prototype limitation (pre-approved, run instruction 2026-11-13)")
@@ -427,7 +457,10 @@ def cmd_budget(P: Paths) -> None:
              f"- **Weights at ESS = 0.5 N:** tau = {e.get('tau', float('nan')):.3f}; ESS = {e.get('ess', float('nan')):.0f} ({e.get('ess_share', float('nan')):.3f} N); "
              f"limit with encounter counts alone {e.get('ess_limit_share', float('nan')):.3f} N; top 1 % of tiles {e.get('top1_share', float('nan')):.3f} of the weight, "
              f"top 10 % {e.get('top10_share', float('nan')):.3f}; max/median {e.get('max_over_median', float('nan')):.1f}.\n"
-             f"- **Throughput:** {thr['sec_per_kimg_concurrent']:.2f} s/kimg per run with both running concurrently (cfg auto, 128 px); custom ops: "
+             f"- **Throughput:** {thr['sec_per_kimg_concurrent']:.2f} s/kimg per run, mode {b['mode']}"
+             + (f" in chunks of {b['chunk_kimg']} kimg" if b["mode"] == "alternating" else "")
+             + (f", batch split {b['batch_gpu']} per round" if b.get("batch_gpu") else "")
+             + " (cfg auto, 128 px; the probes: runs/g1/gan/probe.json); custom ops: "
              f"{ {c: r['custom_ops'] for c, r in thr['runs'].items()} }.\n"
              f"- **Budget:** {kimg:,} kimg per run (the same for both): datasets {ds_h:.2f} h + training {b['training_h']:.1f} h + readouts allowed {readout_h:.1f} h <= {BUDGET_H:.0f} h."
              + (f" {b['limitation']}." if kimg < 2000 else "") + "\n"
@@ -436,7 +469,7 @@ def cmd_budget(P: Paths) -> None:
     ex.write_text(ex.read_text(encoding="utf-8") + block, encoding="utf-8")
     stf = ROOT / "STATE.md"
     s = stf.read_text(encoding="utf-8")
-    line = (f"\n# GAN generation 1: the measured budget (the pipeline, {day})\n- {kimg:,} kimg per run, both concurrently at {thr['sec_per_kimg_concurrent']:.2f} s/kimg; "
+    line = (f"\n# GAN generation 1: the measured budget (the pipeline, {day})\n- {kimg:,} kimg per run, mode {b['mode']}, {thr['sec_per_kimg_concurrent']:.2f} s/kimg per run; "
             f"tau {e.get('tau', float('nan')):.3f} at ESS 0.5 N; training starts now (tag g1-start). Details: runs/g1/gan/budget.json.\n")
     stf.write_text(s + line, encoding="utf-8")
     r = subprocess.run(["git", "commit", "-m", f"generation 1: GAN Phase A measured (tau, throughput, budget {kimg} kimg); tag g1-start\n\n"
@@ -716,7 +749,7 @@ def main() -> None:
     elif a.cmd == "budget":
         cmd_budget(P)
     elif a.cmd == "train":
-        cmd_train(a.rest[0], P)
+        cmd_train(a.rest[0], P, int(a.rest[1]) if len(a.rest) > 1 else None)
     elif a.cmd == "_train_into":  # throughput: one run into a throwaway directory
         cond, run_dir, kimg = a.rest[0], Path(a.rest[1]), int(a.rest[2])  # snapshot only at the end
         r = train(cond, P, kimg, run=run_dir, snap_ticks=1000, tag="throughput")

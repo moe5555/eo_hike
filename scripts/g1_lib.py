@@ -457,7 +457,58 @@ def stage_simple(st: dict, act: bool, stage: str, cmd: list[str], *, python: str
             mark(stage, {"failed": True})
 
 
+def gan_kimg(cond: str) -> int:
+    """kimg of a run's latest complete snapshot pair (pickle + training state)."""
+    run = G1 / "gan" / cond
+    ks = sorted(int(p.stem.split("-")[-1]) for p in run.glob("network-snapshot-*.pkl") if (run / f"training-state-{p.stem.split('-')[-1]}.pt").exists())
+    return ks[-1] if ks else 0
+
+
+def stage_train_alternating(st: dict, act: bool, b: dict) -> None:
+    """The brief's fallback when concurrency is ruled out: one run at a time, in alternating chunks of equal kimg (the run that is
+    behind goes next; curious first on a tie), each resumed exactly from its last snapshot. Both end at the same kimg."""
+    K, chunk = int(b["kimg"]), int(b["chunk_kimg"])
+    gan = G1 / "gan"
+    done = {c: (gan / c / "FINISHED").exists() for c in CONDS}
+    failed = {c: st.get(f"train_{c}_failed") for c in CONDS}
+    if free_gb() < MIN_FREE_GAN_GB and act:
+        for c in CONDS:
+            s = gan / c / "STOP"
+            if (gan / c).exists() and not s.exists():
+                s.write_text(now())
+                event(f"disk under {MIN_FREE_GAN_GB} GB: {c} stops after its next snapshot")
+    stopped = {c: (gan / c / "STOPPED_DISK").exists() for c in CONDS}
+    live = [c for c in CONDS if not (done[c] or failed[c] or stopped[c])]
+    if not live:
+        mark("train", {c: "ok" if done[c] else ("stopped" if stopped[c] else "failed") for c in CONDS})
+        return
+    running = [k for k, j in st["jobs"].items() if k.startswith("train_") and alive(j.get("pid"), "g1_job.py")]
+    if running:  # one chunk at a time; check its stall
+        name = running[0]
+        log = LOGS / f"{name}.log"
+        if act and log.exists() and time.time() - log.stat().st_mtime > JOB_STALL_S["train"]:
+            run_job(st, name, [], log, act=act, stall_s=JOB_STALL_S["train"])
+        return
+    cond = min(live, key=lambda c: (gan_kimg(c), CONDS.index(c)))
+    k = gan_kimg(cond)
+    until = min(K, (k // chunk + 1) * chunk)
+    name = f"train_{cond}_{until:06d}"
+    r = run_job(st, name, ["cmd", "/c", SG_BAT, "gen/g1_gan.py", "train", cond, str(until)], LOGS / f"{name}.log",
+                attempts=MAX_RESTARTS + 1, act=act, stall_s=JOB_STALL_S["train"])
+    if r == "failed":
+        st[f"train_{cond}_failed"] = True
+        event(f"GAN run {cond} failed for good on its chunk to {until} kimg after {MAX_RESTARTS} restarts; the other run carries on")
+    elif r == "ok" and gan_kimg(cond) < until and not (gan / cond / "FINISHED").exists():
+        st[f"train_{cond}_failed"] = True
+        event(f"GAN run {cond}: chunk to {until} kimg exited without reaching it (at {gan_kimg(cond)}); stopped")
+
+
 def stage_train(st: dict, act: bool) -> None:
+    bj = G1 / "gan" / "budget.json"
+    b = json.loads(bj.read_text()) if bj.exists() else {}
+    if b.get("mode") == "alternating":
+        stage_train_alternating(st, act, b)
+        return
     res = {}
     for cond in CONDS:
         fin = ROOT / "runs" / "g1" / "gan" / cond / "FINISHED"
@@ -542,6 +593,28 @@ def tick(act: bool = True) -> str | None:
         d.mkdir(parents=True, exist_ok=True)
     st = load_state()
     stage = next((s for s in STAGES if not marked(s)), "done")
+    kf = G1 / "KILL_JOBS"  # job names, one per line: killed by the supervisor (processes it started can't be killed from another session)
+    if kf.exists():
+        for name in kf.read_text().split():
+            j = st["jobs"].get(name)
+            if j and alive(j.get("pid"), "g1_job.py"):
+                kill_tree(j["pid"])
+                event(f"job {name} killed on request (runs/g1/KILL_JOBS)")
+            if j is not None:
+                st["jobs"].pop(name)  # forgotten: a later tick starts it afresh, attempts reset
+        kf.unlink()
+        save_state(st)
+    pf = G1 / "PAUSE"
+    if pf.exists() and time.time() - pf.stat().st_mtime > 3 * 3600:  # a forgotten pause (the session that set it ended): the pipeline goes on
+        pf.unlink()
+        event("PAUSE older than 3 h: removed, the pipeline goes on")
+    if pf.exists():  # a hand on the controls (Claude Code, attended): status only, nothing is started or restarted
+        act = False
+        event("paused (runs/g1/PAUSE): status only") if not st.get("paused_logged") else None
+        st["paused_logged"] = True
+        save_state(st)
+    else:
+        st.pop("paused_logged", None)
     if act and not (G1 / "gpu_probe.json").exists():  # once: can the GAN side see the GPU from the scheduled task's session?
         r = subprocess.run([PY_SG, "-c", "import torch, json, os; print(json.dumps({'cuda': torch.cuda.is_available(), 'torch': torch.__version__, "
                                          "'device': torch.cuda.get_device_name(0) if torch.cuda.is_available() else None, 'user': os.environ.get('USERNAME'), "
