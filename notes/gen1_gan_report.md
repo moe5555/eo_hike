@@ -63,7 +63,14 @@ Brief: `notes/brief_gan_g1.md`. Predictions 152–157: `notes/06_characters/expe
 
 ## Against the predictions (152–157)
 
-*(152 and 153 can be scored from the weights now; 154 is deferred with the quirk observer; 155–157 after the readouts)*
+*(152 and 153 scored 2026-11-16 from the weights, `runs/g1/gan/ess.json` and `notes/gen1/gan/weights_vs_quirks.csv`. 154 is deferred with the quirk observer. 155–157 follow after the readouts.)*
+
+| # | predicted | measured | verdict |
+|---|---|---|---|
+| 152 | τ = 2–4.5; top 10 % hold 0.24–0.32 of the weight; top 1 % hold 0.05–0.08; max/median 20–45 | τ = 3.665; top 10 % 0.237; top 1 % 0.056; max/median 69.9 | **partly right**: τ and the top 1 % in range; the top 10 % sits just under the range (0.237); max/median wrong, the tail is heavier than predicted |
+| 153 | the heaviest 64 are darker and more striped than the package, and not cloudier | heaviest 64 against the package (unweighted): brightness 112.9 against 106.0; stripes 0.121 against 0.067; cloud 0.214 against 0.153 | **mostly wrong**: more striped (right), but brighter and cloudier (wrong). The top 10 % by weight do match the prediction: brightness 105.3, stripes 0.078, cloud 0.144. So the extreme tail is apparatus-heavy (fill ×4, night ×4, saturation flags 0.24 against 0.14), while the broad top decile is the predicted "clear, darker, striped". |
+| 154 | quirks in samples | — | deferred (the quirk observer on samples, Moe) |
+| 155–157 | | | after the readouts; final ADA p so far: curious 0.161 (null pending) |
 
 ## For review
 
