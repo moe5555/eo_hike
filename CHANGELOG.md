@@ -2,6 +2,30 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-16, morning: the G1 GANs trained and reported; the G1 latent walks running; generation 2 queued
+
+- **What changed.**
+  - **G1 training finished at 09:21:** 3,840 kimg each, in alternating 400 kimg chunks. There was one spurious restart (2026-11-14 19:14, a reused Windows pid) and no kimg were lost.
+    - FID on the kept snapshots: curious 43.0 / 25.7 / 20.6 / 17.8, null 53.0 / 40.5 / 29.9 / 23.2.
+    - Final ADA p: curious 0.161, null 0.141.
+  - **The GAN readouts and the GAN report** (`notes/gen1_gan_report.md`): predictions 152 partly right, 153 mostly wrong, 154 deferred, 155 wrong, 156 partly right, 157 mostly wrong.
+  - **The supervisor:** a job is alive only with no exit record since its start and a process created at its start. This is the pid-reuse fix.
+  - **The latent walks** (`agent/latent_walk.py`, `analysis/gen1/latent_readouts.py`, stages `latent_walks` and `latent_readouts`): the step is calibrated by colour character (Moe), and the pixel observer is logged too.
+  - **Generation 2** (Moe, 2026-11-16; `notes/brief_g2.md`):
+    - `scripts/g2_package.py` turns a latent walk into a G1-format package, with a render check and sha256 manifest;
+    - `gen/g1_gan.py` takes `--gen` and gains `inherit_budget`; the latent walker and readouts take `--gen`;
+    - new stages `g2_packages` … `g2_latent_readouts` before `final`;
+    - tested on test walks, and the test outputs were deleted.
+  - **Predictions** 158–163 (the latent walks, with a dated note on the observer) and 164–168 (G2), each written before its run.
+  - **`notes/upscaling.md` and `scripts/upscale_faithful.py`** document the resolution chain (178 px at 60 m → 256 → 128 px at 83 m) and faithful enlargement.
+- **Why this approach.**
+  - G2 reuses every G1 rule and G1's measured budget, so that the generations differ only by what they were trained on.
+  - The latent step keeps the real 15 km reference in every generation, so "a nearby place" means the same thing across the recursion.
+- **What I expect.**
+  - The G1 latent walks finish around 12:30, and G2 training starts right after them.
+  - G2 finishes about Thursday 2026-11-19 morning, then the pipeline stops for review.
+  - Prediction 166 is the one to watch: the curious loop drifts towards the apparatus, with more banding and more band-yellow, while the null loop holds.
+
 ## 2026-11-13, evening: generation 1 moves to the PC. The world rebuilt and checked, the walks running, the pipeline and Phase A tested
 
 - **What changed.**
