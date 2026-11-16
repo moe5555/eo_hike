@@ -1,0 +1,30 @@
+{
+ "kimg": 28,
+ "warm_kimg": 8,
+ "wall_s": 804.1,
+ "rc": {
+  "curious": 0
+ },
+ "runs": {
+  "curious": {
+   "sec_per_kimg": 25.672454198201496,
+   "ticks_measured": 6,
+   "custom_ops": {
+    "bias_act_plugin": "ok",
+    "upfirdn2d_plugin": "ok"
+   },
+   "setup_s": 76.36908721923828,
+   "peak_gpu_mem_gb": 14.016632080078125,
+   "fallback_warnings": [
+    "conv2d_gradfix not supported",
+    "Falling back"
+   ]
+  }
+ },
+ "mode": "alternating",
+ "batch_gpu": null,
+ "chunk_kimg": 400,
+ "why": "probes (runs/g1/gan/probe.json): one run alone 25.4 s/kimg; both concurrently 88-91 s/kimg each (1 kimg of both: 51 s alternating against 90 s concurrent); concurrently with batch split 16: no tick in 45 min. notes/brief_gan_g1.md: 'Only if memory or throughput rule this out, run them sequentially in alternating chunks of equal kimg ... resuming each time. That depends on resume being exact' (exact: runs/g1/phase_a/phase_a_tests.json, train).",
+ "decided": "2026-11-14 01:21:01",
+ "sec_per_kimg_concurrent": 25.672454198201496
+}
