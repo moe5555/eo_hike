@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-16, 10:40 (generation 1 GANs trained and reported; the G1 latent walks running; generation 2 queued behind them, per Moe's decision of 2026-11-16).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-16, 13:50 (the G1 latent walks done and reported; generation 2 packages and datasets built, G2 training starting; per Moe's decision of 2026-11-16).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -11,7 +11,9 @@ How do practices of moving without a predetermined destination, like wayfaring o
   - from April 1977 the green band is uncalibrated.
 - **Under the thinned time offer (q = 0.10) the wanderers became movers** (`notes/gen1_report.md`): waits were 0.3 % of steps. Both walkers' clocks crossed the mission at the same pace, and each walk ended by `linger`.
 - **"Far from its own time" is the archive,** not the walker: the closest-acquisition rule meets the coverage collapse after mid-1974. Curious and Null are alike.
-- **Moving in a GAN's world** (the G1 latent walks, running): positions are latents on a sphere and the compass is 8 offers in a random plane. The step is calibrated so that a step at α_min changes a tile's colour character as much, relative to a random jump, as a real 15 km step did. On the final G1 snapshots α_min is 19.0° for curious and 14.0° for null. Waiting means the next kept training snapshot ("snapshot as time", Moe).
+- **Moving in a GAN's world** (`notes/gen1_latent_report.md`): positions are latents on a sphere and the compass is 8 offers in a random plane. The step is calibrated so that a step at α_min changes a tile's colour character as much, relative to a random jump, as a real 15 km step did: α_min 19.0° (curious) and 14.0° (null).
+  - **Under "snapshot as time" waiting is a short opening phase:** four kept snapshots allow three waits; both walkers took all three and reached the last snapshot by step 130 and 276 of 9,999.
+  - **The radius rule behaves as on the planet:** about half the steps at α_min, a fifth to a quarter as 90° boredom jumps.
 
 ## RQ2:
 Which paths do algorithms driven by novelty, learning progress and boredom cut through the computational planetary image, and how much of their attention follows the terrain, how much the idiosyncrasies of their perception, and how much the artefacts of the instrument, where data and phenomenon come apart?
@@ -24,6 +26,7 @@ Which paths do algorithms driven by novelty, learning progress and boredom cut t
 - **What the weighting picks** (`notes/gen1_gan_report.md`):
   - The heaviest 64 tiles are an apparatus-heavy tail: more striped and cloudier, with fill ×4, night ×4 and more saturation flags.
   - The broader top 10 % is clear, slightly darker and striped.
+- **In a GAN's world** (`notes/gen1_latent_report.md`; one walk each, a hint): the curious walker chooses more textured, more banded, redder offers and avoids the black green band; the Null shows no gap. "Clear over cloud" does not carry over as a white-share preference. Interest shares at the choice stay at the real proportions (0.38 / 0.33 / 0.29).
 
 ## RQ3:
 What do GANs trained recursively on these paths construct, and do their worlds drift across generations towards the planet or towards the apparatus, depending on whether paths are curated by whole places or by fragments, compared with a recursive loop without intrinsic motivation?
@@ -36,7 +39,8 @@ What do GANs trained recursively on these paths construct, and do their worlds d
     - curious keeps about 3 × more of the band than null does.
   - **Visual leads, not measured:** the extremes and some latent regions of curious run to flat band-yellow and scan-line texture; those of null run to fill-like black bars and magenta striping.
   - One path and one seed per condition; the era confound is small.
-- **Generation 2 queued** (Moe, 2026-11-16; `notes/brief_g2.md`): G2-curious trained on the G1-curious latent walk (weighted at ESS 0.5 N), G2-null on the G1-null latent walk (unweighted). Same rules as G1, 3,840 kimg, then fresh walkers in G2, then a stop for review. Predictions 164–168 are dated before any G2 package.
+- **Generation 2 under way** (Moe, 2026-11-16; `notes/brief_g2.md`): G2-curious trained on the G1-curious latent walk (weighted at ESS 0.5 N: τ = 2.62, max/median 69), G2-null on the G1-null latent walk (unweighted). Packages built 13:30 (render check passed), datasets 13:35, tag g2-paths. Same rules as G1, 3,840 kimg, then fresh walkers in G2, then a stop for review. Predictions 164–168 are dated before any G2 package.
+  - About 1–3 % of each G2 package comes from the earlier G1 snapshots; the rest is the 3,840 kimg world.
 
 # Decisions taken since the last update, and why
 - **Moe, 2026-11-14:**
@@ -54,15 +58,15 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 - **After G2:** whether to continue to G3, and whether later generations keep the real 15 km step reference for the calibration.
 - **Whether waiting matters enough to revisit q** for later generations of real walks.
 - **The long phase** (predictions 140–142): finish or drop.
+- **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **G1 latent walks** (running, about 2 h), then their readouts and report (predictions 158–163). Prediction 158 can already be scored: α_min 19.0° and 14.0° against a predicted 2–15° with curious smaller, so wrong.
-2. **Generation 2** runs unattended, then the G2 GAN report (predictions 164–168) and the G2 latent walk readouts.
-3. **The near-copy** at curious seed 411; a cross-sample spread readout for prediction 165 (the 5,000 G1 samples are saved).
-4. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
+1. **Generation 2** runs unattended, then the G2 GAN report (predictions 164–168) and the G2 latent walk readouts.
+2. **The near-copy** at curious seed 411; a cross-sample spread readout for prediction 165 (the 5,000 G1 samples are saved).
+3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **G2 finishes** around Thursday 2026-11-19 morning: 2 h of latent walks, about 57 h of training, about 2 h of FID and readouts, and 2 h of G2 latent walks.
+- **G2 finishes** around Thursday 2026-11-19 morning: about 57 h of training from 13:40 today, about 2 h of FID and readouts, and 3 h of G2 latent walks.
 - **Risks:**
-  - The G2 stages were tested on test walks only (packages, datasets, 1 kimg of training), not end to end at full size.
+  - G2 training and its later stages were tested on test walks only (1 kimg of training), not at full size; packages and datasets have now run at full size.
   - One path, one seed per condition: every comparison across generations is a hint.

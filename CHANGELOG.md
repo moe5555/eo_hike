@@ -2,6 +2,20 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-16, afternoon: the G1 latent walks done and reported; G2 packages and datasets built
+
+- **What changed.**
+  - **The G1 latent walks** ran 10:22–13:24: 9,999 steps and 10,000 tiles each, with no restart. The pipeline wrote the readouts (`notes/gen1/latent/`).
+  - **`notes/gen1_latent_report.md`** scores the predictions: 158 wrong, 159 half right, 160 right and undecided, 161 wrong, 162 right, 163 right.
+  - **`analysis/gen1/latent_taste_ci.py`**: chosen minus offered per step, with bootstrap intervals over steps (`taste_ci.csv`).
+  - **G2 packages** (render check passed, at most 2 of 255) and **datasets** (curious τ = 2.62 at ESS 0.5 N) were built by the pipeline. The manifests are in `notes/gen2/packages/`, tag `g2-paths`.
+- **Why this approach.**
+  - The taste gaps are small, so each needed an interval before it is called a gap at all.
+  - The interval is over steps of one walk; across walks and GANs these remain hints.
+- **What I expect.**
+  - G2 training runs about 57 h and finishes about Thursday morning; then FID, readouts, the G2 latent walks, and a stop.
+  - The curious walker's texture preference is in G2-curious's training set. If prediction 166 holds, G2-curious will be more banded than G1-curious.
+
 ## 2026-11-16, morning: the G1 GANs trained and reported; the G1 latent walks running; generation 2 queued
 
 - **What changed.**
