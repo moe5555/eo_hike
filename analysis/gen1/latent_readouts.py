@@ -57,9 +57,10 @@ def sheet(paths: list[Path], labels: list[str], cols: int, px: int, out: Path) -
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--test", action="store_true")
+    ap.add_argument("--gen", type=int, default=1)  # which generation's latent walks
     a = ap.parse_args()
-    base = ROOT / "runs" / "g1" / ("latent_test" if a.test else "latent")
-    out = base / "readouts" if a.test else ROOT / "notes" / "gen1" / "latent"
+    base = ROOT / "runs" / f"g{a.gen}" / ("latent_test" if a.test else "latent")
+    out = base / "readouts" if a.test else ROOT / "notes" / f"gen{a.gen}" / "latent"
     out.mkdir(parents=True, exist_ok=True)
     W = {c: load(base, c) for c in CONDS if (base / c / "walk.json").exists()}
     if not W:

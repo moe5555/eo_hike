@@ -344,3 +344,13 @@ A fresh curious wanderer walks G1-curious, a fresh Null wanderer walks G1-null: 
 163. **Interest at the curious choice:** glance 0.34–0.42, grid 0.32–0.40, progress 0.20–0.32 (the real walks: 0.38 / 0.35 / 0.26).
 
 *Note, 2026-11-14 evening, still before any latent walk.* After 158–163 were written, Moe chose the calibration observer: colour character (mean and spread per CIR channel), not 32 × 32 pixel layout. Test calibrations on intermediate snapshots, which are not the ones the walks will use, gave α_min 17.3° (curious, 1,204 kimg) and 13.9° (Null, 920 kimg). The pixel observer, logged alongside, would have given 74° and 36°. CPU test walks of 50–120 steps showed that in 512 dimensions the angle from the start passes 70° within about 50 steps and sits near 90° after about 100. So "closer to its start at the end" (160) will be decided near 90°. These are tests, not results. 158–163 stay as written and are scored as written; 158 was stated for the pixel observer, and the report says so.
+
+## Generation 2: the first turn of the recursion (added 2026-11-16 09:10, before any G2 package or training; Moe's decisions of 2026-11-16)
+
+G2-curious is trained on the G1-curious latent walk (weighted by interest at encounter, ESS 0.5 N); G2-null is trained on the G1-null latent walk (unweighted). Same rules as G1: N = 10,000, 3,840 kimg, alternating 400 kimg chunks, snapshots as time, fresh walkers in G2 afterwards. One path and one training seed per condition: hints, never leads. Mine:
+
+164. **Weights:** with one encounter per tile (a latent walk never revisits), ESS = 0.5 N is reachable. τ falls between 1.5 and 4; the top 10 % of tiles hold 0.20–0.30 of the weight.
+165. **Narrowing:** both G2s are less varied than their G1s. The spread across 5,000 samples (standard deviation of brightness, and of the mean of each channel) is lower in G2 than in G1, for both conditions.
+166. **Drift towards the apparatus (RQ3):** G2-curious samples have a higher mean row roughness and a higher share of green-band-dark images than G1-curious samples. G2-null stays within ±20 % of G1-null on both. Colour and texture statistics, labelled as such. Low confidence.
+167. **Augmentation:** the final ADA p of each G2 is within a factor of 1.5 of its G1's (G1: curious 0.161, null about 0.14).
+168. **Calibration in G2:** α_min of each G2 lies within 30 % of its G1 value (the same real 15 km reference ρ, measured on the new GAN).

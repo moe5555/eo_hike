@@ -51,13 +51,15 @@ PR_K = 3
 
 
 class Paths:
-    def __init__(self, test: bool) -> None:
-        self.test = test
-        base = ROOT / "runs" / "g1" / ("test" if test else "")
-        self.pkg = (base / "paths") if test else ROOT / "paths" / "g1"
+    def __init__(self, test: bool, gen: int = 1) -> None:
+        """gen 1: G1 on the real walks' packages (paths/g1); gen >= 2: the recursion, on the packages of the previous generation's latent
+        walks (paths/g<gen>, scripts/g2_package.py). Everything else (code, settings, Inception cache) is shared."""
+        self.test, self.gen = test, gen
+        base = ROOT / "runs" / f"g{gen}" / ("test" if test else "")
+        self.pkg = (base / "paths") if test else ROOT / "paths" / f"g{gen}"
         self.gan = base / "gan"
         self.ds = self.gan / "datasets"
-        self.notes = (base / "notes_gan") if test else ROOT / "notes" / "gen1" / "gan"
+        self.notes = (base / "notes_gan") if test else ROOT / "notes" / f"gen{gen}" / "gan"
         self.cache = ROOT / "runs" / "g1" / "dnnlib_cache"  # Inception and the reals' statistics; filled in Phase A (no network in Phase B)
 
     def run(self, cond: str) -> Path:
@@ -483,6 +485,19 @@ def cmd_budget(P: Paths) -> None:
 
 
 # -- after training --------------------------------------------------------------------------------------------------------------
+def cmd_inherit_budget(P: Paths) -> None:
+    """gen >= 2 (Moe, 2026-11-16: "same as G1: 3,840 kimg"): the kimg, the kept snapshots and the training mode (alternating chunks of
+    400 kimg) are taken from G1's measured budget, not re-measured; the training speed is the same (same architecture, size, GPU)."""
+    assert P.gen >= 2
+    g1 = ROOT / "runs" / "g1" / "gan"
+    b = json.loads((g1 / "budget.json").read_text())
+    b.update(inherited_from="g1", gen=P.gen, note=f"G{P.gen} trains at G1's budget (Moe, 2026-11-16); not re-measured")
+    P.gan.mkdir(parents=True, exist_ok=True)
+    wjson(P.gan / "budget.json", b)
+    shutil.copyfile(g1 / "train_mode.json", P.gan / "train_mode.json")
+    log(f"G{P.gen}: budget inherited from G1: {b['kimg']} kimg per run, kept snapshots {b['kept_snapshots']}, mode {json.loads((g1 / 'train_mode.json').read_text()).get('mode')}")
+
+
 def load_G(pkl: Path):
     sg_imports()
     import legacy
@@ -740,17 +755,20 @@ def cmd_readouts(P: Paths, n_samples: int = N_SAMPLES, video_s: int = 60) -> Non
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["datasets", "throughput", "budget", "train", "fid", "readouts", "_train_into", "_train_test"])
+    ap.add_argument("cmd", choices=["datasets", "throughput", "budget", "inherit_budget", "train", "fid", "readouts", "_train_into", "_train_test"])
     ap.add_argument("rest", nargs="*")
     ap.add_argument("--test", action="store_true")
+    ap.add_argument("--gen", type=int, default=1)
     a = ap.parse_args()
-    P = Paths(a.test)
+    P = Paths(a.test, a.gen)
     if a.cmd == "datasets":
         cmd_datasets(P)
     elif a.cmd == "throughput":
         cmd_throughput(P)
     elif a.cmd == "budget":
         cmd_budget(P)
+    elif a.cmd == "inherit_budget":
+        cmd_inherit_budget(P)
     elif a.cmd == "train":
         cmd_train(a.rest[0], P, int(a.rest[1]) if len(a.rest) > 1 else None)
     elif a.cmd == "_train_into":  # throughput: one run into a throwaway directory

@@ -47,7 +47,8 @@ SG_BAT = str(ROOT / "scripts" / "sg.bat")
 TICK_S = 60
 N = 10_000
 CONDS = ("curious", "null")
-STAGES = ("walks", "packages", "freeze", "walk_readouts", "datasets", "throughput", "budget", "train", "fid", "gan_readouts", "latent_walks", "latent_readouts", "final")
+STAGES = ("walks", "packages", "freeze", "walk_readouts", "datasets", "throughput", "budget", "train", "fid", "gan_readouts", "latent_walks", "latent_readouts",
+          "g2_packages", "g2_datasets", "g2_budget", "g2_train", "g2_fid", "g2_readouts", "g2_latent_walks", "g2_latent_readouts", "final")
 MAX_RESTARTS = 3
 WALK_STALL_S = 45 * 60          # a walk prints every 100 steps (~1 min); 45 min of silence is a stall
 JOB_STALL_S = {"train": 40 * 60, "latent": 45 * 60}  # a latent walk prints every 100 steps (~1 min on the GPU)
@@ -480,40 +481,56 @@ def stage_simple(st: dict, act: bool, stage: str, cmd: list[str], *, python: str
             mark(stage, {"failed": True})
 
 
-def stage_latent_walks(st: dict, act: bool) -> None:
+def stage_latent_walks(st: dict, act: bool, gen: int = 1, stage: str = "latent_walks") -> None:
     """Calibrate both GANs (the angle range), then both latent walks concurrently. A failed calibration or walk is logged; the stage is
     marked done (with what failed) when nothing is running any more."""
     res = {}
+    pre, ga = ("", []) if gen == 1 else (f"g{gen}", ["--gen", str(gen)])  # gen >= 2: the walks in G<gen>
     for cond in CONDS:
-        nc, nw = f"latent_cal_{cond}", f"latent_walk_{cond}"
-        rc = run_job(st, nc, ["cmd", "/c", SG_BAT, "agent/latent_walk.py", "calibrate", cond], LOGS / f"{nc}.log", python=PY_WALK,
+        nc, nw = f"{pre}latent_cal_{cond}", f"{pre}latent_walk_{cond}"
+        rc = run_job(st, nc, ["cmd", "/c", SG_BAT, "agent/latent_walk.py", "calibrate", cond] + ga, LOGS / f"{nc}.log", python=PY_WALK,
                      env=LATENT_ENV, attempts=2, act=act)
         if rc != "ok":
             res[cond] = "calibration " + rc
             continue
-        res[cond] = run_job(st, nw, ["cmd", "/c", SG_BAT, "agent/latent_walk.py", "walk", cond], LOGS / f"{nw}.log", python=PY_WALK,
+        res[cond] = run_job(st, nw, ["cmd", "/c", SG_BAT, "agent/latent_walk.py", "walk", cond] + ga, LOGS / f"{nw}.log", python=PY_WALK,
                             env=LATENT_ENV, attempts=MAX_RESTARTS + 1, act=act, stall_s=JOB_STALL_S["latent"])
     if all(r in ("ok", "failed", "calibration failed") for r in res.values()):
         bad = {c: r for c, r in res.items() if r != "ok"}
         if bad:
-            event(f"stage latent_walks: not every walk finished: {bad} (not fatal)")
-        mark("latent_walks", {"failed": bad} if bad else None)
+            event(f"stage {stage}: not every walk finished: {bad} (not fatal)")
+        mark(stage, {"failed": bad} if bad else None)
 
 
-def gan_kimg(cond: str) -> int:
+def stage_g2_packages(st: dict, act: bool, gen: int = 2) -> None:
+    """scripts/g2_package.py: the G<gen-1> latent walks become the G<gen> training packages (render check on the GPU). Fatal: without
+    packages there is no G<gen>."""
+    res = {}
+    for cond in CONDS:
+        name = f"g{gen}_package_{cond}"
+        res[cond] = run_job(st, name, ["cmd", "/c", SG_BAT, "scripts/g2_package.py", "build", cond, "--gen", str(gen)], LOGS / f"{name}.log",
+                            python=PY_WALK, env=LATENT_ENV, attempts=2, act=act)
+    if all(r == "ok" for r in res.values()):
+        mark(f"g{gen}_packages")
+    elif any(r == "failed" for r in res.values()):
+        st["halt"] = f"G{gen} packages failed ({res}); see runs/g1/logs/g{gen}_package_*.log. G{gen} is not trained."
+
+
+def gan_kimg(cond: str, gen: int = 1) -> int:
     """kimg of a run's latest complete snapshot pair (pickle + training state)."""
-    run = G1 / "gan" / cond
+    run = ROOT / "runs" / f"g{gen}" / "gan" / cond
     ks = sorted(int(p.stem.split("-")[-1]) for p in run.glob("network-snapshot-*.pkl") if (run / f"training-state-{p.stem.split('-')[-1]}.pt").exists())
     return ks[-1] if ks else 0
 
 
-def stage_train_alternating(st: dict, act: bool, b: dict) -> None:
+def stage_train_alternating(st: dict, act: bool, b: dict, gen: int = 1, stage: str = "train") -> None:
     """The brief's fallback when concurrency is ruled out: one run at a time, in alternating chunks of equal kimg (the run that is
     behind goes next; curious first on a tie), each resumed exactly from its last snapshot. Both end at the same kimg."""
     K, chunk = int(b["kimg"]), int(b["chunk_kimg"])
-    gan = G1 / "gan"
+    gan = ROOT / "runs" / f"g{gen}" / "gan"  # gen >= 2: the recursion (jobs g<gen>train_<cond>_<until>)
+    pre = "train_" if gen == 1 else f"g{gen}train_"
     done = {c: (gan / c / "FINISHED").exists() for c in CONDS}
-    failed = {c: st.get(f"train_{c}_failed") for c in CONDS}
+    failed = {c: st.get(f"{pre}{c}_failed") for c in CONDS}
     if free_gb() < MIN_FREE_GAN_GB and act:
         for c in CONDS:
             s = gan / c / "STOP"
@@ -523,26 +540,26 @@ def stage_train_alternating(st: dict, act: bool, b: dict) -> None:
     stopped = {c: (gan / c / "STOPPED_DISK").exists() for c in CONDS}
     live = [c for c in CONDS if not (done[c] or failed[c] or stopped[c])]
     if not live:
-        mark("train", {c: "ok" if done[c] else ("stopped" if stopped[c] else "failed") for c in CONDS})
+        mark(stage, {c: "ok" if done[c] else ("stopped" if stopped[c] else "failed") for c in CONDS})
         return
-    running = [k for k, j in st["jobs"].items() if k.startswith("train_") and job_alive(k, j)]
+    running = [k for k, j in st["jobs"].items() if k.startswith(pre) and job_alive(k, j)]
     if running:  # one chunk at a time; check its stall
         name = running[0]
         log = LOGS / f"{name}.log"
         if act and log.exists() and time.time() - log.stat().st_mtime > JOB_STALL_S["train"]:
             run_job(st, name, [], log, act=act, stall_s=JOB_STALL_S["train"])
         return
-    cond = min(live, key=lambda c: (gan_kimg(c), CONDS.index(c)))
-    k = gan_kimg(cond)
+    cond = min(live, key=lambda c: (gan_kimg(c, gen), CONDS.index(c)))
+    k = gan_kimg(cond, gen)
     until = min(K, (k // chunk + 1) * chunk)
-    name = f"train_{cond}_{until:06d}"
-    r = run_job(st, name, ["cmd", "/c", SG_BAT, "gen/g1_gan.py", "train", cond, str(until)], LOGS / f"{name}.log",
+    name = f"{pre}{cond}_{until:06d}"
+    r = run_job(st, name, ["cmd", "/c", SG_BAT, "gen/g1_gan.py", "train", cond, str(until)] + (["--gen", str(gen)] if gen > 1 else []), LOGS / f"{name}.log",
                 attempts=MAX_RESTARTS + 1, act=act, stall_s=JOB_STALL_S["train"])
     if r == "failed":
-        st[f"train_{cond}_failed"] = True
+        st[f"{pre}{cond}_failed"] = True
         event(f"GAN run {cond} failed for good on its chunk to {until} kimg after {MAX_RESTARTS} restarts; the other run carries on")
-    elif r == "ok" and gan_kimg(cond) < until and not (gan / cond / "FINISHED").exists():
-        st[f"train_{cond}_failed"] = True
+    elif r == "ok" and gan_kimg(cond, gen) < until and not (gan / cond / "FINISHED").exists():
+        st[f"{pre}{cond}_failed"] = True
         event(f"GAN run {cond}: chunk to {until} kimg exited without reaching it (at {gan_kimg(cond)}); stopped")
 
 
@@ -607,18 +624,20 @@ def status(st: dict, stage: str) -> None:
                      f"{fin.get('unique_tiles', p['uniq']):,} | {w['restarts']} | {'-' if fin else eta(w, p, sc)} | "
                      f"{fin.get('end_reason', '')}{' (pooled ' + format(w['pooled_after'], ',') + ')' if 'pooled_after' in w else ''} |")
     L.append("")
-    gs = ROOT / "runs" / "g1" / "gan" / "status.json"
-    if gs.exists():
+    for gen in (1, 2):
+        gs = ROOT / "runs" / f"g{gen}" / "gan" / "status.json"
+        if not gs.exists():
+            continue
         try:
             g = json.loads(gs.read_text())
-            L += ["## GAN runs", "", "| run | kimg | target | sec/kimg | ETA | augment p | health (FID) | restarts | last snapshot |", "|---|---|---|---|---|---|---|---|---|"]
+            L += [f"## GAN runs, generation {gen}", "", "| run | kimg | target | sec/kimg | ETA | augment p | health (FID) | last snapshot |", "|---|---|---|---|---|---|---|---|"]
             for cond, v in g.get("runs", {}).items():
                 L.append(f"| {cond} | {v.get('kimg')} | {v.get('target')} | {v.get('sec_per_kimg')} | {v.get('eta')} | {v.get('augment_p')} | "
-                         f"{v.get('fid', '-')} | {st['jobs'].get('train_' + cond, {}).get('attempts', 1) - 1 if st['jobs'].get('train_' + cond) else 0} | {v.get('snapshot')} |")
-            L += ["", f"Latest fakes: runs/g1/gan/<run>/latest_fakes.png. {g.get('note', '')}", ""]
+                         f"{v.get('fid', '-')} | {v.get('snapshot')} |")
+            L += ["", f"Latest fakes: runs/g{gen}/gan/<run>/latest_fakes.png. {g.get('note', '')}", ""]
         except (json.JSONDecodeError, OSError):
             pass
-    lat = [(c, LOGS / f"latent_walk_{c}.log") for c in CONDS if (LOGS / f"latent_walk_{c}.log").exists()]
+    lat = [(f"{pre}{c}", LOGS / f"{pre}latent_walk_{c}.log") for pre in ("", "g2") for c in CONDS if (LOGS / f"{pre}latent_walk_{c}.log").exists()]
     if lat:
         L += ["## Latent walks (notes/brief_g1_latent_walks.md)", ""]
         for c, lg in lat:
@@ -710,6 +729,30 @@ def tick(act: bool = True) -> str | None:
             stage_simple(st, act, "latent_readouts", ["analysis/gen1/latent_readouts.py"], python=PY_SG, fatal=False)
             if marked("latent_readouts"):
                 event(f"commit: {commit(['notes/gen1/latent'], 'generation 1: the latent walk readouts (tables and figures), written by the pipeline')}")
+        elif stage == "g2_packages":
+            stage_g2_packages(st, act, 2)
+        elif stage == "g2_datasets":
+            stage_simple(st, act, "g2_datasets", ["gen/g1_gan.py", "datasets", "--gen", "2"], attempts=2)
+        elif stage == "g2_budget":
+            stage_simple(st, act, "g2_budget", ["gen/g1_gan.py", "inherit_budget", "--gen", "2"], attempts=1)
+        elif stage == "g2_train":
+            stage_train_alternating(st, act, json.loads((ROOT / "runs" / "g2" / "gan" / "budget.json").read_text()), gen=2, stage="g2_train")
+        elif stage == "g2_fid":
+            stage_simple(st, act, "g2_fid", ["gen/g1_gan.py", "fid", "--gen", "2"], sg=True, fatal=False, attempts=2)
+        elif stage == "g2_readouts":
+            stage_simple(st, act, "g2_readouts", ["gen/g1_gan.py", "readouts", "--gen", "2"], sg=True, fatal=False, attempts=2)
+            if marked("g2_readouts"):
+                (ROOT / "notes" / "gen2" / "gan").mkdir(parents=True, exist_ok=True)
+                for f in ("budget.json", "ess.json", "fid.json"):
+                    if (ROOT / "runs" / "g2" / "gan" / f).exists():
+                        shutil.copyfile(ROOT / "runs" / "g2" / "gan" / f, ROOT / "notes" / "gen2" / "gan" / f)
+                event(f"commit: {commit(['notes/gen2/gan'], 'generation 2: the GAN readouts (tables, small figures, budget, ESS, FID), written by the pipeline')}")
+        elif stage == "g2_latent_walks":
+            stage_latent_walks(st, act, gen=2, stage="g2_latent_walks")
+        elif stage == "g2_latent_readouts":
+            stage_simple(st, act, "g2_latent_readouts", ["analysis/gen1/latent_readouts.py", "--gen", "2"], python=PY_SG, fatal=False)
+            if marked("g2_latent_readouts"):
+                event(f"commit: {commit(['notes/gen2/latent'], 'generation 2: the latent walk readouts in G2 (tables and figures), written by the pipeline')}")
         elif stage == "final":
             mark("final")
         stage = next((s for s in STAGES if not marked(s)), "done")

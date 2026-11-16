@@ -45,16 +45,23 @@ CALIB_N, CALIB_SEED = 256, 20261114
 WALK_PX, GAN_PX, OBS_PX = 256, 128, 32
 
 
+GEN = 1  # the generation whose GANs are walked (--gen); 1 = G1 (the default, unchanged)
+
+
+def gan_dir() -> Path:
+    return ROOT / "runs" / f"g{GEN}" / "gan"
+
+
 def out_dir(cond: str, test: bool) -> Path:
-    return ROOT / "runs" / "g1" / ("latent_test" if test else "latent") / cond
+    return ROOT / "runs" / f"g{GEN}" / ("latent_test" if test else "latent") / cond
 
 
 def kept_snapshots(cond: str, test: bool) -> list[int]:
-    run = ROOT / "runs" / "g1" / "gan" / cond
+    run = gan_dir() / cond
     have = sorted(int(p.stem.split("-")[-1]) for p in run.glob("network-snapshot-*.pkl"))
     if test:
         return have[-2:] if len(have) >= 2 else have
-    b = json.loads((ROOT / "runs" / "g1" / "gan" / "budget.json").read_text())
+    b = json.loads((gan_dir() / "budget.json").read_text())
     snaps = [k for k in b["kept_snapshots"]]
     missing = [k for k in snaps if k not in have]
     assert not missing, f"{cond}: kept snapshots missing: {missing}"
@@ -72,7 +79,7 @@ class LatentWorld:
         self.snaps, self.dev, self.dev_eye = snaps, dev_gan, dev_eye
         self.G = []
         for k in snaps:
-            with open(ROOT / "runs" / "g1" / "gan" / cond / f"network-snapshot-{k:06d}.pkl", "rb") as f:
+            with open(gan_dir() / cond / f"network-snapshot-{k:06d}.pkl", "rb") as f:
                 self.G.append(legacy.load_network_pkl(f)["G_ema"].to(dev_gan).eval().requires_grad_(False))
         self.z: dict[int, np.ndarray] = {}
         self.s: dict[int, int] = {}
@@ -302,7 +309,7 @@ def cmd_walk(cond: str, test: bool, dev_gan: str, steps_cap: int | None, q_overr
         step0, parts_done = 0, 0
         r_now = r_min
         theta_now = float(r_compass.uniform(0.0, 45.0))
-        meta = {"cond": cond, "config": f"configs/gen1/{cond}.yaml", "seed": seed, "q": q, "snapshots": snaps, "alpha_min_deg": a_min, "alpha_max_deg": a_max,
+        meta = {"cond": cond, "gen": GEN, "config": f"configs/gen1/{cond}.yaml", "seed": seed, "q": q, "snapshots": snaps, "alpha_min_deg": a_min, "alpha_max_deg": a_max,
                 "tile_cap": tile_cap, "steps_cap": cap, "torch": torch.__version__, "torch_threads": torch.get_num_threads(), "eye_device": dev,
                 "gan_device": dev_gan, "upsample": "bilinear 128 -> 256", "started": time.strftime("%Y-%m-%d %H:%M:%S"), "test": test,
                 "start_key": start_key}
@@ -416,7 +423,10 @@ def main() -> None:
     ap.add_argument("--ckpt-every", type=int)  # tests only
     ap.add_argument("--crash-at", type=int)  # tests only
     ap.add_argument("--out-sub")  # tests only
+    ap.add_argument("--gen", type=int, default=1)  # which generation's GANs to walk (the calibration's real reference stays the G1 walks)
     a = ap.parse_args()
+    global GEN
+    GEN = a.gen
     if a.cmd == "calibrate":
         cmd_calibrate(a.cond, a.test, a.gan_dev)
     else:
