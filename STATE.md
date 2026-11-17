@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-16, 13:50 (the G1 latent walks done and reported; generation 2 packages and datasets built, G2 training starting; per Moe's decision of 2026-11-16).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-17, 13:10 (G2 training at about 1,600 kimg per run; G3, G4, the recursion readout and the Landsat 1 upscaler queued behind it, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -39,7 +39,7 @@ What do GANs trained recursively on these paths construct, and do their worlds d
     - curious keeps about 3 × more of the band than null does.
   - **Visual leads, not measured:** the extremes and some latent regions of curious run to flat band-yellow and scan-line texture; those of null run to fill-like black bars and magenta striping.
   - One path and one seed per condition; the era confound is small.
-- **Generation 2 under way** (Moe, 2026-11-16; `notes/brief_g2.md`): G2-curious trained on the G1-curious latent walk (weighted at ESS 0.5 N: τ = 2.62, max/median 69), G2-null on the G1-null latent walk (unweighted). Packages built 13:30 (render check passed), datasets 13:35, tag g2-paths. Same rules as G1, 3,840 kimg, then fresh walkers in G2, then a stop for review. Predictions 164–168 are dated before any G2 package.
+- **Generation 2 under way** (Moe, 2026-11-16; `notes/brief_g2.md`): G2-curious trained on the G1-curious latent walk (weighted at ESS 0.5 N: τ = 2.62, max/median 69), G2-null on the G1-null latent walk (unweighted). Packages built 13:30 (render check passed), datasets 13:35, tag g2-paths. Same rules as G1, 3,840 kimg, then fresh walkers in G2. Predictions 164–168 are dated before any G2 package.
   - About 1–3 % of each G2 package comes from the earlier G1 snapshots; the rest is the 3,840 kimg world.
 
 # Decisions taken since the last update, and why
@@ -47,6 +47,7 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - latent walks in G1: fresh walkers with the same config, z-sphere calibrated, snapshot as time, queued to start on their own;
   - the step observer is colour character, not pixel layout.
 - **Moe, 2026-11-16:** generation 2 only, then stop; 3,840 kimg; same rules as G1; "snapshot as time" in every generation.
+- **Moe, 2026-11-17:** G3 and G4 at the same rules; the calibration keeps the real 15 km reference; the time rule stays; the Landsat 1 upscaler after the last generation; then stop for review (`notes/brief_g2.md`, extension).
 - **Mine, within the run instruction:**
   - **The supervisor's job liveness was fixed** after a reused Windows pid killed one chunk (2026-11-14 19:14; resumed from its snapshot, no kimg lost).
   - **G2 inherits G1's measured budget and training mode** instead of re-measuring them: same architecture, size and GPU.
@@ -55,18 +56,19 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 
 # Waiting for Moe
 - **The quirk observer on GAN samples** (prediction 154; findings 4–5 of the GAN report would be tested by it).
-- **After G2:** whether to continue to G3, and whether later generations keep the real 15 km step reference for the calibration.
+- **After G4:** whether to continue the recursion, and what the collapse flag (prediction 170) should be if this one is too strict or too loose.
 - **Whether waiting matters enough to revisit q** for later generations of real walks.
 - **The long phase** (predictions 140–142): finish or drop.
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **Generation 2** runs unattended, then the G2 GAN report (predictions 164–168) and the G2 latent walk readouts.
+1. **G2, G3, G4** run unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, written as each generation's readouts land: the G2 GAN report (164–168), then G3/G4 and the recursion report (169–173).
 2. **The near-copy** at curious seed 411; a cross-sample spread readout for prediction 165 (the 5,000 G1 samples are saved).
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **G2 finishes** around Thursday 2026-11-19 morning: about 57 h of training from 13:40 today, about 2 h of FID and readouts, and 3 h of G2 latent walks.
+- **The extended run ends** about Tuesday 2026-11-24 afternoon: G2 about Thursday 04:00, G3 about Saturday evening, G4 about Tuesday morning, then the recursion readout and the upscaler.
 - **Risks:**
-  - G2 training and its later stages were tested on test walks only (1 kimg of training), not at full size; packages and datasets have now run at full size.
+  - G2's FID, readouts and latent walks have run only at test size; the G3/G4 stages reuse the G2 code with the generation number.
+  - Monitoring depends on this Claude session; the pipeline itself restarts on boot, at logon and every 15 minutes.
   - One path, one seed per condition: every comparison across generations is a hint.

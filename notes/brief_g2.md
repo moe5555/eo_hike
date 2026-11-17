@@ -43,3 +43,15 @@ Expected duration: about 2 h for the G1 latent walks, then about 0.1 h for packa
 ## For review (Moe)
 
 - After G2: whether to continue to G3, and whether the step calibration in later generations should keep the real 15 km reference (as now) or use the previous generation's walk.
+
+## Extension, 2026-11-17: generations 3 and 4, then the upscaler (Moe, 2026-11-17)
+
+Moe's answers (2026-11-17, before leaving for a week): "G3 + G4, 3,840 kimg"; the Landsat 1 upscaler "after the last generation"; the calibration reference stays "the real 15 km step, always"; the time rule "keep as is" (four kept snapshots).
+
+- **Stages** (`scripts/g1_lib.py`, `stage_gen`): `g3_*` and `g4_*` repeat the eight G2 steps, each generation built from the previous one's latent walks (`scripts/g2_package.py build <cond> --gen <g>`); manifests to `notes/gen<g>/packages/`, tag `g<g>-paths`.
+- **`recursion_readouts`** (`analysis/recursion/readouts.py`): every generation against the real G1 package of its condition (recall, precision, nearest-sample spread, colour and texture statistics) and the collapse flag set by hand in prediction 170. Not fatal.
+- **`upscaler`** (`scripts/upscaler.py all`): pairs from the walk cache (built on the CPU on 2026-11-17 during G2), training on the GPU after G4, held-out evaluation, figures; outputs labelled as learned. Not fatal.
+- **Then `final`:** the pipeline stops for review.
+- **Expected:** G2 ends about Thursday 2026-11-19 04:00, G3 about Saturday 2026-11-21 evening, G4 about Tuesday 2026-11-24 morning, the upscaler about Tuesday afternoon.
+- **Predictions** 169–173 were dated 2026-11-17 13:00, before any G3 package.
+- **Not covered by this run:** the four-seed replication (milestone 4) and a places-against-fragments comparison (RQ3) are outside this extension.

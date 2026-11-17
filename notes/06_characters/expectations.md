@@ -354,3 +354,13 @@ G2-curious is trained on the G1-curious latent walk (weighted by interest at enc
 166. **Drift towards the apparatus (RQ3):** G2-curious samples have a higher mean row roughness and a higher share of green-band-dark images than G1-curious samples. G2-null stays within ±20 % of G1-null on both. Colour and texture statistics, labelled as such. Low confidence.
 167. **Augmentation:** the final ADA p of each G2 is within a factor of 1.5 of its G1's (G1: curious 0.161, null about 0.14).
 168. **Calibration in G2:** α_min of each G2 lies within 30 % of its G1 value (the same real 15 km reference ρ, measured on the new GAN).
+
+## Generations 3 and 4, and the recursion as a whole (added 2026-11-17 13:00, during G2 training, before any G3 package; Moe's decisions of 2026-11-17)
+
+Moe, 2026-11-17: after G2, G3 and G4 run unattended at the same rules (3,840 kimg, the real 15 km step as the calibration reference, four kept snapshots as time), then a learned Landsat 1 upscaler, then a stop for review. Readout: `analysis/recursion/readouts.py`, each generation against the real G1 package of its condition (32 px pixel space; colour and texture statistics, labelled as such). One GAN and one walk per condition per generation: hints, never leads. Mine:
+
+169. **Coverage of the real world falls with each generation:** recall against the real G1 package is lower in G4 than in G2, and lower in G2 than in G1, for both conditions. The curious loop loses faster: its G4 recall is a smaller fraction of its own G1 recall than the null loop's.
+170. **Collapse, by the rule set by hand here:** recall against the real G1 package below half of G1's AND the median nearest-sample distance below 70 % of G1's. Neither loop meets it by G4. Low confidence: the rule is a premise, not a finding, and four generations may be too few.
+171. **The apparatus in the curious loop (RQ3):** G4-curious has a higher mean row roughness than G1-curious (G1: 1.66) and higher than G4-null. The null loop's row roughness stays within ±20 % of G1-null's (0.98). Colour and texture statistics. Low confidence.
+172. **Time in later walks:** in the G3 and G4 latent walks, both walkers again reach the last snapshot within the first 3 % of their steps.
+173. **The upscaler:** on held-out grid cells, the learned 128 → 178 upscaler beats bicubic by at least 1 dB median PSNR; on GAN samples it adds scan-line texture where the sample already has some.

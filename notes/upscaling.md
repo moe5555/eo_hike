@@ -38,3 +38,7 @@ Every enlarged PNG records its method, factor and source pixel size in a text ch
 .venv-sg/Scripts/python.exe scripts/upscale_faithful.py <png or folder> --out <folder> --factor 8
 .venv-sg/Scripts/python.exe scripts/upscale_faithful.py <png or folder> --out <folder> --factor 8 --mode lanczos
 ```
+
+## A learned upscaler (Moe, 2026-11-17)
+
+`scripts/upscaler.py` trains a small residual CNN only on Landsat 1 pairs from the walk cache: the 128 px package rendering as input and the 178 px rendering of the same window (60 m) as target, the exact chain the GAN tiles went through. 178 px is the ceiling: beyond 60 m there is no Landsat 1 ground truth. Its outputs are a learned model's. They carry the PNG text chunk `upscale: learned ...` and are never called faithful. The faithful enlargement stays integer nearest neighbour. Held-out cells (5 %, by hash) score it against bilinear and bicubic (`notes/upscaler/eval.json`).

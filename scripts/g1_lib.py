@@ -47,8 +47,11 @@ SG_BAT = str(ROOT / "scripts" / "sg.bat")
 TICK_S = 60
 N = 10_000
 CONDS = ("curious", "null")
-STAGES = ("walks", "packages", "freeze", "walk_readouts", "datasets", "throughput", "budget", "train", "fid", "gan_readouts", "latent_walks", "latent_readouts",
-          "g2_packages", "g2_datasets", "g2_budget", "g2_train", "g2_fid", "g2_readouts", "g2_latent_walks", "g2_latent_readouts", "final")
+# the recursion (Moe, 2026-11-16: G2; 2026-11-17: G3 and G4 at the same rules, then the Landsat 1 upscaler, then stop for review)
+GENS = (2, 3, 4)
+GEN_STEPS = ("packages", "datasets", "budget", "train", "fid", "readouts", "latent_walks", "latent_readouts")
+STAGES = (("walks", "packages", "freeze", "walk_readouts", "datasets", "throughput", "budget", "train", "fid", "gan_readouts", "latent_walks",
+           "latent_readouts") + tuple(f"g{g}_{s}" for g in GENS for s in GEN_STEPS) + ("recursion_readouts", "upscaler", "final"))
 MAX_RESTARTS = 3
 WALK_STALL_S = 45 * 60          # a walk prints every 100 steps (~1 min); 45 min of silence is a stall
 JOB_STALL_S = {"train": 40 * 60, "latent": 45 * 60}  # a latent walk prints every 100 steps (~1 min on the GPU)
@@ -523,6 +526,47 @@ def gan_kimg(cond: str, gen: int = 1) -> int:
     return ks[-1] if ks else 0
 
 
+def stage_gen(st: dict, act: bool, stage: str) -> None:
+    """One stage of generation gen >= 2 (stage g<gen>_<step>): the same steps and rules as G2 (notes/brief_g2.md)."""
+    g, step = stage.split("_", 1)
+    gen, G = int(g[1:]), g[1:]
+    if step == "packages":
+        stage_g2_packages(st, act, gen)
+        if marked(stage):
+            d = ROOT / "notes" / f"gen{gen}" / "packages"
+            d.mkdir(parents=True, exist_ok=True)
+            for cond in CONDS:
+                m = ROOT / "paths" / f"g{gen}" / cond / "manifest.json"
+                if m.exists():
+                    shutil.copyfile(m, d / f"{cond}_manifest.json")
+            event(f"commit: {commit([f'notes/gen{gen}/packages'], f'generation {gen}: package manifests (from the G{gen - 1} latent walks), written by the pipeline')}")
+            r = git("tag", f"g{gen}-paths")
+            event(f"tag g{gen}-paths: {(r.stdout + r.stderr).strip()[-200:] or 'ok'}")
+    elif step == "datasets":
+        stage_simple(st, act, stage, ["gen/g1_gan.py", "datasets", "--gen", G], attempts=2)
+    elif step == "budget":
+        stage_simple(st, act, stage, ["gen/g1_gan.py", "inherit_budget", "--gen", G], attempts=1)
+    elif step == "train":
+        stage_train_alternating(st, act, json.loads((ROOT / "runs" / g / "gan" / "budget.json").read_text()), gen=gen, stage=stage)
+    elif step == "fid":
+        stage_simple(st, act, stage, ["gen/g1_gan.py", "fid", "--gen", G], sg=True, fatal=False, attempts=2)
+    elif step == "readouts":
+        stage_simple(st, act, stage, ["gen/g1_gan.py", "readouts", "--gen", G], sg=True, fatal=False, attempts=2)
+        if marked(stage):
+            (ROOT / "notes" / f"gen{gen}" / "gan").mkdir(parents=True, exist_ok=True)
+            for f in ("budget.json", "ess.json", "fid.json"):
+                if (ROOT / "runs" / g / "gan" / f).exists():
+                    shutil.copyfile(ROOT / "runs" / g / "gan" / f, ROOT / "notes" / f"gen{gen}" / "gan" / f)
+            event(f"commit: {commit([f'notes/gen{gen}/gan'], f'generation {gen}: the GAN readouts (tables, small figures, budget, ESS, FID), written by the pipeline')}")
+    elif step == "latent_walks":
+        stage_latent_walks(st, act, gen=gen, stage=stage)
+    elif step == "latent_readouts":
+        stage_simple(st, act, stage, ["analysis/gen1/latent_readouts.py", "--gen", G], python=PY_SG, fatal=False)
+        if marked(stage):
+            event(f"commit: {commit([f'notes/gen{gen}/latent'], f'generation {gen}: the latent walk readouts in G{gen} (tables and figures), written by the pipeline')}")
+    else:
+        st["halt"] = f"unknown stage {stage}"
+
 def stage_train_alternating(st: dict, act: bool, b: dict, gen: int = 1, stage: str = "train") -> None:
     """The brief's fallback when concurrency is ruled out: one run at a time, in alternating chunks of equal kimg (the run that is
     behind goes next; curious first on a tie), each resumed exactly from its last snapshot. Both end at the same kimg."""
@@ -624,7 +668,7 @@ def status(st: dict, stage: str) -> None:
                      f"{fin.get('unique_tiles', p['uniq']):,} | {w['restarts']} | {'-' if fin else eta(w, p, sc)} | "
                      f"{fin.get('end_reason', '')}{' (pooled ' + format(w['pooled_after'], ',') + ')' if 'pooled_after' in w else ''} |")
     L.append("")
-    for gen in (1, 2):
+    for gen in (1, *GENS):
         gs = ROOT / "runs" / f"g{gen}" / "gan" / "status.json"
         if not gs.exists():
             continue
@@ -637,7 +681,7 @@ def status(st: dict, stage: str) -> None:
             L += ["", f"Latest fakes: runs/g{gen}/gan/<run>/latest_fakes.png. {g.get('note', '')}", ""]
         except (json.JSONDecodeError, OSError):
             pass
-    lat = [(f"{pre}{c}", LOGS / f"{pre}latent_walk_{c}.log") for pre in ("", "g2") for c in CONDS if (LOGS / f"{pre}latent_walk_{c}.log").exists()]
+    lat = [(f"{pre}{c}", LOGS / f"{pre}latent_walk_{c}.log") for pre in ("", *(f"g{g}" for g in GENS)) for c in CONDS if (LOGS / f"{pre}latent_walk_{c}.log").exists()]
     if lat:
         L += ["## Latent walks (notes/brief_g1_latent_walks.md)", ""]
         for c, lg in lat:
@@ -729,30 +773,16 @@ def tick(act: bool = True) -> str | None:
             stage_simple(st, act, "latent_readouts", ["analysis/gen1/latent_readouts.py"], python=PY_SG, fatal=False)
             if marked("latent_readouts"):
                 event(f"commit: {commit(['notes/gen1/latent'], 'generation 1: the latent walk readouts (tables and figures), written by the pipeline')}")
-        elif stage == "g2_packages":
-            stage_g2_packages(st, act, 2)
-        elif stage == "g2_datasets":
-            stage_simple(st, act, "g2_datasets", ["gen/g1_gan.py", "datasets", "--gen", "2"], attempts=2)
-        elif stage == "g2_budget":
-            stage_simple(st, act, "g2_budget", ["gen/g1_gan.py", "inherit_budget", "--gen", "2"], attempts=1)
-        elif stage == "g2_train":
-            stage_train_alternating(st, act, json.loads((ROOT / "runs" / "g2" / "gan" / "budget.json").read_text()), gen=2, stage="g2_train")
-        elif stage == "g2_fid":
-            stage_simple(st, act, "g2_fid", ["gen/g1_gan.py", "fid", "--gen", "2"], sg=True, fatal=False, attempts=2)
-        elif stage == "g2_readouts":
-            stage_simple(st, act, "g2_readouts", ["gen/g1_gan.py", "readouts", "--gen", "2"], sg=True, fatal=False, attempts=2)
-            if marked("g2_readouts"):
-                (ROOT / "notes" / "gen2" / "gan").mkdir(parents=True, exist_ok=True)
-                for f in ("budget.json", "ess.json", "fid.json"):
-                    if (ROOT / "runs" / "g2" / "gan" / f).exists():
-                        shutil.copyfile(ROOT / "runs" / "g2" / "gan" / f, ROOT / "notes" / "gen2" / "gan" / f)
-                event(f"commit: {commit(['notes/gen2/gan'], 'generation 2: the GAN readouts (tables, small figures, budget, ESS, FID), written by the pipeline')}")
-        elif stage == "g2_latent_walks":
-            stage_latent_walks(st, act, gen=2, stage="g2_latent_walks")
-        elif stage == "g2_latent_readouts":
-            stage_simple(st, act, "g2_latent_readouts", ["analysis/gen1/latent_readouts.py", "--gen", "2"], python=PY_SG, fatal=False)
-            if marked("g2_latent_readouts"):
-                event(f"commit: {commit(['notes/gen2/latent'], 'generation 2: the latent walk readouts in G2 (tables and figures), written by the pipeline')}")
+        elif re.fullmatch(r"g\d+_[a-z_]+", stage):
+            stage_gen(st, act, stage)
+        elif stage == "recursion_readouts":
+            stage_simple(st, act, "recursion_readouts", ["analysis/recursion/readouts.py"], sg=True, fatal=False, attempts=2)
+            if marked("recursion_readouts"):
+                event(f"commit: {commit(['notes/recursion'], 'the recursion G1-G4: coverage of the real world, spread, colour and texture statistics, collapse flag; written by the pipeline')}")
+        elif stage == "upscaler":
+            stage_simple(st, act, "upscaler", ["scripts/upscaler.py", "all"], sg=True, fatal=False, attempts=2)
+            if marked("upscaler"):
+                event(f"commit: {commit(['notes/upscaler'], 'the Landsat 1 upscaler (128 -> 178 px): held-out evaluation and figures, written by the pipeline')}")
         elif stage == "final":
             mark("final")
         stage = next((s for s in STAGES if not marked(s)), "done")

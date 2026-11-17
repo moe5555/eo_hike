@@ -2,6 +2,21 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-17, midday: G3 and G4 queued; the recursion readout and the Landsat 1 upscaler
+
+- **What changed.**
+  - **Moe's decisions (2026-11-17):** G3 and G4 at the same rules, then the upscaler, then stop. Recorded in `notes/brief_g2.md` (extension).
+  - **`scripts/g1_lib.py`:** the generation stages are generic (`stage_gen`, `GENS = (2, 3, 4)`), with new stages `recursion_readouts` and `upscaler` before `final`. Each new generation's manifests are committed and tagged `g<g>-paths` by the pipeline.
+  - **`analysis/recursion/readouts.py`:** coverage of the real G1 package, spread and colour/texture statistics per generation, plus a collapse flag. Tested on G1 (recall 0.098 and 0.178, as in the GAN report); the test output was deleted.
+  - **`scripts/upscaler.py`:** Landsat 1 pairs (128 → 178 px), a residual CNN, held-out evaluation and figures. Tested end to end on 400 tiles; the full pairs were built on the CPU during G2.
+  - **Predictions** 169–173 were added before any G3 package.
+- **Why this approach.**
+  - Every generation runs under the same rules, so trends across G1–G4 aren't confounded by budget or rule changes.
+  - The collapse rule is fixed before the data, so it can't be fitted to them.
+- **What I expect.**
+  - G2 ends about Thursday, G3 about Saturday, G4 about Tuesday morning, and the upscaler about Tuesday afternoon; then the run stops for review.
+  - Neither loop meets the collapse flag by G4 (prediction 170).
+
 ## 2026-11-16, afternoon: the G1 latent walks done and reported; G2 packages and datasets built
 
 - **What changed.**
