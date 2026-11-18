@@ -1,0 +1,20 @@
+{
+ "N": 10000,
+ "ess_target": 5000.0,
+ "ess_target_share": 0.5,
+ "ess_limit_counts": 10000.0,
+ "ess_limit_share": 1.0,
+ "encounters": 10000,
+ "start_encounters": 1,
+ "note": "as tau -> infinity the weights become the encounter counts: ESS limit = (sum c)^2 / sum c^2",
+ "reachable": true,
+ "tau": 2.6171746414401267,
+ "ess": 5000.0,
+ "ess_share": 0.5,
+ "max_over_median": 68.95192138015543,
+ "max_weight": 60.37855069313187,
+ "median_weight": 0.875661612970063,
+ "min_weight": 0.057476967724062834,
+ "top1_share": 0.05815546881774236,
+ "top10_share": 0.23272477619554457
+}

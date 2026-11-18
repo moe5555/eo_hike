@@ -1,0 +1,41 @@
+{
+ "kimg": 3840,
+ "budget_h": 60.0,
+ "datasets_h": 0.06,
+ "readouts_h_allowed": 2.0,
+ "readouts_h_estimated": 1.065486111111111,
+ "training_h": 56.82,
+ "sec_per_kimg_concurrent": 25.672454198201496,
+ "sec_per_kimg_with_margin": 53.267,
+ "runs": {
+  "curious": {
+   "sec_per_kimg": 25.672454198201496,
+   "ticks_measured": 6,
+   "custom_ops": {
+    "bias_act_plugin": "ok",
+    "upfirdn2d_plugin": "ok"
+   },
+   "setup_s": 76.36908721923828,
+   "peak_gpu_mem_gb": 14.016632080078125,
+   "fallback_warnings": [
+    "conv2d_gradfix not supported",
+    "Falling back"
+   ]
+  }
+ },
+ "under_2000_kimg": false,
+ "mode": "alternating",
+ "batch_gpu": null,
+ "chunk_kimg": 400,
+ "kept_snapshots": [
+  960,
+  1920,
+  2880,
+  3840
+ ],
+ "snapshot_every_kimg": 40,
+ "computed": "2026-11-14 01:52:47",
+ "inherited_from": "g1",
+ "gen": 2,
+ "note": "G2 trains at G1's budget (Moe, 2026-11-16); not re-measured"
+}
