@@ -12,7 +12,7 @@ Newest entry first. Each entry: date, what changed, why this approach, what you 
   - **The G2 latent walks** started at 21:57 (α_min 16.7° and 14.1°, against the real G1 15 km reference).
 - **Why this approach.** Prediction 165 needed the spread across samples, so the recursion readout ran early on the two finished generations. Nothing in the pipeline changed.
 - **What I expect.**
-  - The G2 walks end about 01:00 on 2026-11-19. The G3 packages and training follow, with G3 done about Saturday evening.
+  - The G2 walks end about midnight. The G3 packages and training follow, with G3 done about Saturday evening.
   - The banding rise and the null's walk effect (findings 4–5 of the G2 report) should show again in G3 if they belong to the loop rather than to one seed.
 
 ## 2026-11-17, midday: G3 and G4 queued; the recursion readout and the Landsat 1 upscaler

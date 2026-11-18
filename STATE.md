@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-18, 23:00 (G2 GANs done and reported; G2 latent walks running; G3, G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-18, 22:10 (G2 GANs done and reported; G2 latent walks running; G3, G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
