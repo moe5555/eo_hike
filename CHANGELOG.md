@@ -2,6 +2,19 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-18, evening: G2 GANs done and reported; G2 latent walks running
+
+- **What changed.**
+  - **G2 training** finished at 20:54 (3,840 kimg each, no restarts). The first full-size G2 FID and readouts ran cleanly (`notes/gen2/gan/`, committed by the pipeline).
+  - **`notes/gen2_gan_report.md`** scores the predictions: 164 right, 165 right, 166 wrong, 167 right, 168 right. It adds early readings for 169 and 171.
+  - **`analysis/recursion/readouts.py`** ran on G1 and G2 ahead of its pipeline stage. The table is in `notes/gen2/gan/cross_generation_g1_g2.csv`; the pipeline reruns it over G1–G4.
+  - **Visual sheets** of 8 seeds at ψ = 1, 2 and 3 are in `notes/gen2/gan/<cond>_far_ends_psi1-3.png`.
+  - **The G2 latent walks** started at 21:57 (α_min 16.7° and 14.1°, against the real G1 15 km reference).
+- **Why this approach.** Prediction 165 needed the spread across samples, so the recursion readout ran early on the two finished generations. Nothing in the pipeline changed.
+- **What I expect.**
+  - The G2 walks end about 01:00 on 2026-11-19. The G3 packages and training follow, with G3 done about Saturday evening.
+  - The banding rise and the null's walk effect (findings 4–5 of the G2 report) should show again in G3 if they belong to the loop rather than to one seed.
+
 ## 2026-11-17, midday: G3 and G4 queued; the recursion readout and the Landsat 1 upscaler
 
 - **What changed.**

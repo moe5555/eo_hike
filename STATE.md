@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-17, 13:10 (G2 training at about 1,600 kimg per run; G3, G4, the recursion readout and the Landsat 1 upscaler queued behind it, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-18, 23:00 (G2 GANs done and reported; G2 latent walks running; G3, G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -41,6 +41,13 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - One path and one seed per condition; the era confound is small.
 - **Generation 2 under way** (Moe, 2026-11-16; `notes/brief_g2.md`): G2-curious trained on the G1-curious latent walk (weighted at ESS 0.5 N: τ = 2.62, max/median 69), G2-null on the G1-null latent walk (unweighted). Packages built 13:30 (render check passed), datasets 13:35, tag g2-paths. Same rules as G1, 3,840 kimg, then fresh walkers in G2. Predictions 164–168 are dated before any G2 package.
   - About 1–3 % of each G2 package comes from the earlier G1 snapshots; the rest is the 3,840 kimg world.
+- **Generation 2 GANs done** (`notes/gen2_gan_report.md`; one walk, GAN and seed per condition, so hints; the era confound of the G1 packages carries through).
+  - **Each G2 learned its own world much more completely** (recall 0.53 and 0.65 against G1's 0.10 and 0.18).
+  - **Coverage of the real G1 package rose for curious (0.098 → 0.171) and held for null.** No collapse by the hand-set rule.
+  - **The colour spread across samples narrowed by 16–38 % in both**, while the distance between neighbouring samples did not fall.
+  - **Banding rose in both loops** (curious 1.66 → 1.74, null 0.98 → 1.19); the 1977 green band thinned again in both. The Null's walk itself was 18 % rougher than its GAN's samples: the radius rule acts in the Null too.
+  - **Visual lead:** at the far ends, G2-curious keeps scan lines; G2-null collapses into flat yellow, black and white fields.
+  - Predictions 164, 165, 167 and 168 right; 166 wrong.
 
 # Decisions taken since the last update, and why
 - **Moe, 2026-11-14:**
@@ -56,14 +63,15 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 
 # Waiting for Moe
 - **The quirk observer on GAN samples** (prediction 154; findings 4–5 of the GAN report would be tested by it).
+- **A random-sampling control for the Null loop?** The Null's latent walk is not a neutral sample of its GAN (G2 report, finding 4). Sampling each GAN at random would separate the walk's effect from the GAN's.
 - **After G4:** whether to continue the recursion, and what the collapse flag (prediction 170) should be if this one is too strict or too loose.
 - **Whether waiting matters enough to revisit q** for later generations of real walks.
 - **The long phase** (predictions 140–142): finish or drop.
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **G2, G3, G4** run unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, written as each generation's readouts land: the G2 GAN report (164–168), then G3/G4 and the recursion report (169–173).
-2. **The near-copy** at curious seed 411; a cross-sample spread readout for prediction 165 (the 5,000 G1 samples are saved).
+1. **G2 latent walks, then G3 and G4** run unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, as each generation's readouts land: the G2 latent readouts, then G3/G4 and the recursion report (169–173). The G2 GAN report is done.
+2. **The near-copy** at G1-curious seed 411.
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
