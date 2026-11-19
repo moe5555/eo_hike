@@ -13,3 +13,8 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
   - Predictions: 164, 165, 167 and 168 right; 166 wrong.
   - Coverage of the real G1 package rose for curious (recall 0.098 → 0.171) and held for null; no collapse.
   - Banding rose in both loops; the null's walk was rougher than its GAN's samples.
+- **2026-11-19 00:59:** the G2 latent walks are done (10,000 tiles each).
+  - The curious walker almost stopped getting bored (90° jumps on 4.7 % of steps, against 25 % in G1).
+  - Its taste flipped: slightly less texture and banding than offered.
+  - See `notes/gen2_latent_report.md`.
+- **2026-11-19 01:05:** G3 packages built and tagged `g3-paths`; the G3 datasets are building.
