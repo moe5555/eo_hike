@@ -2,6 +2,24 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-21, morning: G3 GANs done and reported; chromatic stripes measured post hoc; G3 latent walks running
+
+- **What changed.**
+  - **G3 training** finished at 08:30 (3,840 kimg each, 55.3 h, no restarts). The G3 FID and readouts ran cleanly (`notes/gen3/gan/`, committed by the pipeline). The G3 latent walks started at 09:32.
+  - **`notes/gen3_gan_report.md`:** interim readings for 169–172. 169 is already against the data; 170 is consistent; 171's null part is already outside its band.
+  - **New, post hoc:**
+    - `analysis/recursion/chroma_stripes.py`: chroma_y, the vertical change in each channel minus brightness;
+    - `analysis/recursion/stripes_in_walks.py`: per step, tile stripes against interest and the next offer radius.
+    - Outputs are in `notes/recursion/chroma_stripes.csv` and `stripes_in_walks.csv`.
+  - **Figures:** the same 10 seeds across G1–G3 and the G3 far ends (`notes/gen3/gan/`).
+- **Why this approach.**
+  - The G3 samples are visibly dominated by coloured, slanted scan lines, while the existing row roughness fell in curious. That statistic averages brightness along pixel rows, so it cannot see them.
+  - A second statistic was added next to it, labelled post hoc. The old one is unchanged, and predictions stated on it are still scored on it.
+  - Splitting the loop into walk steps and GAN steps answers where the apparatus grows. The walks show a ×1.25–2.43 rise per generation, the GANs ×1.00–1.16.
+- **What I expect.**
+  - The G3 walks end about 12:30, then G4 packages and training (about Tuesday 2026-11-24 morning), the recursion readout and the upscaler.
+  - If the walk effect belongs to the loop, the G4 package will again be stripier than G3's samples, in both conditions. The G3 walks should again link stripes to close offers.
+
 ## 2026-11-18, evening: G2 GANs done and reported; G2 latent walks running
 
 - **What changed.**

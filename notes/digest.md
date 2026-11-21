@@ -18,3 +18,9 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
   - Its taste flipped: slightly less texture and banding than offered.
   - See `notes/gen2_latent_report.md`.
 - **2026-11-19 01:05:** G3 packages built and tagged `g3-paths`; the G3 datasets are building.
+- **2026-11-21 08:30:** G3 training is done (3,840 kimg each, 55.3 h, no restarts). FID and readouts ran 08:31–09:26.
+- **2026-11-21 09:32:** the G3 latent walks started.
+- **2026-11-21 10:40:** `notes/gen3_gan_report.md` is written.
+  - Chromatic scan lines grow along both loops: G3-curious is at 3.8 × the real package, G3-null at 1.9 × (a post-hoc statistic; the old row roughness cannot see them).
+  - The rise happens mostly in the walks. Both walkers, the Null included, linger on striped tiles through the radius rule.
+  - Recall against the real package rose again in both, so prediction 169 is already against the data. No collapse.

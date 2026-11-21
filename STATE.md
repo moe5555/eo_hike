@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-18, 22:10 (G2 GANs done and reported; G2 latent walks running; G3, G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-21, 10:40 (G3 GANs done and reported; G3 latent walks running; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -27,6 +27,10 @@ Which paths do algorithms driven by novelty, learning progress and boredom cut t
   - The heaviest 64 tiles are an apparatus-heavy tail: more striped and cloudier, with fill ×4, night ×4 and more saturation flags.
   - The broader top 10 % is clear, slightly darker and striped.
 - **In a GAN's world** (`notes/gen1_latent_report.md`; one walk each, a hint): the curious walker chooses more textured, more banded, redder offers and avoids the black green band; the Null shows no gap. "Clear over cloud" does not carry over as a white-share preference. Interest shares at the choice stay at the real proportions (0.38 / 0.33 / 0.29).
+- **What holds the walkers in a GAN's world is the instrument's line structure** (`notes/gen3_gan_report.md`, finding 2; post hoc, G1 and G2 walks):
+  - tile stripes correlate with interest (ρ +0.07 to +0.30);
+  - striped tiles bring close offers about twice as often, in the Null as much as in the curious walker.
+  - Set by hand: the radius rule and the eyes. Emerged: that stripes are what the eyes find interesting.
 
 ## RQ3:
 What do GANs trained recursively on these paths construct, and do their worlds drift across generations towards the planet or towards the apparatus, depending on whether paths are curated by whole places or by fragments, compared with a recursive loop without intrinsic motivation?
@@ -48,6 +52,13 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - **Banding rose in both loops** (curious 1.66 → 1.74, null 0.98 → 1.19); the 1977 green band thinned again in both. The Null's walk itself was 18 % rougher than its GAN's samples: the radius rule acts in the Null too.
   - **Visual lead:** at the far ends, G2-curious keeps scan lines; G2-null collapses into flat yellow, black and white fields.
   - Predictions 164, 165, 167 and 168 right; 166 wrong.
+- **G2 latent walks** (`notes/gen2_latent_report.md`): the curious walker almost stopped getting bored (90° jumps 4.7 % against 25 % in G1). The Null's time path is fixed by its seed.
+- **Generation 3 GANs done** (`notes/gen3_gan_report.md`; hints; the era confound carries through).
+  - **Chromatic scan lines grow along both loops:** G3-curious is at 3.8 × the real G1 package, G3-null at 1.9 ×. This uses chroma_y, a post-hoc statistic; the old row roughness cannot see coloured, slanted lines.
+  - **The apparatus grows in the walks, not mainly in the GANs:** packages are ×1.25–2.43 stripier than the GAN they were walked in, and GANs reproduce their package (×1.00–1.16).
+  - **Both walkers linger on stripes, the Null included:** after a striped tile, offers are at α_min about twice as often. The Null's choice is uniform; its radius follows its own drive.
+  - **Coverage of the real package rose again in both** (recall curious 0.18, null 0.22). The loops part in spacing: curious samples closer together (×0.89), null further apart (×1.32). No collapse.
+  - **By eye:** G3-curious is striped khaki relief with red vegetation almost gone; G3-null is a varied planet again (sea, vegetation, cloud) with flat yellow and white attractors, one copied almost exactly.
 
 # Decisions taken since the last update, and why
 - **Moe, 2026-11-14:**
@@ -60,23 +71,25 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - **G2 inherits G1's measured budget and training mode** instead of re-measuring them: same architecture, size and GPU.
   - **The G2 package render check accepts at most 2 of 255 difference:** the walk rendered offers in batches, so re-rendering one at a time differs in the last bit.
   - **Faithful enlargement** is integer nearest neighbour; Lanczos is labelled display-only; no learned super-resolution (`notes/upscaling.md`).
+  - **chroma_y added next to row roughness, post hoc (2026-11-21):** the old statistic was blind to what the images show. Predictions stated on row roughness are still scored on it.
 
 # Waiting for Moe
 - **The quirk observer on GAN samples** (prediction 154; findings 4–5 of the GAN report would be tested by it).
-- **A random-sampling control for the Null loop?** The Null's latent walk is not a neutral sample of its GAN (G2 report, finding 4). Sampling each GAN at random would separate the walk's effect from the GAN's.
+- **A random-sampling control for the Null loop?** The Null's latent walk is not a neutral sample of its GAN (G2 report, finding 4). G3 shows why: its radius follows its drive, and it lingers on stripes. Sampling each GAN at random would separate the walk's effect from the GAN's; a fixed-radius Null would isolate the radius rule.
+- **chroma_y as a standing observer?** It was chosen after seeing the images. It should be stated before the G4 readouts (about Tuesday) if it is to count.
 - **After G4:** whether to continue the recursion, and what the collapse flag (prediction 170) should be if this one is too strict or too loose.
 - **Whether waiting matters enough to revisit q** for later generations of real walks.
 - **The long phase** (predictions 140–142): finish or drop.
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **G2 latent walks, then G3 and G4** run unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, as each generation's readouts land: the G2 latent readouts, then G3/G4 and the recursion report (169–173). The G2 GAN report is done.
+1. **G3 latent walks, then G4** run unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, as each generation's readouts land: the G3 latent report, then G4 and the recursion report (169–173). The G2 GAN, G2 latent and G3 GAN reports are done.
 2. **The near-copy** at G1-curious seed 411.
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **The extended run ends** about Tuesday 2026-11-24 afternoon: G2 about Thursday 04:00, G3 about Saturday evening, G4 about Tuesday morning, then the recursion readout and the upscaler.
+- **The extended run ends** about Tuesday 2026-11-24 afternoon: the G3 walks about 12:30 today, G4 training about Tuesday morning, then the recursion readout and the upscaler.
 - **Risks:**
-  - G2's FID, readouts and latent walks have run only at test size; the G3/G4 stages reuse the G2 code with the generation number.
+  - The recursion readout and the upscaler stages have run only at test size.
   - Monitoring depends on this Claude session; the pipeline itself restarts on boot, at logon and every 15 minutes.
   - One path, one seed per condition: every comparison across generations is a hint.
