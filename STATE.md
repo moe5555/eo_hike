@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-21, 10:40 (G3 GANs done and reported; G3 latent walks running; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-21, 13:10 (G3 GANs and latent walks done and reported; G4 packages building; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -58,6 +58,10 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - **The apparatus grows in the walks, not mainly in the GANs:** packages are ×1.25–2.43 stripier than the GAN they were walked in, and GANs reproduce their package (×1.00–1.16).
   - **Both walkers linger on stripes, the Null included:** after a striped tile, offers are at α_min about twice as often. The Null's choice is uniform; its radius follows its own drive.
   - **Coverage of the real package rose again in both** (recall curious 0.18, null 0.22). The loops part in spacing: curious samples closer together (×0.89), null further apart (×1.32). No collapse.
+  - **G3 latent walks** (`notes/gen3_latent_report.md`):
+    - the curious walker no longer lingers on stripes (ρ with interest +0.04), while the Null still does (+0.19, walk tiles ×1.47 stripier than its GAN);
+    - boredom jumps fell in both (3.2 % and 11.7 %);
+    - 172 right for G3.
   - **By eye:** G3-curious is striped khaki relief with red vegetation almost gone; G3-null is a varied planet again (sea, vegetation, cloud) with flat yellow and white attractors, one copied almost exactly.
 
 # Decisions taken since the last update, and why
@@ -83,12 +87,12 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **G3 latent walks, then G4** run unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, as each generation's readouts land: the G3 latent report, then G4 and the recursion report (169–173). The G2 GAN, G2 latent and G3 GAN reports are done.
+1. **G4** runs unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, as readouts land: the G4 package stripes (against G3 latent report, finding 2), then G4 and the recursion report (169–173). The G2 and G3 GAN and latent reports are done.
 2. **The near-copy** at G1-curious seed 411.
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **The extended run ends** about Tuesday 2026-11-24 afternoon: the G3 walks about 12:30 today, G4 training about Tuesday morning, then the recursion readout and the upscaler.
+- **The extended run ends** about Tuesday 2026-11-24 afternoon: G4 training about Tuesday morning, then the recursion readout and the upscaler.
 - **Risks:**
   - The recursion readout and the upscaler stages have run only at test size.
   - Monitoring depends on this Claude session; the pipeline itself restarts on boot, at logon and every 15 minutes.

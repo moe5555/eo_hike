@@ -24,3 +24,8 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
   - Chromatic scan lines grow along both loops: G3-curious is at 3.8 × the real package, G3-null at 1.9 × (a post-hoc statistic; the old row roughness cannot see them).
   - The rise happens mostly in the walks. Both walkers, the Null included, linger on striped tiles through the radius rule.
   - Recall against the real package rose again in both, so prediction 169 is already against the data. No collapse.
+- **2026-11-21 12:34:** the G3 latent walks are done (10,000 tiles each). The G4 packages are building.
+- **2026-11-21 13:10:** `notes/gen3_latent_report.md` is written.
+  - The curious walker no longer lingers on stripes; the Null still does (its walk tiles are ×1.47 stripier than its GAN's samples).
+  - Boredom jumps fell in both (3.2 % and 11.7 %).
+  - Prediction 172 is right for G3.

@@ -2,6 +2,16 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-21, midday: G3 latent walks done and reported; G4 packages building
+
+- **What changed.**
+  - The G3 latent walks finished at 12:34; the pipeline's readouts are in `notes/gen3/latent/`.
+  - `notes/gen3_latent_report.md` adds the taste intervals (`taste_ci.csv`) and `stripes_in_walks.py` for G3.
+- **Why this approach.** It uses the same readouts as G2, plus the stripe link that the G3 GAN report found, so the walk step of the loop can be followed generation by generation.
+- **What I expect.**
+  - The G4-curious package will be about as striped as G3-curious's samples; the G4-null package about 1.5 × stripier.
+  - G4 training runs until about Tuesday morning.
+
 ## 2026-11-21, morning: G3 GANs done and reported; chromatic stripes measured post hoc; G3 latent walks running
 
 - **What changed.**
