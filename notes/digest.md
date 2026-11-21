@@ -29,3 +29,5 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
   - The curious walker no longer lingers on stripes; the Null still does (its walk tiles are ×1.47 stripier than its GAN's samples).
   - Boredom jumps fell in both (3.2 % and 11.7 %).
   - Prediction 172 is right for G3.
+- **2026-11-21 12:48:** G4 packages are built (tag `g4-paths`); G4-curious weights τ = 2.243, top 10 % hold 0.254. G4 training has started and should end about Tuesday morning.
+- **2026-11-21 13:45:** chroma_y of the G4 packages: curious 14.08 (×1.01 of G3-curious samples), null 7.81 (×1.46). This is as the G3 latent report expected, but it is a consistency check, not a confirmation: the package is the walk's own tiles.
