@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-23, 21:40 (G4 GANs done and reported, 169–171 scored; G4 latent walks running; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-24, 00:50 (G4 GANs and latent walks done and reported, 169–172 scored; recursion readout done; upscaler running; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -67,7 +67,8 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - **No collapse after four generations.** Recall against the real package stays above G1's in both loops.
   - **The null loop drifted:** its precision against the real package halved (0.53 → 0.24), down to the curious loop's level, which never moved (0.24–0.26). Colour spread narrowed in both, at every generation.
   - **Chromatic scan lines at G4:** 4.4 × the real package (curious) and 3.0 × (null). The curious walk stopped adding them after G3; the null walk did not.
-  - **Predictions:** 169 wrong, 170 right, 171 wrong (null part).
+  - **Predictions:** 169 wrong, 170 right, 171 wrong (null part); 172 right (`notes/gen4_latent_report.md`).
+  - **G4 latent walks:** the Null walker too stopped lingering on stripes (one generation after curious). Neither walk now adds stripes; boredom jumps are down to a few per cent in both.
   - **By eye:** G4-curious is grey-khaki under fine multicoloured scan lines, with a recurring teal lake with a red rim; G4-null is still more varied, but much stripier than G3-null.
 
 # Decisions taken since the last update, and why
@@ -93,7 +94,7 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **G4 latent walks** (until about 00:15 on 2026-11-24), then the recursion readout, the upscaler and `final`. Reports still due: the G4 latent report, then the recursion report (172, 173 and the overview). The G2–G4 GAN reports and the G2–G3 latent reports are done.
+1. **The upscaler** (running since 00:19 on 2026-11-24), then `final`. Reports still due: the recursion report (173 and the overview across G1–G4). All GAN and latent reports are done.
 2. **The near-copy** at G1-curious seed 411.
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 

@@ -2,6 +2,15 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-24, night: G4 latent walks done and reported; 172 scored; recursion readout done; upscaler running
+
+- **What changed.**
+  - The G4 walks finished at 00:09. Their readouts and the recursion readout are in, committed by the pipeline (`notes/gen4/latent/`, `notes/recursion/`).
+  - `notes/gen4_latent_report.md` scores 172 (right). It adds G4 to `stripes_in_walks.csv` and computes the taste intervals.
+  - The upscaler stage started at 00:19.
+- **Why this approach.** The G4 walks are the last of the run, so their stripe link closes the walk-step series.
+- **What I expect.** The upscaler trains 100k iterations, then evaluates on held-out cells (prediction 173). After that come the recursion report and `final`.
+
 ## 2026-11-23, evening: G4 GANs done and reported; 169–171 scored; G4 latent walks running
 
 - **What changed.**

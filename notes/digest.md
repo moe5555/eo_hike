@@ -36,3 +36,8 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
   - Predictions: 169 wrong, 170 right, 171 wrong (null part).
   - Chromatic scan lines are at 4.4 × the real package (curious) and 3.0 × (null).
   - The null loop's precision against the real package fell to the curious loop's level. No collapse.
+- **2026-11-24 00:09:** the G4 latent walks are done. The recursion readout ran 00:12–00:18 (pipeline commit). The upscaler started 00:19.
+- **2026-11-24 00:50:** `notes/gen4_latent_report.md` is written.
+  - Prediction 172 is right (G3 and G4).
+  - The Null walker also stopped lingering on stripes in G4, one generation after the curious one.
+  - Boredom jumps fell to a few per cent in both.
