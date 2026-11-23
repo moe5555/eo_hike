@@ -31,3 +31,8 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
   - Prediction 172 is right for G3.
 - **2026-11-21 12:48:** G4 packages are built (tag `g4-paths`); G4-curious weights τ = 2.243, top 10 % hold 0.254. G4 training has started and should end about Tuesday morning.
 - **2026-11-21 13:45:** chroma_y of the G4 packages: curious 14.08 (×1.01 of G3-curious samples), null 7.81 (×1.46). This is as the G3 latent report expected, but it is a consistency check, not a confirmation: the package is the walk's own tiles.
+- **2026-11-23 20:05:** G4 training is done (3,840 kimg each, 55.3 h, no restarts). FID and readouts ran 20:06–21:01. The G4 latent walks started 21:06.
+- **2026-11-23 21:40:** `notes/gen4_gan_report.md` is written.
+  - Predictions: 169 wrong, 170 right, 171 wrong (null part).
+  - Chromatic scan lines are at 4.4 × the real package (curious) and 3.0 × (null).
+  - The null loop's precision against the real package fell to the curious loop's level. No collapse.

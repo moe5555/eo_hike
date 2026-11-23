@@ -6,6 +6,7 @@ curious,2,samples G2,9.5954,4.6724,1.7319,23.4008
 curious,3,package (trained G3),12.0236,5.3479,1.9042,29.2732
 curious,3,samples G3,13.9253,6.0019,1.9771,35.3800
 curious,4,package (trained G4),14.0796,5.8389,2.0662,36.0792
+curious,4,samples G4,16.0870,6.4708,2.1266,41.9656
 null,1,package (trained G1),2.8798,1.9133,1.3453,6.6015
 null,1,samples G1,2.8363,1.9078,1.2654,5.8381
 null,2,package (trained G2),3.5329,2.2146,1.3544,8.8297
@@ -13,3 +14,4 @@ null,2,samples G2,3.5184,2.2277,1.3264,8.8595
 null,3,package (trained G3),5.2877,3.0369,1.4595,14.2732
 null,3,samples G3,5.3505,3.1133,1.4203,15.2156
 null,4,package (trained G4),7.8127,4.2010,1.6069,18.9524
+null,4,samples G4,8.5937,4.5778,1.5925,20.8723

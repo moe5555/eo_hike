@@ -2,6 +2,18 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-23, evening: G4 GANs done and reported; 169–171 scored; G4 latent walks running
+
+- **What changed.**
+  - G4 training finished at 20:05 (3,840 kimg each, no restarts). FID and readouts are in `notes/gen4/gan/` (pipeline).
+  - `notes/gen4_gan_report.md` scores 169 (wrong), 170 (right) and 171 (wrong, null part).
+  - The cross-generation readout ran on G1–G4 (`notes/gen4/gan/cross_generation_g1_g4.csv`) and chroma_y on all sets.
+  - Same-seed and far-end sheets added.
+- **Why this approach.** 169–171 concern the G4 GANs, so they are scored as soon as those exist. 172 (time in the G4 walks) and 173 (upscaler) wait for their stages, then the recursion report.
+- **What I expect.**
+  - The G4 walks end about 00:15. The recursion readout and the upscaler follow, then `final`.
+  - The null walker should again linger on stripes in G4. The curious walker should not.
+
 ## 2026-11-21, midday: G3 latent walks done and reported; G4 packages building
 
 - **What changed.**

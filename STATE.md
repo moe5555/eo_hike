@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-21, 13:10 (G3 GANs and latent walks done and reported; G4 packages building; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-23, 21:40 (G4 GANs done and reported, 169–171 scored; G4 latent walks running; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -63,6 +63,12 @@ What do GANs trained recursively on these paths construct, and do their worlds d
     - boredom jumps fell in both (3.2 % and 11.7 %);
     - 172 right for G3.
   - **By eye:** G3-curious is striped khaki relief with red vegetation almost gone; G3-null is a varied planet again (sea, vegetation, cloud) with flat yellow and white attractors, one copied almost exactly.
+- **Generation 4 GANs done** (`notes/gen4_gan_report.md`; hints; era confound carries through).
+  - **No collapse after four generations.** Recall against the real package stays above G1's in both loops.
+  - **The null loop drifted:** its precision against the real package halved (0.53 → 0.24), down to the curious loop's level, which never moved (0.24–0.26). Colour spread narrowed in both, at every generation.
+  - **Chromatic scan lines at G4:** 4.4 × the real package (curious) and 3.0 × (null). The curious walk stopped adding them after G3; the null walk did not.
+  - **Predictions:** 169 wrong, 170 right, 171 wrong (null part).
+  - **By eye:** G4-curious is grey-khaki under fine multicoloured scan lines, with a recurring teal lake with a red rim; G4-null is still more varied, but much stripier than G3-null.
 
 # Decisions taken since the last update, and why
 - **Moe, 2026-11-14:**
@@ -87,12 +93,12 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **G4** runs unattended (until about Tuesday 2026-11-24), then the recursion readout and the upscaler. Reports, as readouts land: the G4 package stripes (against G3 latent report, finding 2), then G4 and the recursion report (169–173). The G2 and G3 GAN and latent reports are done.
+1. **G4 latent walks** (until about 00:15 on 2026-11-24), then the recursion readout, the upscaler and `final`. Reports still due: the G4 latent report, then the recursion report (172, 173 and the overview). The G2–G4 GAN reports and the G2–G3 latent reports are done.
 2. **The near-copy** at G1-curious seed 411.
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **The extended run ends** about Tuesday 2026-11-24 afternoon: G4 training about Tuesday morning, then the recursion readout and the upscaler.
+- **The extended run ends** about Tuesday 2026-11-24 afternoon: the G4 walks about 00:15, then the recursion readout and the upscaler (Tuesday 2026-11-24).
 - **Risks:**
   - The recursion readout and the upscaler stages have run only at test size.
   - Monitoring depends on this Claude session; the pipeline itself restarts on boot, at logon and every 15 minutes.
