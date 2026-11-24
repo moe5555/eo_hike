@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-24, 00:50 (G4 GANs and latent walks done and reported, 169–172 scored; recursion readout done; upscaler running; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-24, 12:55 (G1–G4 recursion and the Landsat 1 upscaler done and reported in `notes/recursion_report.md`, 169–173 scored; G5 started at 12:43 per Moe's decision of 2026-11-24; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -69,6 +69,9 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - **Chromatic scan lines at G4:** 4.4 × the real package (curious) and 3.0 × (null). The curious walk stopped adding them after G3; the null walk did not.
   - **Predictions:** 169 wrong, 170 right, 171 wrong (null part); 172 right (`notes/gen4_latent_report.md`).
   - **G4 latent walks:** the Null walker too stopped lingering on stripes (one generation after curious). Neither walk now adds stripes; boredom jumps are down to a few per cent in both.
+  - **The recursion as a whole** (`notes/recursion_report.md`): no collapse; the instrument's scan lines are what the recursion amplifies, mostly in the walks through the radius rule and in both walkers; the curious weighting accelerates but does not decide the direction.
+  - **The Landsat 1 upscaler:** +5.4 dB median PSNR over bicubic on held-out cells. It sharpens the scan lines a sample has and does not invent them. Prediction 173 right.
+  - **G5 started** (Moe, 2026-11-24, "G5 at the same rules"). Packages tagged `g5-paths` at 12:45. Predictions 174–178 were dated before.
   - **By eye:** G4-curious is grey-khaki under fine multicoloured scan lines, with a recurring teal lake with a red rim; G4-null is still more varied, but much stripier than G3-null.
 
 # Decisions taken since the last update, and why
@@ -76,6 +79,7 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - latent walks in G1: fresh walkers with the same config, z-sphere calibrated, snapshot as time, queued to start on their own;
   - the step observer is colour character, not pixel layout.
 - **Moe, 2026-11-16:** generation 2 only, then stop; 3,840 kimg; same rules as G1; "snapshot as time" in every generation.
+- **Moe, 2026-11-24:** G5 at the same rules (a latent walk plus GAN training once more), queued after the upscaler.
 - **Moe, 2026-11-17:** G3 and G4 at the same rules; the calibration keeps the real 15 km reference; the time rule stays; the Landsat 1 upscaler after the last generation; then stop for review (`notes/brief_g2.md`, extension).
 - **Mine, within the run instruction:**
   - **The supervisor's job liveness was fixed** after a reused Windows pid killed one chunk (2026-11-14 19:14; resumed from its snapshot, no kimg lost).
@@ -94,12 +98,12 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **The upscaler** (running since 00:19 on 2026-11-24), then `final`. Reports still due: the recursion report (173 and the overview across G1–G4). All GAN and latent reports are done.
+1. **G5** (Moe, 2026-11-24) runs unattended: training until about Thursday 2026-11-26 21:00, then FID, readouts and latent walks (about Friday 01:00), then the recursion readout over G1–G5 and `final`. Reports due: the G5 GAN and latent reports (174–178) and an addendum to the recursion report.
 2. **The near-copy** at G1-curious seed 411.
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **The extended run ends** about Tuesday 2026-11-24 afternoon: the G4 walks about 00:15, then the recursion readout and the upscaler (Tuesday 2026-11-24).
+- **The extended run ends** about Tuesday 2026-11-24 afternoon: G5 about Friday 2026-11-27 early morning (training about 55 h from 12:50 on 2026-11-24, then readouts and walks).
 - **Risks:**
   - The recursion readout and the upscaler stages have run only at test size.
   - Monitoring depends on this Claude session; the pipeline itself restarts on boot, at logon and every 15 minutes.

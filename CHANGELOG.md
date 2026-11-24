@@ -2,6 +2,19 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-24, midday: upscaler done; recursion report (169–173); G5 started
+
+- **What changed.**
+  - The upscaler finished at 12:32 (`notes/upscaler/`, pipeline commit).
+  - `analysis/recursion/upscaler_stripes.py` measures what the model adds. `notes/recursion_report.md` scores 169–173: 169 wrong, 170 right, 171 wrong, 172 right, 173 right.
+  - **Moe's decision (2026-11-24): G5 at the same rules.**
+    - Predictions 174–178 and the brief extension were written first.
+    - Then `GENS = (2, 3, 4, 5)`, and the `recursion_readouts` and `final` markers were removed after `upscaler` was marked done.
+    - The pipeline picked G5 up at 12:43; packages are tagged `g5-paths`.
+  - Full-screen renders of upscaled G4 samples are in `runs/g4/fullscreen/`, outside git.
+- **Why this approach.** G5 waited for the upscaler so the two never share the GPU. The recursion readout reruns over G1–G5 at the end.
+- **What I expect.** G5 training until about Thursday 21:00, then FID, readouts and walks into Friday morning. See predictions 174–178.
+
 ## 2026-11-24, night: G4 latent walks done and reported; 172 scored; recursion readout done; upscaler running
 
 - **What changed.**
