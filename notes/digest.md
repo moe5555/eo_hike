@@ -41,3 +41,4 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
   - Prediction 172 is right (G3 and G4).
   - The Null walker also stopped lingering on stripes in G4, one generation after the curious one.
   - Boredom jumps fell to a few per cent in both.
+- **2026-11-24 01:30:** block-bootstrap taste intervals over the G1–G4 walks (`notes/recursion/taste_block_ci.csv`). The step gaps are nearly independent, so the earlier claim that the step bootstrap was too narrow is withdrawn; corrections are appended to the G2–G4 latent reports. The upscaler is training (about 0.44 s/it, done about 12:30).

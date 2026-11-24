@@ -76,3 +76,15 @@ One walk per condition in one GAN per condition, in worlds that inherit the era 
 
 - **A block bootstrap for the taste intervals** (finding 4), for all latent reports. It changes no data, only the intervals. I'll add it when the recursion report is written unless Moe says otherwise.
 - **The collapse of boredom in the curious loop** (finding 1) is worth watching in G3: if it holds, the curious G3 package will be even more locally correlated.
+
+## Correction (2026-11-24): the step bootstrap was not too narrow
+
+nalysis/recursion/taste_block_ci.py (
+otes/recursion/taste_block_ci.csv) resampled the per-step gaps in moving blocks of 50 and 200 steps for G1–G4.
+
+- **The gaps are nearly independent:** the median lag-1 autocorrelation is about 0.
+- **The block intervals are no wider than the iid ones:** median width ratio ×0.99 for the Null and ×1.2 for curious.
+- **The Null's intervals clear zero in 4–5 of 36 statistic × generation cells.** These are mostly one correlated cluster (brightness and channel means in G2). At 95 % that is about what chance gives, so it does not show the bootstrap was too narrow.
+- **The curious walker's gaps clear zero in 22–23 of 36 cells under every scheme.** Its taste is small but stable within each walk.
+
+The claim above that the step bootstrap is too narrow is withdrawn. The intervals in this report stand. They still describe one walk, not walks in general.

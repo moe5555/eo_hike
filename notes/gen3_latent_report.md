@@ -93,3 +93,15 @@ One walk per condition in one GAN per condition, in worlds that inherit the era 
 - **Finding 2 is a check worth doing before G4's readouts:** chroma_y on the G4 packages, against G3's samples. It is a description stated in advance, not a test.
 - **The block bootstrap** for the taste intervals is still owed (G2 report, finding 4). I'll add it to the recursion report.
 - **The taste readout cannot see stripes.** The walk stores no offer images; the offers' chroma would need re-rendering from the stored offer latents, if they are stored.
+
+## Correction (2026-11-24): the step bootstrap was not too narrow
+
+nalysis/recursion/taste_block_ci.py (
+otes/recursion/taste_block_ci.csv) resampled the per-step gaps in moving blocks of 50 and 200 steps for G1–G4.
+
+- **The gaps are nearly independent:** the median lag-1 autocorrelation is about 0.
+- **The block intervals are no wider than the iid ones:** median width ratio ×0.99 for the Null and ×1.2 for curious.
+- **The Null's intervals clear zero in 4–5 of 36 statistic × generation cells.** These are mostly one correlated cluster (brightness and channel means in G2). At 95 % that is about what chance gives, so it does not show the bootstrap was too narrow.
+- **The curious walker's gaps clear zero in 22–23 of 36 cells under every scheme.** Its taste is small but stable within each walk.
+
+The claim above that the step bootstrap is too narrow is withdrawn. The intervals in this report stand. They still describe one walk, not walks in general.
