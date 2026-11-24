@@ -55,3 +55,12 @@ Moe's answers (2026-11-17, before leaving for a week): "G3 + G4, 3,840 kimg"; th
 - **Expected:** G2 ends about Thursday 2026-11-19 04:00, G3 about Saturday 2026-11-21 evening, G4 about Tuesday 2026-11-24 morning, the upscaler about Tuesday afternoon.
 - **Predictions** 169–173 were dated 2026-11-17 13:00, before any G3 package.
 - **Not covered by this run:** the four-seed replication (milestone 4) and a places-against-fragments comparison (RQ3) are outside this extension.
+
+## Extension, 2026-11-24: generation 5 (Moe, 2026-11-24)
+
+Moe's answer (2026-11-24, during the upscaler): "G5 at the same rules", that is, a walk through latent space plus GAN training once more.
+
+- **Stages:** `GENS = (2, 3, 4, 5)` in `scripts/g1_lib.py`. The `g5_*` steps repeat the G2 steps: packages from the G4 latent walks (tag `g5-paths`), datasets, budget (inherited), training at 3,840 kimg, FID, readouts, latent walks, latent readouts.
+- **The switch happens after `upscaler` is marked done**, so G5 never shares the GPU with the upscaler. Then the `recursion_readouts` and `final` markers are removed (pipeline state only), so the recursion readout reruns over G1–G5 and the run stops again at `final`.
+- **Expected:** G5 packages and datasets about 13:00 on 2026-11-24, training to about Thursday 2026-11-26 21:00, FID and readouts about 22:00, latent walks about Friday 01:00, recursion readout right after.
+- **Predictions** 174–178 were dated 2026-11-24 12:20, before any G5 package.

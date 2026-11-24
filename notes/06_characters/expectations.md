@@ -364,3 +364,13 @@ Moe, 2026-11-17: after G2, G3 and G4 run unattended at the same rules (3,840 kim
 171. **The apparatus in the curious loop (RQ3):** G4-curious has a higher mean row roughness than G1-curious (G1: 1.66) and higher than G4-null. The null loop's row roughness stays within ±20 % of G1-null's (0.98). Colour and texture statistics. Low confidence.
 172. **Time in later walks:** in the G3 and G4 latent walks, both walkers again reach the last snapshot within the first 3 % of their steps.
 173. **The upscaler:** on held-out grid cells, the learned 128 → 178 upscaler beats bicubic by at least 1 dB median PSNR; on GAN samples it adds scan-line texture where the sample already has some.
+
+## Generation 5 (added 2026-11-24 12:20, during the upscaler, before any G5 package or training; Moe's decision of 2026-11-24)
+
+Moe, 2026-11-24: one more generation at the same rules ("G5 at the same rules": the G4 latent walks as packages, 3,840 kimg, fresh walkers in G5, then the recursion readout over G1–G5). chroma_y (`analysis/recursion/chroma_stripes.py`) was chosen post hoc after G3; stated here before G5, it is used as an observer for 174 and 175. One GAN and one walk per condition: hints. Mine:
+
+174. **The GANs keep adding stripes on their own:** chroma_y of each G5 GAN's samples is ×1.03–1.25 of its package (the G4 walk tiles: curious 16.07, null 8.90), as G4 did (×1.14, ×1.10).
+175. **The walks stay neutral to stripes:** in the G5 latent walks, ρ(chroma_y, interest) is below 0.10 for both walkers, and each walk's tiles are within ×0.95–1.10 of its GAN's samples in chroma_y.
+176. **The null loop keeps drifting, the curious loop does not:** G5-null precision against the real G1 package is below G4-null's (0.241); G5-curious precision stays within 0.22–0.28. Neither loop meets the collapse rule (170).
+177. **Colour narrows again:** the SD of brightness across samples is lower in G5 than in G4 for both (curious 11.9, null 31.6). Low confidence for curious, which barely moved from G3 to G4.
+178. **Time and boredom in G5 walks:** both walkers reach the last snapshot within the first 3 % of steps, and the Null's time path is again steps 27, 244 and 276. 90° jumps stay below 8 % of steps for both.
