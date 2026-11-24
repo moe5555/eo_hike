@@ -1,0 +1,19 @@
+{
+ "n_holdout_tiles": 5176,
+ "note": "held-out grid cells (5 %, by hash); 8-bit outputs; L1 in 0-255 units; PSNR in dB",
+ "model": {
+  "L1": 1.076,
+  "PSNR_mean": 44.473,
+  "PSNR_median": 45.028
+ },
+ "bilinear": {
+  "L1": 2.736,
+  "PSNR_mean": 37.232,
+  "PSNR_median": 37.392
+ },
+ "bicubic": {
+  "L1": 2.168,
+  "PSNR_mean": 39.087,
+  "PSNR_median": 39.602
+ }
+}
