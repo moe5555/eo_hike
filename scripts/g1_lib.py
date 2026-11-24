@@ -48,7 +48,7 @@ TICK_S = 60
 N = 10_000
 CONDS = ("curious", "null")
 # the recursion (Moe, 2026-11-16: G2; 2026-11-17: G3 and G4 at the same rules, then the Landsat 1 upscaler, then stop for review)
-GENS = (2, 3, 4)
+GENS = (2, 3, 4, 5)  # G5 added 2026-11-24 (Moe: "G5 at the same rules"), after the upscaler was done
 GEN_STEPS = ("packages", "datasets", "budget", "train", "fid", "readouts", "latent_walks", "latent_readouts")
 STAGES = (("walks", "packages", "freeze", "walk_readouts", "datasets", "throughput", "budget", "train", "fid", "gan_readouts", "latent_walks",
            "latent_readouts") + tuple(f"g{g}_{s}" for g in GENS for s in GEN_STEPS) + ("recursion_readouts", "upscaler", "final"))
