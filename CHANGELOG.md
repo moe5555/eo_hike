@@ -2,6 +2,17 @@
 
 Newest entry first. Each entry: date, what changed, why this approach, what you expect. Entries before 2026-11-12 are in `notes/CHANGELOG.md`.
 
+## 2026-11-25, evening: G5 ended early (Moe); pipeline halted for review
+
+- **What changed.**
+  - On Moe's decision ("end the generation", stop now, no readouts) G5 training was stopped:
+    1. the supervisor stop file;
+    2. `halt` in `runs/g1/pipeline_state.json`;
+    3. `runs/g5/gan/curious/STOP`.
+  - G5-curious stopped cleanly at 2,252 kimg; G5-null's last snapshot is 2,004 kimg.
+  - Recorded in `notes/brief_g2.md` ("Ended early"), the predictions file, STATE and the digest.
+- **Why this approach.** The graceful mechanisms leave a final snapshot and no half-written state. The `halt` keeps the still-enabled scheduled task from restarting anything, since disabling it was denied from this session. Nothing was deleted, so G5 can resume from its snapshots.
+- **What I expect.** Nothing runs until Moe decides. 174–178 stay open.
 ## 2026-11-24, midday: upscaler done; recursion report (169–173); G5 started
 
 - **What changed.**

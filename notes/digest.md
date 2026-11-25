@@ -45,3 +45,5 @@ One dated line per notable event, newest last. The full history is in `runs/g1/e
 - **2026-11-24 12:32:** the upscaler is done: +5.4 dB median PSNR over bicubic on held-out cells. It sharpens existing scan lines and does not invent them. Prediction 173 right.
 - **2026-11-24 12:43:** G5 started (Moe, 2026-11-24: "G5 at the same rules"). Predictions 174–178 were dated before any package; packages tagged `g5-paths` at 12:45.
 - **2026-11-24 12:55:** `notes/recursion_report.md` is written (169 wrong, 170 right, 171 wrong, 172 right, 173 right).
+- **2026-11-25 18:09:** a G5-null chunk ended without an exit record. It was restarted from its snapshot with no kimg lost. Since about 18:00 the GPU runs at a higher clock (1,815 MHz against about 1,200); cause unknown.
+- **2026-11-25 20:00:** G5 ended early (Moe: "end the generation", stop now, no readouts). Training stopped at 2,252 kimg (curious) and 2,004 kimg (null). The pipeline is halted for review, 174–178 are not scored, and all snapshots are kept.

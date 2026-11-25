@@ -374,3 +374,5 @@ Moe, 2026-11-24: one more generation at the same rules ("G5 at the same rules": 
 176. **The null loop keeps drifting, the curious loop does not:** G5-null precision against the real G1 package is below G4-null's (0.241); G5-curious precision stays within 0.22–0.28. Neither loop meets the collapse rule (170).
 177. **Colour narrows again:** the SD of brightness across samples is lower in G5 than in G4 for both (curious 11.9, null 31.6). Low confidence for curious, which barely moved from G3 to G4.
 178. **Time and boredom in G5 walks:** both walkers reach the last snapshot within the first 3 % of steps, and the Null's time path is again steps 27, 244 and 276. 90° jumps stay below 8 % of steps for both.
+
+*2026-11-25: G5 ended early by Moe's decision (training stopped at 2,252 and 2,004 kimg, no readouts). 174–178 are not scored and stay open.*

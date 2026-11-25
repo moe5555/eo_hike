@@ -64,3 +64,20 @@ Moe's answer (2026-11-24, during the upscaler): "G5 at the same rules", that is,
 - **The switch happens after `upscaler` is marked done**, so G5 never shares the GPU with the upscaler. Then the `recursion_readouts` and `final` markers are removed (pipeline state only), so the recursion readout reruns over G1–G5 and the run stops again at `final`.
 - **Expected:** G5 packages and datasets about 13:00 on 2026-11-24, training to about Thursday 2026-11-26 21:00, FID and readouts about 22:00, latent walks about Friday 01:00, recursion readout right after.
 - **Predictions** 174–178 were dated 2026-11-24 12:20, before any G5 package.
+
+## Ended early, 2026-11-25 (Moe)
+
+Moe, 2026-11-25 ~19:55: "End the generation", then "stop now, no readouts".
+
+- **G5 training stopped at the latest snapshots:**
+  - G5-curious at 2,252 kimg (`network-snapshot-002252.pkl`, written on stop at 19:59);
+  - G5-null at 2,004 kimg (`network-snapshot-002004.pkl`, 18:27).
+  - Kept snapshots at 960 and 1,920 kimg exist for both. Nothing was deleted.
+- **No G5 FID, readouts, latent walks or recursion readout over G1–G5.** Predictions 174–178 are therefore not scored; they stay dated and open.
+- **How it was stopped:**
+  - the supervisor's stop file;
+  - then `halt` set in `runs/g1/pipeline_state.json`, so any relaunch by the scheduled task exits without acting;
+  - then `runs/g5/gan/curious/STOP`, which ends training cleanly at the next tick.
+  - The scheduled task `eo_hike_g1` could not be disabled from this session (access denied); it stays enabled but halted.
+- **To resume** (Moe's decision): remove `runs/g5/gan/curious/STOP`, clear `halt` in `pipeline_state.json`, then run the task. Training resumes from the snapshots. The `recursion_readouts` and `final` markers are still removed.
+- **Incident before the stop:** at 18:09 the G5-null chunk to 2,000 kimg ended without an exit record (attempt 1). It was restarted from its snapshot (attempt 2) and finished at 18:27, with no kimg lost. Since then the GPU runs at a higher clock (1,815 MHz, 153 W, 87 °C, against about 1,200 MHz and 96 W before), and training was faster (about 21.9 s/kimg against 25.5). The cause was not found in the system log.

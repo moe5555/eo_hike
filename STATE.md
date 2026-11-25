@@ -1,4 +1,4 @@
-Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-24, 12:55 (G1–G4 recursion and the Landsat 1 upscaler done and reported in `notes/recursion_report.md`, 169–173 scored; G5 started at 12:43 per Moe's decision of 2026-11-24; G4, the recursion readout and the Landsat 1 upscaler queued behind them, per Moe's decisions of 2026-11-17; Moe away until Wednesday 2026-11-25).
+Rewritten by Claude Code at the end of every cycle. Last update: 2026-11-25, 20:10 (G1–G4 recursion and the Landsat 1 upscaler done and reported in `notes/recursion_report.md`, 169–173 scored; G5 ended early by Moe's decision, training stopped at 2,252 and 2,004 kimg with no readouts; the pipeline is halted for review).
 
 # Where we are, in thesis terms
 ## RQ1:
@@ -71,7 +71,10 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - **G4 latent walks:** the Null walker too stopped lingering on stripes (one generation after curious). Neither walk now adds stripes; boredom jumps are down to a few per cent in both.
   - **The recursion as a whole** (`notes/recursion_report.md`): no collapse; the instrument's scan lines are what the recursion amplifies, mostly in the walks through the radius rule and in both walkers; the curious weighting accelerates but does not decide the direction.
   - **The Landsat 1 upscaler:** +5.4 dB median PSNR over bicubic on held-out cells. It sharpens the scan lines a sample has and does not invent them. Prediction 173 right.
-  - **G5 started** (Moe, 2026-11-24, "G5 at the same rules"). Packages tagged `g5-paths` at 12:45. Predictions 174–178 were dated before.
+  - **G5 started and was ended early** (Moe, 2026-11-24: "G5 at the same rules"; 2026-11-25: "end the generation", stop now, no readouts).
+    - Training stopped at 2,252 kimg (curious) and 2,004 kimg (null).
+    - No FID, readouts or latent walks. Predictions 174–178 are not scored.
+    - The snapshots are kept; see `notes/brief_g2.md`, "Ended early".
   - **By eye:** G4-curious is grey-khaki under fine multicoloured scan lines, with a recurring teal lake with a red rim; G4-null is still more varied, but much stripier than G3-null.
 
 # Decisions taken since the last update, and why
@@ -79,6 +82,7 @@ What do GANs trained recursively on these paths construct, and do their worlds d
   - latent walks in G1: fresh walkers with the same config, z-sphere calibrated, snapshot as time, queued to start on their own;
   - the step observer is colour character, not pixel layout.
 - **Moe, 2026-11-16:** generation 2 only, then stop; 3,840 kimg; same rules as G1; "snapshot as time" in every generation.
+- **Moe, 2026-11-25:** end G5 now, no readouts. The pipeline is halted (`halt` in `runs/g1/pipeline_state.json`, plus a STOP file in the G5-curious run); the scheduled task stays enabled but does nothing.
 - **Moe, 2026-11-24:** G5 at the same rules (a latent walk plus GAN training once more), queued after the upscaler.
 - **Moe, 2026-11-17:** G3 and G4 at the same rules; the calibration keeps the real 15 km reference; the time rule stays; the Landsat 1 upscaler after the last generation; then stop for review (`notes/brief_g2.md`, extension).
 - **Mine, within the run instruction:**
@@ -98,13 +102,16 @@ What do GANs trained recursively on these paths construct, and do their worlds d
 - **Snapshot as time beyond G2:** with four kept snapshots, waiting is over within the first 3 % of a latent walk. More snapshots, or another rule, if time should matter later.
 
 # Backlog, in order
-1. **G5** (Moe, 2026-11-24) runs unattended: training until about Thursday 2026-11-26 21:00, then FID, readouts and latent walks (about Friday 01:00), then the recursion readout over G1–G5 and `final`. Reports due: the G5 GAN and latent reports (174–178) and an addendum to the recursion report.
+1. **Review with Moe** of `notes/recursion_report.md` and the decisions under "Waiting for Moe":
+   - the Null control;
+   - chroma_y or the quirk observer as a standing observer;
+   - whether G5 should be resumed, read out at its current snapshots, or dropped.
 2. **The near-copy** at G1-curious seed 411.
 3. **Open checks of the research note:** the missing ~14k items, the L1GS offset distribution, impulse noise, 6-bit combs.
 
 # Next milestone and its risk
-- **The extended run ends** about Tuesday 2026-11-24 afternoon: G5 about Friday 2026-11-27 early morning (training about 55 h from 12:50 on 2026-11-24, then readouts and walks).
+- **The run is stopped for review** (2026-11-25 20:00). Nothing is running on the GPU.
 - **Risks:**
-  - The recursion readout and the upscaler stages have run only at test size.
-  - Monitoring depends on this Claude session; the pipeline itself restarts on boot, at logon and every 15 minutes.
+  - **The scheduled task `eo_hike_g1` is still enabled** (disabling it was denied from this session). Clearing `halt` would restart the pipeline at the next 15-minute trigger.
+  - **The GPU clock changed during the G5 run** (from about 1,200 to 1,815 MHz since about 18:00 on 2026-11-25; cause unknown). Check it before any further training.
   - One path, one seed per condition: every comparison across generations is a hint.
